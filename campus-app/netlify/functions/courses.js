@@ -15,6 +15,7 @@ exports.handler = async () => {
       body: JSON.stringify(data)
     };
   } catch (err) {
+    console.error('Could not load courses:', err);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
