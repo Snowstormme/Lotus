@@ -1,15 +1,19 @@
-const { getSupabase } = require('../lib/_supabase');
+import { getSupabase } from '../../lib/_supabase.js';
 
-module.exports = async function handler(req, res) {
+function json(body, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+}
+
+export async function onRequestGet(context) {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabase(context.env);
     const { data, error } = await supabase
       .from('classes')
       .select('weekday, start_time, end_time, room, courses!inner(code)')
       .order('weekday', { ascending: true })
       .order('start_time', { ascending: true });
     if (error) throw error;
-    return res.status(200).json(data.map((classItem) => ({
+    return json(data.map((classItem) => ({
       code: classItem.courses.code,
       weekday: classItem.weekday,
       start_time: classItem.start_time,
@@ -18,6 +22,6 @@ module.exports = async function handler(req, res) {
     })));
   } catch (err) {
     console.error('Could not load calendar:', err);
-    return res.status(500).json({ error: 'Could not load the weekly schedule. Check the Supabase settings in Netlify.' });
+    return json({ error: 'Could not load the weekly schedule. Check the Supabase settings in Netlify.' }, 500);
   }
-};
+}

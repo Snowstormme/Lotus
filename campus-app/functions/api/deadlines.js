@@ -1,0 +1,21 @@
+import { getSupabase } from '../../lib/_supabase.js';
+
+function json(body, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+}
+
+export async function onRequestGet(context) {
+  try {
+    const supabase = getSupabase(context.env);
+    const { data: enrollments, error: enrollmentsError } = await supabase.from('enrollments').select('course_id, users!inner(is_demo)').eq('users.is_demo', true);
+    if (enrollmentsError) throw enrollmentsError;
+    const courseIds = Array.from(new Set(enrollments.map((enrollment) => enrollment.course_id)));
+    if (courseIds.length === 0) return json([]);
+    const { data, error } = await supabase.from('deadlines').select('title, type, due_at, courses!inner(code)').in('course_id', courseIds).gte('due_at', new Date().toISOString()).order('due_at', { ascending: true });
+    if (error) throw error;
+    return json(data.map((deadline) => ({ title: deadline.title, code: deadline.courses.code, type: deadline.type, due_at: deadline.due_at })));
+  } catch (err) {
+    console.error('Could not load deadlines:', err);
+    return json({ error: 'Could not load deadlines. Check the Supabase settings in Netlify.' }, 500);
+  }
+}

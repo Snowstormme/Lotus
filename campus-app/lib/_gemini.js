@@ -1,9 +1,9 @@
 const DEFAULT_MODEL = 'gemini-2.5-flash';
 
-async function generatePlan(prompt) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  const model = process.env.GEMINI_MODEL || DEFAULT_MODEL;
-  if (!apiKey) throw new Error('Missing GEMINI_API_KEY in Netlify environment settings');
+async function generatePlan(env, prompt) {
+  const apiKey = env.GEMINI_API_KEY;
+  const model = env.GEMINI_MODEL || DEFAULT_MODEL;
+  if (!apiKey) throw new Error('Missing GEMINI_API_KEY in environment settings');
 
   const endpoint = new URL(
     '/v1beta/models/' + encodeURIComponent(model) + ':generateContent',
@@ -36,4 +36,4 @@ async function generatePlan(prompt) {
   }
 }
 
-module.exports = { generatePlan };
+export { generatePlan };

@@ -1,9 +1,13 @@
-const { getSupabase } = require('../lib/_supabase');
-const { generatePlan } = require('../lib/_gemini');
-const { validatePlan } = require('../lib/_planValidation');
+import { getSupabase } from '../../lib/_supabase.js';
+import { generatePlan } from '../../lib/_gemini.js';
+import { validatePlan } from '../../lib/_planValidation.js';
 
-function getUserId(req) {
-  const rawId = (req.query || {}).user_id;
+function json(body, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+}
+
+function getUserId(context) {
+  const rawId = new URL(context.request.url).searchParams.get('user_id');
   const id = Number(rawId);
   return rawId && Number.isInteger(id) && id > 0 ? id : null;
 }
@@ -66,34 +70,41 @@ function fallbackResponse(savedPlan) {
   return { plan_json: savedPlan.plan_json, source: 'fallback', created_at: savedPlan.created_at, note: 'Showing a saved plan because the AI is unavailable.' };
 }
 
-module.exports = async function handler(req, res) {
-  const userId = getUserId(req);
-  if (!userId) return res.status(400).json({ error: 'A valid demo user id is required.' });
-  if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed.' });
+export async function onRequestGet(context) {
+  return handlePlanRequest(context, false);
+}
+
+export async function onRequestPost(context) {
+  return handlePlanRequest(context, true);
+}
+
+async function handlePlanRequest(context, isGenerate) {
+  const userId = getUserId(context);
+  if (!userId) return json({ error: 'A valid demo user id is required.' }, 400);
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabase(context.env);
     const user = await getDemoUser(supabase, userId);
-    if (!user) return res.status(404).json({ error: 'Demo user not found.' });
+    if (!user) return json({ error: 'Demo user not found.' }, 404);
     const savedPlan = await getSavedPlan(supabase, userId);
-    if (req.method === 'GET') {
-      if (!savedPlan) return res.status(404).json({ error: 'No saved study plan found.' });
-      return res.status(200).json(savedPlan);
+    if (!isGenerate) {
+      if (!savedPlan) return json({ error: 'No saved study plan found.' }, 404);
+      return json(savedPlan);
     }
-    if (savedPlan && Date.now() - new Date(savedPlan.created_at).getTime() < 10000) return res.status(429).json({ error: 'Please wait a few seconds before generating again.' });
+    if (savedPlan && Date.now() - new Date(savedPlan.created_at).getTime() < 10000) return json({ error: 'Please wait a few seconds before generating again.' }, 429);
     try {
       const input = await buildPlanInput(supabase, userId, user.weekly_free_hours);
-      const plan = parseAndValidatePlan(await generatePlan(buildPrompt(input)), user.weekly_free_hours);
+      const plan = parseAndValidatePlan(await generatePlan(context.env, buildPrompt(input)), user.weekly_free_hours);
       const { data: saved, error: saveError } = await supabase.from('study_plans').insert({ user_id: userId, plan_json: plan, source: 'ai' }).select('plan_json, source, created_at').single();
       if (saveError) throw saveError;
-      return res.status(200).json(saved);
+      return json(saved);
     } catch (err) {
       console.error('Could not generate AI study plan:', err);
       const fallback = fallbackResponse(savedPlan);
-      if (fallback) return res.status(200).json(fallback);
-      return res.status(503).json({ error: 'The AI study plan is unavailable and no saved plan exists.' });
+      if (fallback) return json(fallback);
+      return json({ error: 'The AI study plan is unavailable and no saved plan exists.' }, 503);
     }
   } catch (err) {
     console.error('Could not load study plan:', err);
-    return res.status(500).json({ error: 'Could not load the study plan. Check the Supabase settings in Netlify.' });
+    return json({ error: 'Could not load the study plan. Check the Supabase settings in Netlify.' }, 500);
   }
-};
+}
