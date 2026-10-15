@@ -7,30 +7,42 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Course details</h1>
-    <nav><a href="index.html#courses">Back to courses</a></nav>
+  <header class="site-header">
+    <div class="page header-inner">
+      <a class="brand" href="index.html">Campus App</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Campus</a>
+        <a href="index.html#calendar">Calendar</a>
+        <a href="index.html#deadlines">Deadlines</a>
+        <a class="active" aria-current="page" href="index.html#courses">Courses</a>
+        <a href="partners.html?id=1">Partners</a>
+        <a href="cost.html">Cost</a>
+        <a href="plan.html?id=1">Plan</a>
+        <a href="profile.html?id=1">Profile</a>
+      </nav>
+    </div>
   </header>
-  <main>
-    <p id="status">Loading course...</p>
+  <main class="page">
+    <h1 class="page-title">Course details</h1>
+    <p id="status" class="alert info">Loading course...</p>
     <div id="course-content" hidden>
-      <section>
-        <h2 id="course-title"></h2>
-        <p id="course-meta"></p>
+      <section class="card">
+        <h2 class="card-title" id="course-title"></h2>
+        <p class="muted" id="course-meta"></p>
       </section>
 
-      <section>
-        <h2>Syllabus</h2>
+      <section class="card">
+        <h2 class="card-title">Syllabus</h2>
         <p id="syllabus"></p>
       </section>
 
-      <section>
-        <h2>Lecture presentations</h2>
+      <section class="card">
+        <h2 class="card-title">Lecture presentations</h2>
         <div id="presentations"></div>
       </section>
 
-      <section>
-        <h2>Deadlines</h2>
+      <section class="card">
+        <h2 class="card-title">Deadlines</h2>
         <div id="deadlines"></div>
       </section>
     </div>
@@ -40,7 +52,7 @@
       container.replaceChildren();
       const paragraph = document.createElement('p');
       paragraph.textContent = message;
-      if (isError) paragraph.className = 'error';
+      paragraph.className = isError ? 'alert error' : 'empty-state';
       container.appendChild(paragraph);
     }
 
@@ -60,7 +72,7 @@
 
       if (!courseId) {
         status.textContent = 'A valid course id is required.';
-        status.className = 'error';
+        status.className = 'alert error';
         return;
       }
 
@@ -69,7 +81,7 @@
         const body = await response.json().catch(() => ({}));
         if (response.status === 404) {
           status.textContent = 'Course not found.';
-          status.className = 'error';
+          status.className = 'alert error';
           return;
         }
         if (!response.ok) throw new Error('Course request failed');
@@ -120,7 +132,7 @@
         content.hidden = false;
       } catch (e) {
         status.textContent = 'Could not load the course.';
-        status.className = 'error';
+        status.className = 'alert error';
       }
     }
     loadCourse();

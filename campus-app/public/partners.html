@@ -5,27 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Study partners</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .partner-card { border: 1px solid #e5e5e5; background: #fff; margin: 12px 0; max-width: 600px; padding: 16px; }
-    .partner-card h2, .partner-card h3 { margin: 0 0 8px; }
-    .partner-card h3 { font-size: 14px; margin-top: 12px; }
-  </style>
 </head>
 <body>
-  <header>
-    <h1>Study partners</h1>
-    <nav><a href="index.html#partners">Back to campus</a></nav>
+  <header class="site-header">
+    <div class="page header-inner">
+      <a class="brand" href="index.html">Campus App</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Campus</a>
+        <a href="index.html#calendar">Calendar</a>
+        <a href="index.html#deadlines">Deadlines</a>
+        <a href="index.html#courses">Courses</a>
+        <a class="active" aria-current="page" href="partners.html?id=1">Partners</a>
+        <a href="cost.html">Cost</a>
+        <a href="plan.html?id=1">Plan</a>
+        <a href="profile.html?id=1">Profile</a>
+      </nav>
+    </div>
   </header>
-  <main>
-    <p id="status">Loading study partners...</p>
-    <div id="partners-list"></div>
+  <main class="page">
+    <h1 class="page-title">Study partners</h1>
+    <p id="status" class="alert info">Loading study partners...</p>
+    <div id="partners-list" class="grid"></div>
   </main>
   <script>
     function showMessage(container, message, isError) {
       container.replaceChildren();
       const paragraph = document.createElement('p');
       paragraph.textContent = message;
-      if (isError) paragraph.className = 'error';
+      paragraph.className = isError ? 'alert error' : 'empty-state';
       container.appendChild(paragraph);
     }
 
@@ -66,7 +73,7 @@
         list.replaceChildren();
         body.forEach(function (partner) {
           const card = document.createElement('article');
-          card.className = 'partner-card';
+          card.className = 'card partner-card';
           const name = document.createElement('h2');
           name.textContent = partner.name;
           card.appendChild(name);

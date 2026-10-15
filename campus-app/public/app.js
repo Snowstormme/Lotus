@@ -2,13 +2,14 @@ function showMessage(container, message, isError) {
   container.replaceChildren();
   const paragraph = document.createElement('p');
   paragraph.textContent = message;
-  if (isError) paragraph.className = 'error';
+  paragraph.className = isError ? 'alert error' : 'empty-state';
   container.appendChild(paragraph);
 }
 
 function appendTable(container, headings, rows) {
   container.replaceChildren();
   const table = document.createElement('table');
+  table.className = 'table';
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
   headings.forEach(function (heading) {
@@ -36,6 +37,7 @@ function appendTable(container, headings, rows) {
 function appendCourseTable(container, courses) {
   container.replaceChildren();
   const table = document.createElement('table');
+  table.className = 'table';
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
   ['Code', 'Name', 'Teacher', 'Room'].forEach(function (heading) {

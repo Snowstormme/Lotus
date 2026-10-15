@@ -7,18 +7,27 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>AI study plan</h1>
-    <nav>
-      <a href="index.html">Back to campus</a>
-      <a href="cost.html">Cost estimate</a>
-    </nav>
+  <header class="site-header">
+    <div class="page header-inner">
+      <a class="brand" href="index.html">Campus App</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Campus</a>
+        <a href="index.html#calendar">Calendar</a>
+        <a href="index.html#deadlines">Deadlines</a>
+        <a href="index.html#courses">Courses</a>
+        <a href="partners.html?id=1">Partners</a>
+        <a href="cost.html">Cost</a>
+        <a class="active" aria-current="page" href="plan.html?id=1">Plan</a>
+        <a href="profile.html?id=1">Profile</a>
+      </nav>
+    </div>
   </header>
-  <main>
-    <button id="generate" type="button">Generate plan</button>
-    <section aria-live="polite">
-      <p id="status"></p>
-      <p id="source"></p>
+  <main class="page">
+    <h1 class="page-title">AI study plan</h1>
+    <button class="btn primary" id="generate" type="button">Generate plan</button>
+    <section class="card" aria-live="polite">
+      <p id="status" class="alert info" role="status"></p>
+      <p id="source" class="badge"></p>
       <p id="summary"></p>
       <div id="plan"></div>
     </section>
@@ -33,7 +42,7 @@
 
     function setStatus(message, isError) {
       status.textContent = message;
-      status.className = isError ? 'error' : '';
+      status.className = isError ? 'alert error' : '';
     }
 
     function renderPlan(responseBody) {
@@ -44,6 +53,7 @@
 
       if (responseBody.note) {
         const note = document.createElement('p');
+        note.className = 'alert warning';
         note.textContent = responseBody.note;
         planContainer.appendChild(note);
       }
@@ -51,6 +61,7 @@
       if (!plan || !Array.isArray(plan.weeks)) return;
       plan.weeks.forEach(function (week) {
         const weekSection = document.createElement('section');
+        weekSection.className = 'card';
         const heading = document.createElement('h2');
         heading.textContent = 'Week of ' + String(week.week_start || '');
         weekSection.appendChild(heading);

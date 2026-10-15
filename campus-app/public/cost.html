@@ -7,30 +7,34 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Cost estimate</h1>
-    <nav><a href="index.html">Back to campus</a></nav>
+  <header class="site-header">
+    <div class="page header-inner">
+      <a class="brand" href="index.html">Campus App</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Campus</a>
+        <a href="index.html#calendar">Calendar</a>
+        <a href="index.html#deadlines">Deadlines</a>
+        <a href="index.html#courses">Courses</a>
+        <a href="partners.html?id=1">Partners</a>
+        <a class="active" aria-current="page" href="cost.html">Cost</a>
+        <a href="plan.html?id=1">Plan</a>
+        <a href="profile.html?id=1">Profile</a>
+      </nav>
+    </div>
   </header>
-  <main>
-    <form id="cost-form">
-      <label for="study-days">Study days per week</label>
-      <input id="study-days" name="study_days_per_week" type="number" min="0" max="7" step="1" value="3">
-
-      <label for="printed-pages">Printed pages per month</label>
-      <input id="printed-pages" name="printed_pages_per_month" type="number" min="0" max="500" step="1" value="40">
-
-      <label for="campus-trips">Campus trips per week</label>
-      <input id="campus-trips" name="campus_trips_per_week" type="number" min="0" max="14" step="1" value="6">
-
-      <label for="coffees">Coffees per week</label>
-      <input id="coffees" name="coffees_per_week" type="number" min="0" max="14" step="1" value="3">
-
-      <button type="submit">Calculate</button>
+  <main class="page">
+    <h1 class="page-title">Cost estimate</h1>
+    <form id="cost-form" class="card">
+      <div class="field"><label for="study-days">Study days per week</label><input id="study-days" name="study_days_per_week" type="number" min="0" max="7" step="1" value="3"></div>
+      <div class="field"><label for="printed-pages">Printed pages per month</label><input id="printed-pages" name="printed_pages_per_month" type="number" min="0" max="500" step="1" value="40"></div>
+      <div class="field"><label for="campus-trips">Campus trips per week</label><input id="campus-trips" name="campus_trips_per_week" type="number" min="0" max="14" step="1" value="6"></div>
+      <div class="field"><label for="coffees">Coffees per week</label><input id="coffees" name="coffees_per_week" type="number" min="0" max="14" step="1" value="3"></div>
+      <button class="btn primary" type="submit">Calculate</button>
     </form>
 
-    <section aria-live="polite">
-      <p id="status"></p>
-      <p>Estimate only. Prices are approximate and will be updated.</p>
+    <section class="card" aria-live="polite">
+      <p id="status" class="alert info" role="status"></p>
+      <p class="muted">Estimate only. Prices are approximate and will be updated.</p>
       <h2 id="total">Total: —</h2>
       <div id="breakdown"></div>
     </section>
@@ -44,7 +48,7 @@
 
     function showError(message) {
       status.textContent = message;
-      status.className = 'error';
+      status.className = 'alert error';
       total.textContent = 'Total: —';
       breakdown.replaceChildren();
     }
@@ -52,6 +56,7 @@
     function renderBreakdown(items) {
       breakdown.replaceChildren();
       const table = document.createElement('table');
+      table.className = 'table';
       const head = document.createElement('thead');
       const headerRow = document.createElement('tr');
       ['Category', 'Quantity', 'Amount'].forEach(function (heading) {

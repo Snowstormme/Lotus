@@ -5,55 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Profile</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    form { max-width: 720px; }
-    label { display: block; margin: 12px 0 4px; }
-    input { padding: 6px; }
-    input[readonly] { background: #f0f0f0; }
-    .availability-day { margin: 16px 0; }
-    .availability-day h3 { font-size: 15px; margin: 0 0 6px; }
-    .availability-slot { align-items: center; display: flex; gap: 8px; margin: 6px 0; }
-    .availability-slot button, .add-slot { padding: 4px 8px; }
-    #save-status { min-height: 1.5em; }
-  </style>
 </head>
 <body>
-  <header>
-    <h1>Profile</h1>
-    <nav><a href="index.html#courses">Back to courses</a></nav>
+  <header class="site-header">
+    <div class="page header-inner">
+      <a class="brand" href="index.html">Campus App</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Campus</a>
+        <a href="index.html#calendar">Calendar</a>
+        <a href="index.html#deadlines">Deadlines</a>
+        <a href="index.html#courses">Courses</a>
+        <a href="partners.html?id=1">Partners</a>
+        <a href="cost.html">Cost</a>
+        <a href="plan.html?id=1">Plan</a>
+        <a class="active" aria-current="page" href="profile.html?id=1">Profile</a>
+      </nav>
+    </div>
   </header>
-  <main>
-    <p>Demo mode: only the demo student can be edited. Real accounts come in the next phase.</p>
-    <p id="load-status">Loading profile...</p>
-    <form id="profile-form" hidden>
+  <main class="page">
+    <h1 class="page-title">Profile</h1>
+    <p class="alert info">Demo mode: only the demo student can be edited. Real accounts come in the next phase.</p>
+    <p id="load-status" class="alert info">Loading profile...</p>
+    <form id="profile-form" class="card" hidden>
       <section>
-        <h2>Profile details</h2>
-        <label for="name">Name</label>
-        <input id="name" type="text" readonly>
-
-        <label for="university">University</label>
-        <input id="university" type="text" readonly>
-
-        <label for="faculty">Faculty</label>
-        <input id="faculty" type="text" readonly>
-
-        <label for="year">Year (1 to 6)</label>
-        <input id="year" type="number" min="1" max="6" step="1" required>
-
-        <label for="languages">Languages (maximum 50 characters)</label>
-        <input id="languages" type="text" maxlength="50" required>
-
-        <label for="weekly-free-hours">Weekly free hours (0 to 60)</label>
-        <input id="weekly-free-hours" type="number" min="0" max="60" step="1" required>
+        <h2 class="card-title">Profile details</h2>
+        <div class="field"><label for="name">Name</label><input id="name" type="text" readonly></div>
+        <div class="field"><label for="university">University</label><input id="university" type="text" readonly></div>
+        <div class="field"><label for="faculty">Faculty</label><input id="faculty" type="text" readonly></div>
+        <div class="field"><label for="year">Year (1 to 6)</label><input id="year" type="number" min="1" max="6" step="1" required></div>
+        <div class="field"><label for="languages">Languages (maximum 50 characters)</label><input id="languages" type="text" maxlength="50" required></div>
+        <div class="field"><label for="weekly-free-hours">Weekly free hours (0 to 60)</label><input id="weekly-free-hours" type="number" min="0" max="60" step="1" required></div>
       </section>
 
       <section>
-        <h2>Weekly availability</h2>
+        <h2 class="card-title">Weekly availability</h2>
         <div id="availability-editor"></div>
       </section>
 
-      <button type="submit">Save profile</button>
-      <p id="save-status" role="status"></p>
+      <button class="btn primary" type="submit">Save profile</button>
+      <p id="save-status" class="alert" role="status"></p>
     </form>
   </main>
   <script>
@@ -62,7 +52,7 @@
 
     function showMessage(container, message, isError) {
       container.textContent = message;
-      container.className = isError ? 'error' : '';
+      container.className = isError ? 'alert error' : 'alert success';
     }
 
     function addSlot(dayIndex, values) {
