@@ -1,0 +1,16 @@
+{
+  "name": "campus-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Campus platform for university students in Azerbaijan",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "seed": "node scripts/seed.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "express": "^4.19.2"
+  }
+}
