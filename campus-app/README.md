@@ -1,4 +1,4 @@
-# Campus App
+# Lotus Campus
 
 A campus platform for university students in Azerbaijan: calendar, deadlines, courses, study-partner matching, and a free AI study planner.
 
