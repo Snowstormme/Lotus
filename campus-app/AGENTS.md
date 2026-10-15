@@ -19,6 +19,8 @@ Campus app for university students in Azerbaijan. Phase 1 is a weekend demo. Ful
 - Add a visible label for every form input and preserve the shared focus outline and 44px tap-target minimum.
 - Every data view must include a readable loading state, empty state, and error state where applicable.
 
+The `config` function is the only function allowed to return a key, and it may return only the Supabase publishable key. Never return service-role, Gemini, or other secret keys.
+
 ## Folder layout
 - `server/index.js`: Express app and routes
 - `server/db.js`: database connection and schema
