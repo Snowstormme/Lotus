@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Course details</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Course details</h1>
+    <nav><a href="index.html#courses">Back to courses</a></nav>
+  </header>
+  <main>
+    <p id="status">Loading course...</p>
+    <div id="course-content" hidden>
+      <section>
+        <h2 id="course-title"></h2>
+        <p id="course-meta"></p>
+      </section>
+
+      <section>
+        <h2>Syllabus</h2>
+        <p id="syllabus"></p>
+      </section>
+
+      <section>
+        <h2>Lecture presentations</h2>
+        <div id="presentations"></div>
+      </section>
+
+      <section>
+        <h2>Deadlines</h2>
+        <div id="deadlines"></div>
+      </section>
+    </div>
+  </main>
+  <script>
+    function showMessage(container, message, isError) {
+      container.replaceChildren();
+      const paragraph = document.createElement('p');
+      paragraph.textContent = message;
+      if (isError) paragraph.className = 'error';
+      container.appendChild(paragraph);
+    }
+
+    function safeHttpUrl(value) {
+      try {
+        const url = new URL(value);
+        return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function loadCourse() {
+      const status = document.getElementById('status');
+      const content = document.getElementById('course-content');
+      const courseId = new URLSearchParams(window.location.search).get('id');
+
+      if (!courseId) {
+        status.textContent = 'A valid course id is required.';
+        status.className = 'error';
+        return;
+      }
+
+      try {
+        const response = await fetch('/.netlify/functions/course?id=' + encodeURIComponent(courseId));
+        const body = await response.json().catch(() => ({}));
+        if (response.status === 404) {
+          status.textContent = 'Course not found.';
+          status.className = 'error';
+          return;
+        }
+        if (!response.ok) throw new Error('Course request failed');
+
+        const course = body.course;
+        document.getElementById('course-title').textContent = (course.name || '') + ' (' + (course.code || '') + ')';
+        document.getElementById('course-meta').textContent = 'Teacher: ' + (course.teacher || '—') + ' · Room: ' + (course.room || '—');
+        document.getElementById('syllabus').textContent = course.syllabus || 'No syllabus available.';
+
+        const presentations = document.getElementById('presentations');
+        const lectureFiles = (body.files || []).filter(function (file) {
+          return file.kind === 'presentation';
+        });
+        if (lectureFiles.length === 0) {
+          showMessage(presentations, 'No lecture presentations found.');
+        } else {
+          const list = document.createElement('ul');
+          lectureFiles.forEach(function (file) {
+            const item = document.createElement('li');
+            const safeUrl = safeHttpUrl(file.url);
+            if (safeUrl) {
+              const link = document.createElement('a');
+              link.href = safeUrl;
+              link.textContent = file.title || 'Untitled presentation';
+              item.appendChild(link);
+            } else {
+              item.textContent = file.title || 'Untitled presentation';
+            }
+            list.appendChild(item);
+          });
+          presentations.replaceChildren(list);
+        }
+
+        const deadlines = document.getElementById('deadlines');
+        if (!body.deadlines || body.deadlines.length === 0) {
+          showMessage(deadlines, 'No deadlines found.');
+        } else {
+          const list = document.createElement('ul');
+          body.deadlines.forEach(function (deadline) {
+            const item = document.createElement('li');
+            item.textContent = (deadline.title || '') + ' — ' + (deadline.type || ' deadline') + ' · ' + (deadline.due_at || '');
+            list.appendChild(item);
+          });
+          deadlines.replaceChildren(list);
+        }
+
+        status.textContent = 'Course loaded.';
+        content.hidden = false;
+      } catch (e) {
+        status.textContent = 'Could not load the course.';
+        status.className = 'error';
+      }
+    }
+    loadCourse();
+  </script>
+</body>
+</html>

@@ -33,6 +33,40 @@ function appendTable(container, headings, rows) {
   container.appendChild(table);
 }
 
+function appendCourseTable(container, courses) {
+  container.replaceChildren();
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  ['Code', 'Name', 'Teacher', 'Room'].forEach(function (heading) {
+    const cell = document.createElement('th');
+    cell.textContent = heading;
+    headerRow.appendChild(cell);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  courses.forEach(function (course) {
+    const row = document.createElement('tr');
+    const codeCell = document.createElement('td');
+    const link = document.createElement('a');
+    link.href = 'course.html?id=' + encodeURIComponent(course.id);
+    link.textContent = course.code == null ? '' : String(course.code);
+    codeCell.appendChild(link);
+    row.appendChild(codeCell);
+
+    [course.name, course.teacher, course.room].forEach(function (value) {
+      const cell = document.createElement('td');
+      cell.textContent = value == null ? '' : String(value);
+      row.appendChild(cell);
+    });
+    tbody.appendChild(row);
+  });
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+
 async function init() {
   const status = document.getElementById('status');
   const studentsSection = document.getElementById('students');
@@ -81,9 +115,7 @@ async function init() {
         if (courses.length === 0) {
           showMessage(coursesSection, 'No courses found.');
         } else {
-          appendTable(coursesSection, ['Code', 'Name', 'Teacher', 'Room'], courses.map(function (course) {
-            return [course.code, course.name, course.teacher, course.room];
-          }));
+          appendCourseTable(coursesSection, courses);
         }
       }
     } catch (e) {
