@@ -73,7 +73,10 @@ async function init() {
   const coursesSection = document.getElementById('courses-list');
   const deadlinesSection = document.getElementById('deadlines-list');
   const scheduleSection = document.getElementById('schedule-list');
+  const profileLink = document.querySelector('a[href="#profile"]');
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+  if (profileLink) profileLink.href = 'profile.html?id=1';
 
   try {
     // Health check
