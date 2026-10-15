@@ -1,0 +1,5 @@
+# The app lives in the campus-app subdirectory.
+# Netlify reads this file first, then switches to campus-app/netlify.toml
+# for publish, functions, and all other settings.
+[build]
+  base = "campus-app"
