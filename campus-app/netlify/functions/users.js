@@ -16,10 +16,11 @@ exports.handler = async () => {
       body: JSON.stringify(data)
     };
   } catch (err) {
+    // TEMPORARY: expose Supabase error details for debugging only.
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Could not load users. Check the Supabase settings in Netlify.' })
+      body: JSON.stringify({ error: err.message, code: err.code })
     };
   }
 };
