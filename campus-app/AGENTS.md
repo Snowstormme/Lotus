@@ -12,6 +12,13 @@ Campus app for university students in Azerbaijan. Phase 1 is a weekend demo. Ful
 - Keep dependencies minimal. Ask before adding a new one.
 - Keep changes small. One feature per pull request. Explain what you changed and how to test it.
 
+## Design rules
+- Use only the reusable classes and CSS custom-property tokens defined in `public/style.css`.
+- Do not add inline styles or new colors without adding a matching design token to `public/style.css`.
+- Build mobile-first layouts that work at 360px width; use the existing responsive utilities for larger screens.
+- Add a visible label for every form input and preserve the shared focus outline and 44px tap-target minimum.
+- Every data view must include a readable loading state, empty state, and error state where applicable.
+
 ## Folder layout
 - `server/index.js`: Express app and routes
 - `server/db.js`: database connection and schema
