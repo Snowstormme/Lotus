@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lotus Campus — Sign up</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page header-inner">
+      <a class="brand" href="index.html">Lotus Campus</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Campus</a>
+        <a href="index.html#calendar">Calendar</a>
+        <a href="index.html#deadlines">Deadlines</a>
+        <a href="index.html#courses">Courses</a>
+        <a href="partners.html?id=1">Partners</a>
+        <a href="cost.html">Cost</a>
+        <a href="plan.html?id=1">Plan</a>
+        <a href="profile.html?id=1">Profile</a>
+        <span class="auth-actions" id="auth-actions">
+          <a id="login-link" href="login.html">Log in</a>
+          <a class="active" aria-current="page" id="signup-link" href="signup.html">Sign up</a>
+          <a id="logout-link" href="index.html" hidden>Log out</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+  <main class="page">
+    <h1 class="page-title">Sign up</h1>
+    <form id="signup-form" class="card">
+      <div class="field">
+        <label for="full-name">Full name</label>
+        <input id="full-name" name="full_name" type="text" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="password">Password (minimum 8 characters)</label>
+        <input id="password" name="password" type="password" minlength="8" autocomplete="new-password" required>
+      </div>
+      <button class="btn primary" type="submit">Create account</button>
+      <p id="message" class="alert" role="status" aria-live="polite"></p>
+    </form>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+  <script src="js/header-auth.js"></script>
+  <script>
+    let client;
+    const form = document.getElementById('signup-form');
+    const message = document.getElementById('message');
+
+    function showMessage(text, isError) {
+      message.textContent = text;
+      message.className = isError ? 'alert error' : 'alert success';
+    }
+
+    async function loadClient() {
+      const response = await fetch('/.netlify/functions/config');
+      if (!response.ok) throw new Error('Configuration unavailable');
+      const config = await response.json();
+      if (!config.supabaseUrl || !config.supabasePublishableKey || !window.supabase) {
+        throw new Error('Configuration unavailable');
+      }
+      client = window.supabase.createClient(config.supabaseUrl, config.supabasePublishableKey);
+    }
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const password = document.getElementById('password').value;
+      if (password.length < 8) {
+        showMessage('Password must be at least 8 characters.', true);
+        return;
+      }
+      try {
+        if (!client) await loadClient();
+        const result = await client.auth.signUp({
+          email: document.getElementById('email').value,
+          password,
+          options: { data: { full_name: document.getElementById('full-name').value } }
+        });
+        if (result.error) throw result.error;
+        showMessage('Account created. Check your email for the confirmation link.', false);
+        form.reset();
+      } catch (error) {
+        showMessage('Could not create the account. Please check your details and try again.', true);
+      }
+    });
+  </script>
+</body>
+</html>

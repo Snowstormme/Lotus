@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lotus Campus — Log in</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page header-inner">
+      <a class="brand" href="index.html">Lotus Campus</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Campus</a>
+        <a href="index.html#calendar">Calendar</a>
+        <a href="index.html#deadlines">Deadlines</a>
+        <a href="index.html#courses">Courses</a>
+        <a href="partners.html?id=1">Partners</a>
+        <a href="cost.html">Cost</a>
+        <a href="plan.html?id=1">Plan</a>
+        <a href="profile.html?id=1">Profile</a>
+        <span class="auth-actions" id="auth-actions">
+          <a class="active" aria-current="page" id="login-link" href="login.html">Log in</a>
+          <a id="signup-link" href="signup.html">Sign up</a>
+          <a id="logout-link" href="index.html" hidden>Log out</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+  <main class="page">
+    <h1 class="page-title">Log in</h1>
+    <form id="login-form" class="card">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Log in</button>
+        <a id="forgot-password" href="#">Forgot password?</a>
+      </div>
+      <p id="message" class="alert" role="status" aria-live="polite"></p>
+    </form>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+  <script src="js/header-auth.js"></script>
+  <script>
+    let client;
+    const form = document.getElementById('login-form');
+    const message = document.getElementById('message');
+
+    function showMessage(text, isError) {
+      message.textContent = text;
+      message.className = isError ? 'alert error' : 'alert success';
+    }
+
+    async function loadClient() {
+      const response = await fetch('/.netlify/functions/config');
+      if (!response.ok) throw new Error('Configuration unavailable');
+      const config = await response.json();
+      if (!config.supabaseUrl || !config.supabasePublishableKey || !window.supabase) {
+        throw new Error('Configuration unavailable');
+      }
+      client = window.supabase.createClient(config.supabaseUrl, config.supabasePublishableKey);
+    }
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      try {
+        if (!client) await loadClient();
+        const result = await client.auth.signInWithPassword({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value
+        });
+        if (result.error) throw result.error;
+        window.location.href = 'onboarding.html';
+      } catch (error) {
+        showMessage('Email or password is not correct.', true);
+      }
+    });
+
+    document.getElementById('forgot-password').addEventListener('click', async function (event) {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+      if (!email) {
+        showMessage('Enter your email first.', true);
+        return;
+      }
+      try {
+        if (!client) await loadClient();
+        const result = await client.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + '/login.html'
+        });
+        if (result.error) throw result.error;
+        showMessage('Password reset email sent. Check your inbox.', false);
+      } catch (error) {
+        showMessage('Could not send a password reset email.', true);
+      }
+    });
+  </script>
+</body>
+</html>

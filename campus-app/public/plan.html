@@ -19,6 +19,11 @@
         <a href="cost.html">Cost</a>
         <a class="active" aria-current="page" href="plan.html?id=1">Plan</a>
         <a href="profile.html?id=1">Profile</a>
+        <span class="auth-actions" id="auth-actions">
+          <a id="login-link" href="login.html">Log in</a>
+          <a id="signup-link" href="signup.html">Sign up</a>
+          <a id="logout-link" href="index.html" hidden>Log out</a>
+        </span>
       </nav>
     </div>
   </header>
@@ -104,5 +109,6 @@
     generateButton.addEventListener('click', function () { requestPlan('POST'); });
     requestPlan('GET');
   </script>
+  <script src="js/header-auth.js"></script>
 </body>
 </html>
