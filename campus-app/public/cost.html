@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cost estimate</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Cost estimate</h1>
+    <nav><a href="index.html">Back to campus</a></nav>
+  </header>
+  <main>
+    <form id="cost-form">
+      <label for="study-days">Study days per week</label>
+      <input id="study-days" name="study_days_per_week" type="number" min="0" max="7" step="1" value="3">
+
+      <label for="printed-pages">Printed pages per month</label>
+      <input id="printed-pages" name="printed_pages_per_month" type="number" min="0" max="500" step="1" value="40">
+
+      <label for="campus-trips">Campus trips per week</label>
+      <input id="campus-trips" name="campus_trips_per_week" type="number" min="0" max="14" step="1" value="6">
+
+      <label for="coffees">Coffees per week</label>
+      <input id="coffees" name="coffees_per_week" type="number" min="0" max="14" step="1" value="3">
+
+      <button type="submit">Calculate</button>
+    </form>
+
+    <section aria-live="polite">
+      <p id="status"></p>
+      <p>Estimate only. Prices are approximate and will be updated.</p>
+      <h2 id="total">Total: —</h2>
+      <div id="breakdown"></div>
+    </section>
+  </main>
+  <script>
+    const form = document.getElementById('cost-form');
+    const status = document.getElementById('status');
+    const total = document.getElementById('total');
+    const breakdown = document.getElementById('breakdown');
+    const fields = Array.from(form.querySelectorAll('input'));
+
+    function showError(message) {
+      status.textContent = message;
+      status.className = 'error';
+      total.textContent = 'Total: —';
+      breakdown.replaceChildren();
+    }
+
+    function renderBreakdown(items) {
+      breakdown.replaceChildren();
+      const table = document.createElement('table');
+      const head = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      ['Category', 'Quantity', 'Amount'].forEach(function (heading) {
+        const cell = document.createElement('th');
+        cell.textContent = heading;
+        headerRow.appendChild(cell);
+      });
+      head.appendChild(headerRow);
+      table.appendChild(head);
+
+      const body = document.createElement('tbody');
+      items.forEach(function (item) {
+        const row = document.createElement('tr');
+        [item.label, item.quantity, item.amount_azn + ' AZN'].forEach(function (value) {
+          const cell = document.createElement('td');
+          cell.textContent = String(value);
+          row.appendChild(cell);
+        });
+        body.appendChild(row);
+      });
+      table.appendChild(body);
+      breakdown.appendChild(table);
+    }
+
+    async function calculate(event) {
+      if (event) event.preventDefault();
+      const params = new URLSearchParams();
+      fields.forEach(function (field) {
+        params.set(field.name, field.value);
+      });
+      status.textContent = 'Calculating...';
+      status.className = '';
+      try {
+        const response = await fetch('/.netlify/functions/cost-estimate?' + params.toString());
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(body.error || 'Cost request failed');
+        status.textContent = '';
+        total.textContent = 'Total: ' + body.total_azn + ' AZN';
+        renderBreakdown(body.breakdown);
+      } catch (err) {
+        showError('Could not load the cost estimate.');
+      }
+    }
+
+    form.addEventListener('submit', calculate);
+    fields.forEach(function (field) {
+      field.addEventListener('change', calculate);
+    });
+    calculate();
+  </script>
+</body>
+</html>
