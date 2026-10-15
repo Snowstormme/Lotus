@@ -4,7 +4,7 @@ A campus platform for university students in Azerbaijan: calendar, deadlines, co
 
 ## Environment
 
-Deploy on Vercel. Add these environment variables in Project Settings > Environment Variables: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEY, GEMINI_API_KEY.
+Deploy on Cloudflare Pages. Connect the GitHub repository, leave the build command empty, set the output directory to public. Add these environment variables under Settings > Environment variables for Production and Preview: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEY, GEMINI_API_KEY.
 
 Never put these values in client files or commit them to Git.
 
@@ -15,7 +15,7 @@ Not in scope: grades, attendance, online library. See `AGENTS.md`.
 
 ## Supabase setup
 
-The Vercel functions connect to a Supabase (Postgres) database. Follow these steps once.
+The Cloudflare Pages Functions connect to a Supabase (Postgres) database. Follow these steps once.
 
 ### 1. Set up Supabase
 

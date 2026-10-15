@@ -21,6 +21,10 @@ Campus app for university students in Azerbaijan. Phase 1 is a weekend demo. Ful
 
 The `config` function is the only function allowed to return a key, and it may return only the Supabase publishable key. Never return service-role, Gemini, or other secret keys.
 
+## Deployment
+
+Deploy on Cloudflare Pages. Connect the GitHub repository, leave the build command empty, set the output directory to public. Add these environment variables under Settings > Environment variables for Production and Preview: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEY, GEMINI_API_KEY.
+
 ## Folder layout
 - `server/index.js`: Express app and routes
 - `server/db.js`: database connection and schema
