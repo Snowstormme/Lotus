@@ -170,6 +170,10 @@ async function init() {
     }
   } catch (err) {
     status.textContent = 'Could not reach the server functions. Check the Netlify deploy.';
+    showMessage(studentsSection, 'Could not load students.', true);
+    showMessage(coursesSection, 'Could not load courses.', true);
+    showMessage(deadlinesSection, 'Could not load deadlines.', true);
+    showMessage(scheduleSection, 'Could not load weekly schedule.', true);
   }
 }
 init();
