@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { matchStudyPartners } = require('../netlify/functions/_matching');
+const { matchStudyPartners } = require('../lib/_matching');
 
 const partners = matchStudyPartners({
   requestingUserId: 1,

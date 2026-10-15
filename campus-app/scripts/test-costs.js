@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { estimateMonthlyCost } = require('../netlify/functions/_costs');
+const { estimateMonthlyCost } = require('../lib/_costs');
 
 const defaults = estimateMonthlyCost({});
 assert.strictEqual(defaults.valid, true);

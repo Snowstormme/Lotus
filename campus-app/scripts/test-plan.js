@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { validatePlan } = require('../netlify/functions/_planValidation');
+const { validatePlan } = require('../lib/_planValidation');
 
 const validPlan = {
   weeks: [{
