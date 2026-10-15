@@ -1,7 +1,45 @@
+function showMessage(container, message, isError) {
+  container.replaceChildren();
+  const paragraph = document.createElement('p');
+  paragraph.textContent = message;
+  if (isError) paragraph.className = 'error';
+  container.appendChild(paragraph);
+}
+
+function appendTable(container, headings, rows) {
+  container.replaceChildren();
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  headings.forEach(function (heading) {
+    const cell = document.createElement('th');
+    cell.textContent = heading;
+    headerRow.appendChild(cell);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  rows.forEach(function (values) {
+    const row = document.createElement('tr');
+    values.forEach(function (value) {
+      const cell = document.createElement('td');
+      cell.textContent = value == null ? '' : String(value);
+      row.appendChild(cell);
+    });
+    tbody.appendChild(row);
+  });
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+
 async function init() {
   const status = document.getElementById('status');
   const studentsSection = document.getElementById('students');
   const coursesSection = document.getElementById('courses-list');
+  const deadlinesSection = document.getElementById('deadlines-list');
+  const scheduleSection = document.getElementById('schedule-list');
+  const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   try {
     // Health check
@@ -14,47 +52,80 @@ async function init() {
     try {
       const usersRes = await fetch('/.netlify/functions/users');
       if (!usersRes.ok) {
-        const body = await usersRes.json().catch(() => ({}));
-        studentsSection.innerHTML = '<p class="error">Could not load students: ' +
-          (body.error || 'unknown error') + '</p>';
+        showMessage(studentsSection, 'Could not load students.', true);
       } else {
         const users = await usersRes.json();
         if (users.length === 0) {
-          studentsSection.innerHTML = '<p>No demo students found.</p>';
+          showMessage(studentsSection, 'No demo students found.');
         } else {
-          const list = users.map(function (u) {
-            return '<li>' + u.name + ' — Year ' + u.year + '</li>';
-          }).join('');
-          studentsSection.innerHTML = '<ul>' + list + '</ul>';
+          const list = document.createElement('ul');
+          users.forEach(function (user) {
+            const item = document.createElement('li');
+            item.textContent = user.name + ' — Year ' + user.year;
+            list.appendChild(item);
+          });
+          studentsSection.replaceChildren(list);
         }
       }
     } catch (e) {
-      studentsSection.innerHTML = '<p class="error">Failed to load students.</p>';
+      showMessage(studentsSection, 'Could not load students.', true);
     }
 
     // Load courses
     try {
       const coursesRes = await fetch('/.netlify/functions/courses');
       if (!coursesRes.ok) {
-        const body = await coursesRes.json().catch(() => ({}));
-        coursesSection.innerHTML = '<p class="error">Could not load courses: ' +
-          (body.error || 'unknown error') + '</p>';
+        showMessage(coursesSection, 'Could not load courses.', true);
       } else {
         const courses = await coursesRes.json();
         if (courses.length === 0) {
-          coursesSection.innerHTML = '<p>No courses found.</p>';
+          showMessage(coursesSection, 'No courses found.');
         } else {
-          var rows = courses.map(function (c) {
-            return '<tr><td>' + c.code + '</td><td>' + c.name +
-              '</td><td>' + c.teacher + '</td><td>' + c.room + '</td></tr>';
-          }).join('');
-          coursesSection.innerHTML =
-            '<table><thead><tr><th>Code</th><th>Name</th><th>Teacher</th><th>Room</th></tr></thead>' +
-            '<tbody>' + rows + '</tbody></table>';
+          appendTable(coursesSection, ['Code', 'Name', 'Teacher', 'Room'], courses.map(function (course) {
+            return [course.code, course.name, course.teacher, course.room];
+          }));
         }
       }
     } catch (e) {
-      coursesSection.innerHTML = '<p class="error">Failed to load courses.</p>';
+      showMessage(coursesSection, 'Could not load courses.', true);
+    }
+
+    // Load upcoming deadlines
+    try {
+      const deadlinesRes = await fetch('/.netlify/functions/deadlines');
+      if (!deadlinesRes.ok) {
+        showMessage(deadlinesSection, 'Could not load deadlines.', true);
+      } else {
+        const deadlines = await deadlinesRes.json();
+        if (deadlines.length === 0) {
+          showMessage(deadlinesSection, 'No upcoming deadlines found.');
+        } else {
+          appendTable(deadlinesSection, ['Title', 'Course', 'Type', 'Due'], deadlines.map(function (deadline) {
+            return [deadline.title, deadline.code, deadline.type, deadline.due_at];
+          }));
+        }
+      }
+    } catch (e) {
+      showMessage(deadlinesSection, 'Could not load deadlines.', true);
+    }
+
+    // Load the weekly class schedule
+    try {
+      const scheduleRes = await fetch('/.netlify/functions/calendar');
+      if (!scheduleRes.ok) {
+        showMessage(scheduleSection, 'Could not load weekly schedule.', true);
+      } else {
+        const schedule = await scheduleRes.json();
+        if (schedule.length === 0) {
+          showMessage(scheduleSection, 'No classes scheduled.');
+        } else {
+          appendTable(scheduleSection, ['Course', 'Day', 'Start', 'End', 'Room'], schedule.map(function (classItem) {
+            return [classItem.code, weekdays[classItem.weekday] || 'Unknown day', classItem.start_time, classItem.end_time, classItem.room];
+          }));
+        }
+      }
+    } catch (e) {
+      showMessage(scheduleSection, 'Could not load weekly schedule.', true);
     }
   } catch (err) {
     status.textContent = 'Could not reach the server functions. Check the Netlify deploy.';
