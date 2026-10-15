@@ -95,7 +95,7 @@
       status.textContent = 'Calculating...';
       status.className = '';
       try {
-        const response = await fetch('/.netlify/functions/cost-estimate?' + params.toString());
+        const response = await fetch('/api/cost-estimate?' + params.toString());
         const body = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(body.error || 'Cost request failed');
         status.textContent = '';

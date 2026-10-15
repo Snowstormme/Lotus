@@ -151,8 +151,8 @@
       const id = new URLSearchParams(window.location.search).get('id') || '1';
       try {
         const [profileResponse, availabilityResponse] = await Promise.all([
-          fetch('/.netlify/functions/profile?id=' + encodeURIComponent(id)),
-          fetch('/.netlify/functions/availability?user_id=' + encodeURIComponent(id))
+          fetch('/api/profile?id=' + encodeURIComponent(id)),
+          fetch('/api/availability?user_id=' + encodeURIComponent(id))
         ]);
         const profile = await profileResponse.json().catch(() => ({}));
         const availability = await availabilityResponse.json().catch(() => []);
@@ -192,12 +192,12 @@
       const id = new URLSearchParams(window.location.search).get('id') || '1';
       try {
         const [profileResponse, availabilityResponse] = await Promise.all([
-          fetch('/.netlify/functions/profile?id=' + encodeURIComponent(id), {
+          fetch('/api/profile?id=' + encodeURIComponent(id), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ year, languages, weekly_free_hours: weeklyFreeHours })
           }),
-          fetch('/.netlify/functions/availability?user_id=' + encodeURIComponent(id), {
+          fetch('/api/availability?user_id=' + encodeURIComponent(id), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(slots)

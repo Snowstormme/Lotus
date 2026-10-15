@@ -17,7 +17,7 @@
   }
 
   try {
-    const configResponse = await fetch('/.netlify/functions/config');
+    const configResponse = await fetch('/api/config');
     if (!configResponse.ok) return;
     const config = await configResponse.json();
     const browserClient = await loadBrowserClient();

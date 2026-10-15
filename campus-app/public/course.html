@@ -82,7 +82,7 @@
       }
 
       try {
-        const response = await fetch('/.netlify/functions/course?id=' + encodeURIComponent(courseId));
+        const response = await fetch('/api/course?id=' + encodeURIComponent(courseId));
         const body = await response.json().catch(() => ({}));
         if (response.status === 404) {
           status.textContent = 'Course not found.';

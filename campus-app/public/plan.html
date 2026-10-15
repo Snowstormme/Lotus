@@ -92,7 +92,7 @@
       setStatus(method === 'POST' ? 'Generating plan...' : 'Loading saved plan...', false);
       generateButton.disabled = method === 'POST';
       try {
-        const response = await fetch('/.netlify/functions/plan?user_id=' + encodeURIComponent(userId), {
+        const response = await fetch('/api/plan?user_id=' + encodeURIComponent(userId), {
           method: method
         });
         const body = await response.json().catch(function () { return {}; });

@@ -58,7 +58,7 @@
     }
 
     async function loadClient() {
-      const response = await fetch('/.netlify/functions/config');
+      const response = await fetch('/api/config');
       if (!response.ok) throw new Error('Configuration unavailable');
       const config = await response.json();
       if (!config.supabaseUrl || !config.supabasePublishableKey || !window.supabase) {

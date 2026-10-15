@@ -88,14 +88,14 @@ async function init() {
 
   try {
     // Health check
-    const healthRes = await fetch('/.netlify/functions/health');
+    const healthRes = await fetch('/api/health');
     const healthData = await healthRes.json();
     if (!healthData.ok) throw new Error('Health check failed');
     status.textContent = 'Connected to server.';
 
     // Load demo students
     try {
-      const usersRes = await fetch('/.netlify/functions/users');
+    const usersRes = await fetch('/api/users');
       if (!usersRes.ok) {
         showMessage(studentsSection, 'Could not load students.', true);
       } else {
@@ -118,7 +118,7 @@ async function init() {
 
     // Load courses
     try {
-      const coursesRes = await fetch('/.netlify/functions/courses');
+    const coursesRes = await fetch('/api/courses');
       if (!coursesRes.ok) {
         showMessage(coursesSection, 'Could not load courses.', true);
       } else {
@@ -135,7 +135,7 @@ async function init() {
 
     // Load upcoming deadlines
     try {
-      const deadlinesRes = await fetch('/.netlify/functions/deadlines');
+    const deadlinesRes = await fetch('/api/deadlines');
       if (!deadlinesRes.ok) {
         showMessage(deadlinesSection, 'Could not load deadlines.', true);
       } else {
@@ -154,7 +154,7 @@ async function init() {
 
     // Load the weekly class schedule
     try {
-      const scheduleRes = await fetch('/.netlify/functions/calendar');
+    const scheduleRes = await fetch('/api/calendar');
       if (!scheduleRes.ok) {
         showMessage(scheduleSection, 'Could not load weekly schedule.', true);
       } else {
@@ -171,7 +171,7 @@ async function init() {
       showMessage(scheduleSection, 'Could not load weekly schedule.', true);
     }
   } catch (err) {
-    status.textContent = 'Could not reach the server functions. Check the Netlify deploy.';
+    status.textContent = 'Could not reach the server functions. Check the deployment.';
     showMessage(studentsSection, 'Could not load students.', true);
     showMessage(coursesSection, 'Could not load courses.', true);
     showMessage(deadlinesSection, 'Could not load deadlines.', true);

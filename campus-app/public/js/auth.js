@@ -12,7 +12,7 @@ function loadBrowserClient() {
 }
 
 async function getClient() {
-  const response = await fetch('/.netlify/functions/config');
+  const response = await fetch('/api/config');
   if (!response.ok) throw new Error('Could not load public configuration.');
   const config = await response.json();
   if (!config.supabaseUrl || !config.supabasePublishableKey) {

@@ -65,7 +65,7 @@
       const list = document.getElementById('partners-list');
       const id = new URLSearchParams(window.location.search).get('id') || '1';
       try {
-        const response = await fetch('/.netlify/functions/partners?user_id=' + encodeURIComponent(id));
+        const response = await fetch('/api/partners?user_id=' + encodeURIComponent(id));
         const body = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(body.error || 'Partner request failed');
         if (body.length === 0) {
