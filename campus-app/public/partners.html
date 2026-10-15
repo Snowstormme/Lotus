@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Study partners</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .partner-card { border: 1px solid #e5e5e5; background: #fff; margin: 12px 0; max-width: 600px; padding: 16px; }
+    .partner-card h2, .partner-card h3 { margin: 0 0 8px; }
+    .partner-card h3 { font-size: 14px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Study partners</h1>
+    <nav><a href="index.html#partners">Back to campus</a></nav>
+  </header>
+  <main>
+    <p id="status">Loading study partners...</p>
+    <div id="partners-list"></div>
+  </main>
+  <script>
+    function showMessage(container, message, isError) {
+      container.replaceChildren();
+      const paragraph = document.createElement('p');
+      paragraph.textContent = message;
+      if (isError) paragraph.className = 'error';
+      container.appendChild(paragraph);
+    }
+
+    function appendList(card, headingText, values, emptyText) {
+      const heading = document.createElement('h3');
+      heading.textContent = headingText;
+      card.appendChild(heading);
+      if (!values || values.length === 0) {
+        const empty = document.createElement('p');
+        empty.textContent = emptyText;
+        card.appendChild(empty);
+        return;
+      }
+      const list = document.createElement('ul');
+      values.forEach(function (value) {
+        const item = document.createElement('li');
+        item.textContent = value;
+        list.appendChild(item);
+      });
+      card.appendChild(list);
+    }
+
+    async function loadPartners() {
+      const status = document.getElementById('status');
+      const list = document.getElementById('partners-list');
+      const id = new URLSearchParams(window.location.search).get('id') || '1';
+      try {
+        const response = await fetch('/.netlify/functions/partners?user_id=' + encodeURIComponent(id));
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(body.error || 'Partner request failed');
+        if (body.length === 0) {
+          status.textContent = 'Study partners';
+          showMessage(list, 'No study partners found yet.');
+          return;
+        }
+
+        status.textContent = 'Study partners';
+        list.replaceChildren();
+        body.forEach(function (partner) {
+          const card = document.createElement('article');
+          card.className = 'partner-card';
+          const name = document.createElement('h2');
+          name.textContent = partner.name;
+          card.appendChild(name);
+          const year = document.createElement('p');
+          year.textContent = 'Year ' + partner.year;
+          card.appendChild(year);
+          appendList(card, 'Shared courses', partner.shared_courses, 'No shared courses.');
+          appendList(card, 'Free times in common', partner.overlapping_free_times, 'No overlapping free times.');
+          list.appendChild(card);
+        });
+      } catch (err) {
+        status.textContent = 'Study partners';
+        showMessage(list, 'Could not load study partners.', true);
+      }
+    }
+    loadPartners();
+  </script>
+</body>
+</html>
