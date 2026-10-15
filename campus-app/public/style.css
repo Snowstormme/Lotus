@@ -3,3 +3,9 @@ header { padding: 16px 24px; border-bottom: 1px solid #e5e5e5; background: #fff;
 header h1 { font-size: 20px; margin: 0 0 8px; }
 nav a { margin-right: 16px; color: #185fa5; text-decoration: none; }
 main { padding: 24px; }
+section { margin-bottom: 32px; }
+section h2 { font-size: 16px; margin: 0 0 8px; }
+table { border-collapse: collapse; width: 100%; max-width: 600px; }
+th, td { text-align: left; padding: 6px 12px; border-bottom: 1px solid #e5e5e5; }
+th { background: #f0f0f0; }
+.error { color: #b91c1c; }
