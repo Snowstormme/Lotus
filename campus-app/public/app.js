@@ -76,11 +76,13 @@ async function init() {
   const profileLink = document.querySelector('a[href="#profile"]');
   const partnersLink = document.querySelector('a[href="#partners"]');
   const costLink = document.querySelector('a[href="#cost"]');
+  const planLink = document.querySelector('a[href="#plan"]');
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   if (profileLink) profileLink.href = 'profile.html?id=1';
   if (partnersLink) partnersLink.href = 'partners.html?id=1';
   if (costLink) costLink.href = 'cost.html';
+  if (planLink) planLink.href = 'plan.html?id=1';
 
   try {
     // Health check

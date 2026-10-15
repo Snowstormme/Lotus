@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI study plan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>AI study plan</h1>
+    <nav>
+      <a href="index.html">Back to campus</a>
+      <a href="cost.html">Cost estimate</a>
+    </nav>
+  </header>
+  <main>
+    <button id="generate" type="button">Generate plan</button>
+    <section aria-live="polite">
+      <p id="status"></p>
+      <p id="source"></p>
+      <p id="summary"></p>
+      <div id="plan"></div>
+    </section>
+  </main>
+  <script>
+    const userId = new URLSearchParams(window.location.search).get('id') || '1';
+    const generateButton = document.getElementById('generate');
+    const status = document.getElementById('status');
+    const source = document.getElementById('source');
+    const summary = document.getElementById('summary');
+    const planContainer = document.getElementById('plan');
+
+    function setStatus(message, isError) {
+      status.textContent = message;
+      status.className = isError ? 'error' : '';
+    }
+
+    function renderPlan(responseBody) {
+      const plan = responseBody.plan_json;
+      source.textContent = responseBody.source === 'ai' ? 'AI generated' : 'Saved plan';
+      summary.textContent = plan && typeof plan.summary === 'string' ? plan.summary : '';
+      planContainer.replaceChildren();
+
+      if (responseBody.note) {
+        const note = document.createElement('p');
+        note.textContent = responseBody.note;
+        planContainer.appendChild(note);
+      }
+
+      if (!plan || !Array.isArray(plan.weeks)) return;
+      plan.weeks.forEach(function (week) {
+        const weekSection = document.createElement('section');
+        const heading = document.createElement('h2');
+        heading.textContent = 'Week of ' + String(week.week_start || '');
+        weekSection.appendChild(heading);
+
+        (Array.isArray(week.days) ? week.days : []).forEach(function (day) {
+          const dayHeading = document.createElement('h3');
+          dayHeading.textContent = String(day.day || 'Day');
+          weekSection.appendChild(dayHeading);
+          const list = document.createElement('ul');
+          (Array.isArray(day.tasks) ? day.tasks : []).forEach(function (task) {
+            const item = document.createElement('li');
+            item.textContent = String(task.course || '') + ': ' + String(task.task || '') +
+              ' (' + String(task.minutes || 0) + ' minutes)';
+            list.appendChild(item);
+          });
+          weekSection.appendChild(list);
+        });
+        planContainer.appendChild(weekSection);
+      });
+    }
+
+    async function requestPlan(method) {
+      setStatus(method === 'POST' ? 'Generating plan...' : 'Loading saved plan...', false);
+      generateButton.disabled = method === 'POST';
+      try {
+        const response = await fetch('/.netlify/functions/plan?user_id=' + encodeURIComponent(userId), {
+          method: method
+        });
+        const body = await response.json().catch(function () { return {}; });
+        if (!response.ok) throw new Error(body.error || 'Could not load the study plan.');
+        setStatus('', false);
+        renderPlan(body);
+      } catch (error) {
+        setStatus(error.message || 'Could not load the study plan.', true);
+      } finally {
+        generateButton.disabled = false;
+      }
+    }
+
+    generateButton.addEventListener('click', function () { requestPlan('POST'); });
+    requestPlan('GET');
+  </script>
+</body>
+</html>
