@@ -240,6 +240,14 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .course-card-bar { border-radius: var(--radius-sm); min-height: 100%; }
 .course-card-content { display: grid; gap: var(--space-1); min-width: 0; padding-left: var(--space-3); }
 .course-card-name { font-size: var(--font-size-lg); font-weight: var(--font-weight-medium); }
+.course-tabs { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); }
+.course-tab[aria-selected="true"] { background: var(--color-accent-surface); border-color: var(--color-accent); color: var(--color-text-primary); }
+.detail-list { display: grid; gap: var(--space-2) var(--space-6); grid-template-columns: minmax(7rem, 0.35fr) minmax(0, 1fr); margin: 0; }
+.detail-list dt { color: var(--color-text-secondary); font-weight: var(--font-weight-bold); }
+.detail-list dd { margin: 0; overflow-wrap: normal; }
+.course-panel li { margin-bottom: var(--space-2); }
+.course-panel li > span { display: block; }
+.pre-wrap { white-space: pre-wrap; }
 .schedule-page-header { align-items: flex-start; display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: space-between; }
 .schedule-page-header .page-title { margin-bottom: var(--space-2); }
 .view-tabs { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); }
