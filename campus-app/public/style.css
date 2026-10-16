@@ -211,7 +211,8 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .coming-sheet-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle); max-width: 28rem; padding: var(--space-6); width: 100%; }
 .section-title { font-size: var(--font-size-lg); margin: 0 0 var(--space-4); }
 .quick-actions { margin-bottom: var(--space-8); }
-.action-card { color: var(--color-text-primary); display: grid; gap: var(--space-1); margin: 0; text-decoration: none; }
+.action-card { color: var(--color-text-primary); display: grid; gap: var(--space-1); grid-template-columns: 1fr; margin: 0; overflow-wrap: normal; text-decoration: none; word-break: normal; }
+.action-card strong, .action-card .action-card-description { display: block; }
 .action-card:hover { border-color: var(--color-accent); color: var(--color-text-primary); transform: translateY(-1px); }
 .dashboard-grid { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }
 .dashboard-card, .sample-card { margin: 0; min-width: 0; }
