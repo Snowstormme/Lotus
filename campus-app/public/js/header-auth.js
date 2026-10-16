@@ -23,7 +23,8 @@
     const browserClient = await loadBrowserClient();
     const client = browserClient.createClient(config.supabaseUrl, config.supabasePublishableKey);
     const sessionResult = await client.auth.getSession();
-    if (!sessionResult.data.session) return;
+    const session = sessionResult.data.session;
+    if (!session) return;
 
     loginLink.hidden = true;
     signupLink.hidden = true;
@@ -33,6 +34,30 @@
       await client.auth.signOut();
       window.location.href = 'index.html';
     });
+
+    try {
+      const profileResponse = await fetch('/api/onboarding', {
+        headers: { Authorization: 'Bearer ' + session.access_token }
+      });
+      if (!profileResponse.ok) return;
+      const profileStatus = await profileResponse.json();
+      if (profileStatus.hasProfile === false) {
+        const banner = document.createElement('div');
+        banner.className = 'page alert info';
+        banner.setAttribute('role', 'status');
+        const message = document.createElement('span');
+        message.textContent = 'Finish your profile';
+        banner.appendChild(message);
+        const link = document.createElement('a');
+        link.href = 'onboarding.html';
+        link.textContent = ' Complete it now';
+        banner.appendChild(link);
+        const header = document.querySelector('.site-header');
+        if (header) header.insertAdjacentElement('afterend', banner);
+      }
+    } catch (error) {
+      // Profile status is optional and must not block any existing page.
+    }
   } catch (error) {
     // Keep the default login and sign-up links if session lookup is unavailable.
   }
