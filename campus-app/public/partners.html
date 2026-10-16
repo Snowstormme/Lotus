@@ -31,7 +31,9 @@
     <p id="status" class="alert info">Loading study partners...</p>
     <div id="partners-list" class="grid"><p class="empty-state">Loading study partners...</p></div>
   </main>
-  <script>
+  <script type="module">
+    import { getSession } from './js/auth.js';
+
     function showMessage(container, message, isError) {
       container.replaceChildren();
       const paragraph = document.createElement('p');
@@ -64,7 +66,9 @@
       const list = document.getElementById('partners-list');
       const id = new URLSearchParams(window.location.search).get('id') || '1';
       try {
-        const response = await fetch('/api/partners?user_id=' + encodeURIComponent(id));
+        const session = await getSession().catch(function () { return null; });
+        const headers = session ? { Authorization: 'Bearer ' + session.access_token } : {};
+        const response = await fetch('/api/partners?user_id=' + encodeURIComponent(id), { headers });
         const body = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(body.error || 'Partner request failed');
         if (body.length === 0) {

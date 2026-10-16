@@ -55,7 +55,9 @@
       <p id="logout-status" class="alert" role="status" aria-live="polite"></p>
     </section>
   </main>
-  <script>
+  <script type="module">
+    import { getSession } from './js/auth.js';
+
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
@@ -163,9 +165,11 @@
       const form = document.getElementById('profile-form');
       const id = new URLSearchParams(window.location.search).get('id') || '1';
       try {
+        const session = await getSession().catch(function () { return null; });
+        const authHeaders = session ? { Authorization: 'Bearer ' + session.access_token } : {};
         const [profileResponse, availabilityResponse] = await Promise.all([
-          fetch('/api/profile?id=' + encodeURIComponent(id)),
-          fetch('/api/availability?user_id=' + encodeURIComponent(id))
+          fetch('/api/profile?id=' + encodeURIComponent(id), { headers: authHeaders }),
+          fetch('/api/availability?user_id=' + encodeURIComponent(id), { headers: authHeaders })
         ]);
         const profile = await profileResponse.json().catch(() => ({}));
         const availability = await availabilityResponse.json().catch(() => []);
@@ -204,15 +208,17 @@
 
       const id = new URLSearchParams(window.location.search).get('id') || '1';
       try {
+        const session = await getSession().catch(function () { return null; });
+        const authHeaders = session ? { Authorization: 'Bearer ' + session.access_token } : {};
         const [profileResponse, availabilityResponse] = await Promise.all([
           fetch('/api/profile?id=' + encodeURIComponent(id), {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { ...authHeaders, 'Content-Type': 'application/json' },
             body: JSON.stringify({ year, languages, weekly_free_hours: weeklyFreeHours })
           }),
           fetch('/api/availability?user_id=' + encodeURIComponent(id), {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { ...authHeaders, 'Content-Type': 'application/json' },
             body: JSON.stringify(slots)
           })
         ]);

@@ -1,9 +1,20 @@
+import { getSession } from './js/auth.js';
+
 function showMessage(container, message, isError) {
   container.replaceChildren();
   const paragraph = document.createElement('p');
   paragraph.textContent = message;
   paragraph.className = isError ? 'alert error' : 'empty-state';
   container.appendChild(paragraph);
+}
+
+async function getAuthHeaders() {
+  try {
+    const session = await getSession();
+    return session ? { Authorization: 'Bearer ' + session.access_token } : {};
+  } catch (error) {
+    return {};
+  }
 }
 
 function appendTable(container, headings, rows) {
@@ -87,6 +98,7 @@ async function init() {
   if (planLink) planLink.href = 'plan.html?id=1';
 
   try {
+    const authHeaders = await getAuthHeaders();
     // Health check
     const healthRes = await fetch('/api/health');
     const healthData = await healthRes.json();
@@ -119,13 +131,13 @@ async function init() {
 
     // Load courses
     try {
-    const coursesRes = await fetch('/api/courses');
+      const coursesRes = await fetch('/api/courses', { headers: authHeaders });
       if (!coursesRes.ok) {
         showMessage(coursesSection, 'Could not load courses.', true);
       } else {
         const courses = await coursesRes.json();
         if (courses.length === 0) {
-          showMessage(coursesSection, 'No courses found.');
+          showMessage(coursesSection, 'No courses yet. Your schedule will appear here once courses are added.');
         } else {
           appendCourseTable(coursesSection, courses);
         }
@@ -136,13 +148,13 @@ async function init() {
 
     // Load upcoming deadlines
     try {
-    const deadlinesRes = await fetch('/api/deadlines');
+      const deadlinesRes = await fetch('/api/deadlines', { headers: authHeaders });
       if (!deadlinesRes.ok) {
         showMessage(deadlinesSection, 'Could not load deadlines.', true);
       } else {
         const deadlines = await deadlinesRes.json();
         if (deadlines.length === 0) {
-          showMessage(deadlinesSection, 'No upcoming deadlines found.');
+          showMessage(deadlinesSection, 'No deadlines yet. Your upcoming work will appear here once courses are added.');
         } else {
           appendTable(deadlinesSection, ['Title', 'Course', 'Type', 'Due'], deadlines.map(function (deadline) {
             return [deadline.title, deadline.code, deadline.type, deadline.due_at];
@@ -155,13 +167,13 @@ async function init() {
 
     // Load the weekly class schedule
     try {
-    const scheduleRes = await fetch('/api/calendar');
+      const scheduleRes = await fetch('/api/calendar', { headers: authHeaders });
       if (!scheduleRes.ok) {
         showMessage(scheduleSection, 'Could not load weekly schedule.', true);
       } else {
         const schedule = await scheduleRes.json();
         if (schedule.length === 0) {
-          showMessage(scheduleSection, 'No classes scheduled.');
+          showMessage(scheduleSection, 'No classes yet. Your weekly schedule will appear here once courses are added.');
         } else {
           appendTable(scheduleSection, ['Course', 'Day', 'Start', 'End', 'Room'], schedule.map(function (classItem) {
             return [classItem.code, weekdays[classItem.weekday] || 'Unknown day', classItem.start_time, classItem.end_time, classItem.room];

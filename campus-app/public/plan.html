@@ -36,13 +36,25 @@
       <div id="plan"><p class="empty-state">Loading weeks...</p></div>
     </section>
   </main>
-  <script>
+  <script type="module">
+    import { getSession } from './js/auth.js';
+
     const userId = new URLSearchParams(window.location.search).get('id') || '1';
     const generateButton = document.getElementById('generate');
     const status = document.getElementById('status');
     const source = document.getElementById('source');
     const summary = document.getElementById('summary');
     const planContainer = document.getElementById('plan');
+
+    function clearPlan(message) {
+      source.textContent = 'No saved plan';
+      summary.textContent = 'No summary yet.';
+      planContainer.replaceChildren();
+      const empty = document.createElement('p');
+      empty.className = 'empty-state';
+      empty.textContent = message;
+      planContainer.appendChild(empty);
+    }
 
     function setStatus(message, isError) {
       status.textContent = message;
@@ -98,8 +110,11 @@
       setStatus(method === 'POST' ? 'Generating plan...' : 'Loading saved plan...', false);
       generateButton.disabled = method === 'POST';
       try {
+        const session = await getSession().catch(function () { return null; });
+        const headers = session ? { Authorization: 'Bearer ' + session.access_token } : {};
         const response = await fetch('/api/plan?user_id=' + encodeURIComponent(userId), {
-          method: method
+          method: method,
+          headers
         });
         const body = await response.json().catch(function () { return {}; });
         if (!response.ok) throw new Error(body.error || 'Could not load the study plan.');
@@ -108,6 +123,7 @@
         renderPlan(body);
       } catch (error) {
         setStatus(error.message || 'Could not load the study plan.', true);
+        clearPlan('No study plan yet. Generate one after courses and deadlines are available.');
       } finally {
         generateButton.disabled = false;
       }
