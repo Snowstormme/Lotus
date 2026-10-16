@@ -1,5 +1,6 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
+import { findConversation, otherUserId } from '../../lib/_messaging.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -19,8 +20,13 @@ export async function onRequestPost(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
     const body = await parseBody(context.request);
-    const userId = body && body.user_id;
+    let userId = body && body.user_id;
     const action = body && body.action;
+    const conversationId = body && body.conversation_id;
+    if ((!Number.isInteger(userId) || userId < 1) && Number.isInteger(conversationId) && conversationId > 0) {
+      const conversation = await findConversation(getSupabase(context.env), conversationId);
+      if (conversation && (conversation.user_a_id === profile.id || conversation.user_b_id === profile.id)) userId = otherUserId(conversation, profile.id);
+    }
     if (!Number.isInteger(userId) || userId < 1 || userId === profile.id || !['block', 'unblock'].includes(action)) return json({ error: 'Please choose a valid student and action.' }, 400);
 
     const supabase = getSupabase(context.env);

@@ -84,15 +84,26 @@ export async function onRequestPost(context) {
     const profile = await requireOwnProfile(context.request, context.env);
     const body = await parseBody(context.request);
     const recipientId = body && body.recipient_id;
-    if (!Number.isInteger(recipientId) || recipientId < 1 || recipientId === profile.id) return json({ error: "You can't message this student." }, 403);
+    const recipientName = body && typeof body.recipient_name === 'string' ? body.recipient_name.trim() : '';
+    const recipientYear = body && Number.isInteger(body.recipient_year) ? body.recipient_year : null;
+    if ((!Number.isInteger(recipientId) || recipientId < 1) && !recipientName) return json({ error: "You can't message this student." }, 403);
 
     const supabase = getSupabase(context.env);
-    const { data: recipient, error: recipientError } = await supabase
-      .from('users')
-      .select('id, name, university_id, faculty_id, year, allow_messages')
-      .eq('id', recipientId)
-      .maybeSingle();
+    let recipient;
+    let recipientError;
+    if (Number.isInteger(recipientId) && recipientId > 0) {
+      const result = await supabase.from('users').select('id, name, university_id, faculty_id, year, allow_messages').eq('id', recipientId).maybeSingle();
+      recipient = result.data;
+      recipientError = result.error;
+    } else {
+      let query = supabase.from('users').select('id, name, university_id, faculty_id, year, allow_messages').eq('name', recipientName).limit(2);
+      if (recipientYear !== null) query = query.eq('year', recipientYear);
+      const result = await query;
+      recipient = result.data && result.data.length === 1 ? result.data[0] : null;
+      recipientError = result.error;
+    }
     if (recipientError) throw recipientError;
+    if (recipient && recipient.id === profile.id) return json({ error: "You can't message this student." }, 403);
     if (!isCompleteProfile(recipient) || recipient.allow_messages === false || await areUsersBlocked(supabase, profile.id, recipientId)) return json({ error: "You can't message this student." }, 403);
 
     const userA = Math.min(profile.id, recipientId);

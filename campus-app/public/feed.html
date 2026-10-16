@@ -145,6 +145,23 @@
         addText(meta, 'strong', String(post.author_name || 'Student'));
         addText(meta, 'span', 'Year ' + String(post.author_year || '—'), 'muted');
         if (post.is_sample === true) addText(meta, 'span', 'Sample', 'badge');
+        const messageButton = document.createElement('button');
+        messageButton.className = 'btn secondary';
+        messageButton.type = 'button';
+        messageButton.textContent = 'Message';
+        messageButton.addEventListener('click', async function () {
+          messageButton.disabled = true;
+          try {
+            const response = await fetch('/api/conversations', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token }, body: JSON.stringify({ recipient_name: post.author_name, recipient_year: post.author_year }) });
+            const body = await response.json().catch(function () { return {}; });
+            if (!response.ok) throw new Error(response.status === 403 ? "You can't message this student." : 'Could not start the conversation.');
+            window.location.href = 'messages.html?conversation_id=' + encodeURIComponent(body.conversation_id);
+          } catch (error) {
+            showStatus(postStatus, error.message || "You can't message this student.", 'error');
+            messageButton.disabled = false;
+          }
+        });
+        meta.appendChild(messageButton);
         header.appendChild(meta);
         addText(header, 'time', formatBakuDateTime(post.created_at) || 'Time unavailable', 'muted');
         const message = addText(item, 'p', String(post.body || ''), 'feed-post-body');
