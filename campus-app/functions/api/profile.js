@@ -27,6 +27,7 @@ function validateBody(body) {
   if (!Number.isInteger(body.year) || body.year < 1 || body.year > 6) return null;
   if (typeof body.languages !== 'string' || body.languages.length > 50 || /[\r\n]/.test(body.languages)) return null;
   if (!Number.isInteger(body.weekly_free_hours) || body.weekly_free_hours < 0 || body.weekly_free_hours > 60) return null;
+  if (Object.prototype.hasOwnProperty.call(body, 'share_for_partners') && typeof body.share_for_partners !== 'boolean') return null;
   return body;
 }
 
@@ -40,7 +41,7 @@ export async function onRequestGet(context) {
   if (context.request.headers.get('Authorization')) {
     try {
       const user = await requireOwnProfile(context.request, context.env);
-      return json({ name: user.name, year: user.year, languages: user.languages, weekly_free_hours: user.weekly_free_hours, university: user.university ? user.university.name : null, faculty: user.faculty ? user.faculty.name : null });
+      return json({ name: user.name, year: user.year, languages: user.languages, weekly_free_hours: user.weekly_free_hours, university: user.university ? user.university.name : null, faculty: user.faculty ? user.faculty.name : null, share_for_partners: user.share_for_partners === true });
     } catch (err) {
       if (err.status === 401 || err.status === 404) return json({ error: err.publicMessage }, err.status);
       console.error('Could not load profile:', err);
@@ -69,7 +70,9 @@ export async function onRequestPut(context) {
     const supabase = getSupabase(context.env);
     const user = hasAuth ? await requireOwnProfile(context.request, context.env) : await getDemoUser(supabase, id);
     if (!user) return json({ error: 'Demo user not found.' }, 404);
-    const update = supabase.from('users').update({ year: body.year, languages: body.languages, weekly_free_hours: body.weekly_free_hours }).eq('id', user.id);
+    const updateFields = { year: body.year, languages: body.languages, weekly_free_hours: body.weekly_free_hours };
+    if (hasAuth && Object.prototype.hasOwnProperty.call(body, 'share_for_partners')) updateFields.share_for_partners = body.share_for_partners;
+    const update = supabase.from('users').update(updateFields).eq('id', user.id);
     if (!hasAuth) update.eq('is_demo', true);
     const { error } = await update;
     if (error) throw error;

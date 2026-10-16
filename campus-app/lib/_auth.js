@@ -23,7 +23,7 @@ async function getVerifiedUser(supabase, token) {
 async function findProfile(supabase, authUserId) {
   const { data, error } = await supabase
     .from('users')
-    .select('id, name, university_id, faculty_id, year, languages, weekly_free_hours, is_demo, university:universities(name), faculty:faculties(name)')
+    .select('id, name, university_id, faculty_id, year, languages, weekly_free_hours, is_demo, share_for_partners, university:universities(name), faculty:faculties(name)')
     .eq('auth_user_id', authUserId)
     .maybeSingle();
   if (error) throw error;
