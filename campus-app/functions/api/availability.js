@@ -1,4 +1,5 @@
 import { getSupabase } from '../../lib/_supabase.js';
+import { requireOwnProfile } from '../../lib/_auth.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -41,38 +42,42 @@ async function requireDemoUser(supabase, id) {
 }
 
 export async function onRequestGet(context) {
+  const hasAuth = Boolean(context.request.headers.get('Authorization'));
   const id = getUserId(context);
-  if (!id) return json({ error: 'A valid demo user id is required.' }, 400);
+  if (!hasAuth && !id) return json({ error: 'A valid demo user id is required.' }, 400);
   try {
     const supabase = getSupabase(context.env);
-    const user = await requireDemoUser(supabase, id);
+    const user = hasAuth ? await requireOwnProfile(context.request, context.env) : await requireDemoUser(supabase, id);
     if (!user) return json({ error: 'Demo user not found.' }, 404);
-    const { data, error } = await supabase.from('availability_slots').select('weekday, start_time, end_time').eq('user_id', id).order('weekday', { ascending: true }).order('start_time', { ascending: true });
+    const { data, error } = await supabase.from('availability_slots').select('weekday, start_time, end_time').eq('user_id', user.id).order('weekday', { ascending: true }).order('start_time', { ascending: true });
     if (error) throw error;
     return json(data);
   } catch (err) {
+    if (err.status === 401 || err.status === 404) return json({ error: err.publicMessage }, err.status);
     console.error('Could not load or update availability:', err);
     return json({ error: 'Could not load or update availability. Check the Supabase settings in Netlify.' }, 500);
   }
 }
 
 export async function onRequestPut(context) {
+  const hasAuth = Boolean(context.request.headers.get('Authorization'));
   const id = getUserId(context);
-  if (!id) return json({ error: 'A valid demo user id is required.' }, 400);
+  if (!hasAuth && !id) return json({ error: 'A valid demo user id is required.' }, 400);
   const slots = await parseSlots(context.request);
   if (!slots) return json({ error: 'Availability slots are invalid.' }, 400);
   try {
     const supabase = getSupabase(context.env);
-    const user = await requireDemoUser(supabase, id);
+    const user = hasAuth ? await requireOwnProfile(context.request, context.env) : await requireDemoUser(supabase, id);
     if (!user) return json({ error: 'Demo user not found.' }, 404);
-    const { error: deleteError } = await supabase.from('availability_slots').delete().eq('user_id', id);
+    const { error: deleteError } = await supabase.from('availability_slots').delete().eq('user_id', user.id);
     if (deleteError) throw deleteError;
     if (slots.length > 0) {
-      const { error: insertError } = await supabase.from('availability_slots').insert(slots.map((slot) => ({ user_id: id, weekday: slot.weekday, start_time: slot.start_time, end_time: slot.end_time })));
+      const { error: insertError } = await supabase.from('availability_slots').insert(slots.map((slot) => ({ user_id: user.id, weekday: slot.weekday, start_time: slot.start_time, end_time: slot.end_time })));
       if (insertError) throw insertError;
     }
     return json({ message: 'Availability updated.' });
   } catch (err) {
+    if (err.status === 401 || err.status === 404) return json({ error: err.publicMessage }, err.status);
     console.error('Could not load or update availability:', err);
     return json({ error: 'Could not load or update availability. Check the Supabase settings in Netlify.' }, 500);
   }

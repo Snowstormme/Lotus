@@ -1,4 +1,5 @@
 import { getSupabase } from '../../lib/_supabase.js';
+import { requireOwnProfile } from '../../lib/_auth.js';
 import { generatePlan } from '../../lib/_gemini.js';
 import { validatePlan } from '../../lib/_planValidation.js';
 
@@ -79,12 +80,14 @@ export async function onRequestPost(context) {
 }
 
 async function handlePlanRequest(context, isGenerate) {
-  const userId = getUserId(context);
-  if (!userId) return json({ error: 'A valid demo user id is required.' }, 400);
+  const hasAuth = Boolean(context.request.headers.get('Authorization'));
+  const requestedId = getUserId(context);
+  if (!hasAuth && !requestedId) return json({ error: 'A valid demo user id is required.' }, 400);
   try {
     const supabase = getSupabase(context.env);
-    const user = await getDemoUser(supabase, userId);
+    const user = hasAuth ? await requireOwnProfile(context.request, context.env) : await getDemoUser(supabase, requestedId);
     if (!user) return json({ error: 'Demo user not found.' }, 404);
+    const userId = user.id;
     const savedPlan = await getSavedPlan(supabase, userId);
     if (!isGenerate) {
       if (!savedPlan) return json({ error: 'No saved study plan found.' }, 404);
@@ -104,6 +107,7 @@ async function handlePlanRequest(context, isGenerate) {
       return json({ error: 'The AI study plan is unavailable and no saved plan exists.' }, 503);
     }
   } catch (err) {
+    if (err.status === 401 || err.status === 404) return json({ error: err.publicMessage }, err.status);
     console.error('Could not load study plan:', err);
     return json({ error: 'Could not load the study plan. Check the Supabase settings in Netlify.' }, 500);
   }

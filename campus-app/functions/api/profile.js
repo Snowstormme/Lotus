@@ -1,4 +1,5 @@
 import { getSupabase } from '../../lib/_supabase.js';
+import { requireOwnProfile } from '../../lib/_auth.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -36,6 +37,16 @@ async function getDemoUser(supabase, id) {
 }
 
 export async function onRequestGet(context) {
+  if (context.request.headers.get('Authorization')) {
+    try {
+      const user = await requireOwnProfile(context.request, context.env);
+      return json({ name: user.name, year: user.year, languages: user.languages, weekly_free_hours: user.weekly_free_hours, university: user.university ? user.university.name : null, faculty: user.faculty ? user.faculty.name : null });
+    } catch (err) {
+      if (err.status === 401 || err.status === 404) return json({ error: err.publicMessage }, err.status);
+      console.error('Could not load profile:', err);
+      return json({ error: 'Could not load the profile.' }, 500);
+    }
+  }
   const id = getUserId(context);
   if (!id) return json({ error: 'A valid user id is required.' }, 400);
   try {
@@ -49,19 +60,23 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPut(context) {
+  const hasAuth = Boolean(context.request.headers.get('Authorization'));
   const id = getUserId(context);
-  if (!id) return json({ error: 'A valid user id is required.' }, 400);
+  if (!hasAuth && !id) return json({ error: 'A valid user id is required.' }, 400);
   const body = validateBody(await parseBody(context.request));
   if (!body) return json({ error: 'Year, languages, and weekly free hours are invalid.' }, 400);
   try {
     const supabase = getSupabase(context.env);
-    const user = await getDemoUser(supabase, id);
+    const user = hasAuth ? await requireOwnProfile(context.request, context.env) : await getDemoUser(supabase, id);
     if (!user) return json({ error: 'Demo user not found.' }, 404);
-    const { error } = await supabase.from('users').update({ year: body.year, languages: body.languages, weekly_free_hours: body.weekly_free_hours }).eq('id', id).eq('is_demo', true);
+    const update = supabase.from('users').update({ year: body.year, languages: body.languages, weekly_free_hours: body.weekly_free_hours }).eq('id', user.id);
+    if (!hasAuth) update.eq('is_demo', true);
+    const { error } = await update;
     if (error) throw error;
     return json({ message: 'Profile updated.' });
   } catch (err) {
+    if (err.status === 401 || err.status === 404) return json({ error: err.publicMessage }, err.status);
     console.error('Could not update profile:', err);
-    return json({ error: 'Could not update the profile. Check the Supabase settings in Netlify.' }, 500);
+    return json({ error: 'Could not update the profile.' }, 500);
   }
 }

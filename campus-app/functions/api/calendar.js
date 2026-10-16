@@ -1,4 +1,5 @@
 import { getSupabase } from '../../lib/_supabase.js';
+import { requireOwnProfile } from '../../lib/_auth.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -7,11 +8,26 @@ function json(body, status = 200) {
 export async function onRequestGet(context) {
   try {
     const supabase = getSupabase(context.env);
-    const { data, error } = await supabase
+    const hasAuth = Boolean(context.request.headers.get('Authorization'));
+    let courseIds = null;
+    if (hasAuth) {
+      const profile = await requireOwnProfile(context.request, context.env);
+      const { data: enrollments, error: enrollmentsError } = await supabase
+        .from('enrollments')
+        .select('course_id')
+        .eq('user_id', profile.id);
+      if (enrollmentsError) throw enrollmentsError;
+      courseIds = Array.from(new Set(enrollments.map((enrollment) => enrollment.course_id)));
+      if (courseIds.length === 0) return json([]);
+    }
+
+    let classesQuery = supabase
       .from('classes')
       .select('weekday, start_time, end_time, room, courses!inner(code)')
       .order('weekday', { ascending: true })
       .order('start_time', { ascending: true });
+    if (courseIds) classesQuery = classesQuery.in('course_id', courseIds);
+    const { data, error } = await classesQuery;
     if (error) throw error;
     return json(data.map((classItem) => ({
       code: classItem.courses.code,
@@ -21,6 +37,7 @@ export async function onRequestGet(context) {
       room: classItem.room
     })));
   } catch (err) {
+    if (err.status === 401 || err.status === 404) return json({ error: err.publicMessage }, err.status);
     console.error('Could not load calendar:', err);
     return json({ error: 'Could not load the weekly schedule. Check the Supabase settings in Netlify.' }, 500);
   }
