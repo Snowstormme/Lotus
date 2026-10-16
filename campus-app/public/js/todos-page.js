@@ -1,6 +1,6 @@
 
-    import { getSession } from './js/auth.js';
-    import { formatBakuDateTime } from './js/dates.js';
+    import { getSession } from './auth.js';
+    import { formatBakuDateTime } from './dates.js';
 
     const form = document.getElementById('todo-form');
     const titleInput = document.getElementById('todo-title');
@@ -145,4 +145,4 @@
       showMessage(openContainer, 'Could not load your to-do items.', true);
       showMessage(doneContainer, 'Could not load your to-do items.', true);
     }
-  
+

@@ -1,5 +1,5 @@
 
-    import { signOut } from './js/auth.js';
+    import { signOut } from './auth.js';
 
     document.getElementById('profile-logout').addEventListener('click', async function () {
       const status = document.getElementById('logout-status');
@@ -13,4 +13,4 @@
         status.className = 'alert error';
       }
     });
-  
+

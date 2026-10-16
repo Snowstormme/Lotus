@@ -1,5 +1,5 @@
 
-    import { getSession } from './js/auth.js';
+    import { getSession } from './auth.js';
     let session = null;
     let groups = [];
     const kindNames = { university: 'University', course: 'Course', club: 'Club' };
@@ -18,4 +18,4 @@
     document.getElementById('group-search').addEventListener('input', renderGroups); document.getElementById('group-kind').addEventListener('change', renderGroups);
     document.getElementById('create-group-form').addEventListener('submit', async (event) => { event.preventDefault(); const button = document.getElementById('create-group-button'); const status = document.getElementById('create-group-status'); button.disabled = true; status.className = 'alert info'; status.textContent = 'Creating group...'; const response = await fetch('/api/groups', { method: 'POST', headers: headers(), body: JSON.stringify({ action: 'create', name: document.getElementById('create-group-name').value.trim(), description: document.getElementById('create-group-description').value, kind: 'club' }) }); if (!response.ok) { status.className = 'alert error'; status.textContent = await errorText(response, 'Could not create the group.'); button.disabled = false; return; } document.getElementById('create-group-form').reset(); status.className = 'alert success'; status.textContent = 'Group created.'; button.disabled = false; await loadGroups(); });
     try { session = await getSession(); if (!session) { window.location.replace('login.html'); } else { const id = new URLSearchParams(window.location.search).get('id'); if (id) await loadDetail(id); else await loadGroups(); } } catch (error) { console.error('Could not initialize groups:', error); document.getElementById('groups-status').textContent = 'Could not load groups.'; document.getElementById('groups-status').className = 'alert error'; }
-  
+

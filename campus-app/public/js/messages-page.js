@@ -1,6 +1,6 @@
 
-    import { getSession } from './js/auth.js';
-    import { formatBakuDateTime } from './js/dates.js';
+    import { getSession } from './auth.js';
+    import { formatBakuDateTime } from './dates.js';
 
     const layout = document.getElementById('messages-layout');
     const conversationStatus = document.getElementById('conversation-status');
@@ -284,4 +284,4 @@
     } catch (error) {
       window.location.replace('login.html');
     }
-  
+

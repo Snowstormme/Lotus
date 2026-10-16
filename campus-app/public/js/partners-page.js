@@ -1,5 +1,5 @@
 
-    import { getSession } from './js/auth.js';
+    import { getSession } from './auth.js';
 
     function showMessage(container, message, isError) {
       container.replaceChildren();
@@ -88,4 +88,4 @@
       }
     }
     loadPartners();
-  
+

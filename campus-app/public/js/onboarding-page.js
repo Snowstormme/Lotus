@@ -1,5 +1,5 @@
 
-    import { getSession } from './js/auth.js';
+    import { getSession } from './auth.js';
 
     const form = document.getElementById('onboarding-form');
     const status = document.getElementById('status');
@@ -204,4 +204,4 @@
     });
 
     loadForm();
-  
+

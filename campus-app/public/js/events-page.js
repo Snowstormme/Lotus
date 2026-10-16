@@ -1,6 +1,6 @@
 
-    import { getSession } from './js/auth.js';
-    import { formatBakuDateTime } from './js/dates.js';
+    import { getSession } from './auth.js';
+    import { formatBakuDateTime } from './dates.js';
     let session = null;
     let events = [];
     const status = document.getElementById('events-status');
@@ -17,4 +17,4 @@
     async function loadDetail(id) { document.getElementById('events-list-view').hidden = true; document.getElementById('event-detail-view').hidden = false; const target = document.getElementById('event-detail-content'); try { const response = await fetch('/api/events?id=' + encodeURIComponent(id), { headers: headers() }); if (response.status === 404) { showMessage(target, 'Event not found.', true); return; } if (!response.ok) throw new Error('Event request failed'); renderDetail(await response.json()); } catch (error) { console.error('Could not load event:', error); showMessage(target, 'Could not load this event.', true); } }
     async function loadList() { try { const response = await fetch('/api/events', { headers: headers() }); if (!response.ok) throw new Error('Events request failed'); const body = await response.json(); events = Array.isArray(body) ? body : []; status.className = 'alert success'; status.textContent = events.length ? 'Upcoming events loaded.' : 'No upcoming events yet. Check back soon.'; renderList(); } catch (error) { console.error('Could not load events:', error); status.className = 'alert error'; status.textContent = 'Could not load events.'; showMessage(document.getElementById('events-list'), 'Could not load events.', true); } }
     try { session = await getSession(); if (!session) { window.location.replace('login.html'); } else { const id = new URLSearchParams(window.location.search).get('id'); if (id) await loadDetail(id); else await loadList(); } } catch (error) { console.error('Could not initialize events:', error); status.className = 'alert error'; status.textContent = 'Could not load events.'; }
-  
+

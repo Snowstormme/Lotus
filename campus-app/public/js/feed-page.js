@@ -1,6 +1,6 @@
 
-    import { getSession } from './js/auth.js';
-    import { formatBakuDateTime } from './js/dates.js';
+    import { getSession } from './auth.js';
+    import { formatBakuDateTime } from './dates.js';
 
     const form = document.getElementById('post-form');
     const bodyInput = document.getElementById('post-body');

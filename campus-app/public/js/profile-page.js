@@ -1,5 +1,5 @@
 
-    import { getSession } from './js/auth.js';
+    import { getSession } from './auth.js';
 
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
@@ -368,4 +368,4 @@
     });
 
     loadProfile();
-  
+

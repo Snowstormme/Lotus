@@ -1,5 +1,5 @@
 
-    import { getSession } from './js/auth.js';
+    import { getSession } from './auth.js';
 
     const userId = new URLSearchParams(window.location.search).get('id') || '1';
     const generateButton = document.getElementById('generate');
@@ -111,4 +111,4 @@
 
     generateButton.addEventListener('click', function () { requestPlan('POST'); });
     requestPlan('GET');
-  
+
