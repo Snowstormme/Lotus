@@ -22,6 +22,7 @@
     { key: 'schedule', label: 'Schedule', href: 'schedule.html' },
     { key: 'ai', label: 'AI Assistant', href: 'assistant.html' },
     { key: 'feed', label: 'Feed', href: 'feed.html' },
+    { key: 'messages', label: 'Messages', href: 'messages.html' },
     { key: 'community', label: 'Community', href: 'partners.html?id=1' },
     { key: 'profile', label: 'Profile', href: 'profile.html?id=1' }
   ];
@@ -46,6 +47,7 @@
     if (page === 'courses.html') return 'courses';
     if (page === 'course.html') return 'courses';
     if (page === 'feed.html') return 'feed';
+    if (page === 'messages.html') return 'messages';
     return '';
   }
 
@@ -55,6 +57,13 @@
     link.href = item.href;
     link.dataset.pageName = item.label;
     link.textContent = item.label;
+    if (item.key === 'messages') {
+      const badge = document.createElement('span');
+      badge.className = 'unread-badge';
+      badge.hidden = true;
+      badge.dataset.unreadBadge = 'true';
+      link.appendChild(badge);
+    }
     const page = window.location.pathname.split('/').pop() || 'index.html';
     const currentKey = getCurrentKey();
     const samePage = (page === 'plan.html' && ['ai', 'plan'].includes(item.key)) ||
@@ -128,7 +137,7 @@
   const mobileBar = document.createElement('nav');
   mobileBar.className = 'mobile-bottom-bar';
   mobileBar.setAttribute('aria-label', 'Mobile navigation');
-  navItems.filter(function (item) { return ['home', 'courses', 'schedule', 'ai', 'feed', 'profile'].includes(item.key); }).forEach(function (item) {
+  navItems.filter(function (item) { return ['home', 'courses', 'schedule', 'ai', 'feed', 'messages', 'profile'].includes(item.key); }).forEach(function (item) {
     mobileBar.appendChild(makeNavLink(item, 'mobile-nav-link'));
   });
   const addButton = document.createElement('button');
@@ -175,5 +184,25 @@
     document.querySelectorAll('.table tbody tr').forEach(function (row) {
       row.hidden = Boolean(term) && !row.textContent.toLowerCase().includes(term);
     });
+  });
+
+  import('./auth.js').then(function (auth) {
+    return auth.getSession();
+  }).then(function (session) {
+    if (!session) return null;
+    return fetch('/api/conversations', { headers: { Authorization: 'Bearer ' + session.access_token } });
+  }).then(function (response) {
+    if (!response || !response.ok) return null;
+    return response.json();
+  }).then(function (conversations) {
+    if (!Array.isArray(conversations)) return;
+    const unreadCount = conversations.filter(function (conversation) { return conversation.unread === true; }).length;
+    if (unreadCount === 0) return;
+    document.querySelectorAll('[data-unread-badge]').forEach(function (badge) {
+      badge.hidden = false;
+      badge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
+    });
+  }).catch(function () {
+    // Unread counts are optional and must not block navigation.
   });
 }());
