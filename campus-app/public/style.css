@@ -239,6 +239,14 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .class-row p { margin: var(--space-1) 0 0; }
 .dashboard-list { display: grid; gap: var(--space-3); list-style: none; margin: 0; padding: 0; }
 .dashboard-list li { display: grid; gap: var(--space-1); }
+.todo-list { display: grid; gap: var(--space-3); list-style: none; margin: 0; padding: 0; }
+.todo-item { align-items: flex-start; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: space-between; min-width: 0; padding: var(--space-3); }
+.todo-item-main { display: grid; gap: var(--space-1); min-width: 0; }
+.todo-item-title { overflow-wrap: normal; word-break: normal; }
+.todo-item-meta { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.todo-item-actions { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.todo-checkbox-label { align-items: center; display: flex; gap: var(--space-3); min-height: 44px; min-width: 0; }
+.todo-checkbox-label input { accent-color: var(--color-accent); flex: 0 0 44px; height: 44px; width: 44px; }
 .sample-card { border-style: dashed; }
 .course-filters { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
 .course-cards { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }

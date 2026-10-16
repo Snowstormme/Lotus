@@ -21,7 +21,7 @@ export async function onRequestGet(context) {
     if (courseIds.length === 0) return json([]);
     const { data, error } = await supabase.from('deadlines').select('title, type, due_at, courses!inner(code)').in('course_id', courseIds).gte('due_at', new Date().toISOString()).order('due_at', { ascending: true });
     if (error) throw error;
-    return json(data.map((deadline) => ({ title: deadline.title, code: deadline.courses.code, type: deadline.type, due_at: deadline.due_at })));
+    return json(data.map((deadline) => ({ id: deadline.id, title: deadline.title, code: deadline.courses.code, type: deadline.type, due_at: deadline.due_at })));
   } catch (err) {
     if (err.status === 401 || err.status === 404) return json({ error: err.publicMessage }, err.status);
     console.error('Could not load deadlines:', err);
