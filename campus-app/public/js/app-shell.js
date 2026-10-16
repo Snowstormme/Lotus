@@ -21,6 +21,7 @@
     { key: 'courses', label: 'Courses', href: 'courses.html' },
     { key: 'schedule', label: 'Schedule', href: 'schedule.html' },
     { key: 'ai', label: 'AI Assistant', href: 'assistant.html' },
+    { key: 'feed', label: 'Feed', href: 'feed.html' },
     { key: 'community', label: 'Community', href: 'partners.html?id=1' },
     { key: 'profile', label: 'Profile', href: 'profile.html?id=1' }
   ];
@@ -44,6 +45,7 @@
     if (page === 'schedule.html') return 'schedule';
     if (page === 'courses.html') return 'courses';
     if (page === 'course.html') return 'courses';
+    if (page === 'feed.html') return 'feed';
     return '';
   }
 
@@ -126,7 +128,7 @@
   const mobileBar = document.createElement('nav');
   mobileBar.className = 'mobile-bottom-bar';
   mobileBar.setAttribute('aria-label', 'Mobile navigation');
-  navItems.filter(function (item) { return ['home', 'courses', 'schedule', 'ai', 'profile'].includes(item.key); }).forEach(function (item) {
+  navItems.filter(function (item) { return ['home', 'courses', 'schedule', 'ai', 'feed', 'profile'].includes(item.key); }).forEach(function (item) {
     mobileBar.appendChild(makeNavLink(item, 'mobile-nav-link'));
   });
   const addButton = document.createElement('button');

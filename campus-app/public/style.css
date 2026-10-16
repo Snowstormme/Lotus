@@ -287,6 +287,17 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .calendar-day.has-events::after { background: var(--color-accent); border-radius: 50%; bottom: var(--space-2); content: ''; height: 0.4rem; left: 50%; position: absolute; transform: translateX(-50%); width: 0.4rem; }
 .calendar-day.selected { border-color: var(--color-accent); box-shadow: 0 0 0 2px var(--color-accent-border); }
 .calendar-day:hover { background: var(--color-accent-surface); }
+.feed-layout { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }
+.feed-composer textarea { min-height: 7rem; resize: vertical; }
+.character-count { display: block; margin-top: var(--space-1); }
+.feed-list { display: grid; gap: var(--space-4); list-style: none; margin: 0; padding: 0; }
+.feed-post { margin: 0; min-width: 0; overflow-wrap: normal; word-break: normal; }
+.feed-post-header { align-items: flex-start; display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: space-between; }
+.feed-post-meta { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.feed-post-body { margin: var(--space-4) 0; overflow-wrap: normal; white-space: pre-wrap; word-break: normal; }
+.post-actions { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.report-options { align-items: end; display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+.report-options .field { margin: 0; min-width: 12rem; }
 
 @media (min-width: 768px) {
   .shell-topbar { padding-left: var(--space-6); padding-right: var(--space-6); }
