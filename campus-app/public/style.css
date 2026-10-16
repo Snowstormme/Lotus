@@ -210,6 +210,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .shell-auth-actions a { color: var(--color-accent-hover); }
 .icon-button { background: var(--color-raised); border-color: var(--color-border); color: var(--color-text-secondary); min-height: 44px; }
 .icon-button:hover { background: var(--color-accent-surface); color: var(--color-text-primary); }
+.notification-button { gap: var(--space-2); white-space: nowrap; }
 .app-main.page { margin: 0; max-width: none; min-width: 0; padding: var(--space-8) clamp(var(--space-4), 4vw, var(--space-12)); }
 .mobile-bottom-bar { align-items: center; background: var(--color-surface); border-top: 1px solid var(--color-border); bottom: 0; display: flex; gap: var(--space-1); justify-content: space-around; left: 0; padding: var(--space-2) var(--space-2) max(var(--space-2), env(safe-area-inset-bottom)); position: fixed; right: 0; z-index: 10; }
 .mobile-nav-link { flex: 1 1 0; font-size: var(--font-size-xs); justify-content: center; min-width: 0; padding-left: var(--space-1); padding-right: var(--space-1); text-align: center; }

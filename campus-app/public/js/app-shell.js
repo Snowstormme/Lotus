@@ -114,11 +114,17 @@
 
   const topActions = document.createElement('div');
   topActions.className = 'shell-top-actions';
-  const notifications = document.createElement('button');
+  const notifications = document.createElement('a');
   notifications.className = 'icon-button';
-  notifications.type = 'button';
-  notifications.setAttribute('aria-label', 'Notifications placeholder');
+  notifications.href = 'index.html#reminders';
+  notifications.setAttribute('aria-label', 'Notifications');
+  notifications.classList.add('notification-button');
   notifications.textContent = 'Notifications';
+  const reminderBadge = document.createElement('span');
+  reminderBadge.className = 'unread-badge';
+  reminderBadge.hidden = true;
+  reminderBadge.dataset.reminderBadge = 'true';
+  notifications.appendChild(reminderBadge);
   const avatar = document.createElement('button');
   avatar.className = 'icon-button';
   avatar.type = 'button';
@@ -207,5 +213,25 @@
     });
   }).catch(function () {
     // Unread counts are optional and must not block navigation.
+  });
+
+  import('./auth.js').then(function (auth) {
+    return auth.getSession();
+  }).then(function (session) {
+    if (!session) return null;
+    return fetch('/api/reminders', { headers: { Authorization: 'Bearer ' + session.access_token } });
+  }).then(function (response) {
+    if (!response || !response.ok) return null;
+    return response.json();
+  }).then(function (reminders) {
+    if (!Array.isArray(reminders) || reminders.length === 0) return;
+    const count = Math.min(reminders.length, 9);
+    document.querySelectorAll('[data-reminder-badge]').forEach(function (badge) {
+      badge.hidden = false;
+      badge.textContent = reminders.length > 9 ? '9+' : String(count);
+    });
+    notifications.setAttribute('aria-label', 'Notifications, ' + (reminders.length > 9 ? '9+' : String(reminders.length)) + ' reminders.');
+  }).catch(function () {
+    // Reminder counts are optional and must not block navigation.
   });
 }());
