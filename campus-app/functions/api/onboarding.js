@@ -23,8 +23,7 @@ function getBearerToken(request) {
   return match ? match[1] : null;
 }
 
-async function getAuthUser(supabase, request) {
-  const token = getBearerToken(request);
+async function getAuthUser(supabase, token) {
   if (!token) return null;
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data.user) return null;
@@ -56,6 +55,20 @@ function validateProfile(body) {
 export async function onRequestGet(context) {
   try {
     const supabase = getSupabase(context.env);
+    const token = getBearerToken(context.request);
+    if (token) {
+      const user = await getAuthUser(supabase, token);
+      if (!user) return json({ error: 'Your session is not valid.' }, 401);
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return json({ hasProfile: Boolean(data) });
+    }
+
     const [universitiesResult, facultiesResult] = await Promise.all([
       supabase.from('universities').select('id, name, city').order('name'),
       supabase.from('faculties').select('id, university_id, name').order('name')
@@ -63,17 +76,10 @@ export async function onRequestGet(context) {
     if (universitiesResult.error) throw universitiesResult.error;
     if (facultiesResult.error) throw facultiesResult.error;
 
-    const response = {
+    return json({
       universities: universitiesResult.data || [],
       faculties: facultiesResult.data || []
-    };
-    const user = await getAuthUser(supabase, context.request);
-    if (user) {
-      const { data, error } = await supabase.from('users').select('id').eq('auth_user_id', user.id).maybeSingle();
-      if (error) throw error;
-      response.hasProfile = Boolean(data);
-    }
-    return json(response);
+    });
   } catch (error) {
     console.error('Could not load onboarding data:', error);
     return json({ error: 'Could not load onboarding data.' }, 500);
@@ -83,7 +89,7 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     const supabase = getSupabase(context.env);
-    const user = await getAuthUser(supabase, context.request);
+    const user = await getAuthUser(supabase, getBearerToken(context.request));
     if (!user) return json({ error: 'You must be logged in to save your profile.' }, 401);
 
     const body = validateProfile(await parseBody(context.request));
