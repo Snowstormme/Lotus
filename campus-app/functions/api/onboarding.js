@@ -124,7 +124,10 @@ export async function onRequestPost(context) {
       .select('id')
       .eq('auth_user_id', user.id)
       .maybeSingle();
-    if (existingError) throw existingError;
+    if (existingError) {
+      if (existingError.code === 'PGRST116') return json({ error: 'A profile already exists for this account.' }, 400);
+      throw existingError;
+    }
 
     if (existing) {
       const { error } = await supabase.from('users').update(profileFields).eq('id', existing.id).eq('auth_user_id', user.id);
@@ -135,7 +138,10 @@ export async function onRequestPost(context) {
         auth_user_id: user.id,
         is_demo: false
       });
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505') return json({ error: 'A profile already exists for this account.' }, 400);
+        throw error;
+      }
     }
 
     return json({ message: 'Your profile is saved' });
