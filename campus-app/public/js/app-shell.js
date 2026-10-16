@@ -20,7 +20,7 @@
     { key: 'home', label: 'Home', href: 'index.html' },
     { key: 'courses', label: 'Courses', href: 'courses.html' },
     { key: 'schedule', label: 'Schedule', href: 'schedule.html' },
-    { key: 'ai', label: 'AI Assistant', href: 'plan.html?id=1' },
+    { key: 'ai', label: 'AI Assistant', href: 'assistant.html' },
     { key: 'community', label: 'Community', href: 'partners.html?id=1' },
     { key: 'profile', label: 'Profile', href: 'profile.html?id=1' }
   ];
@@ -38,6 +38,7 @@
       return 'home';
     }
     if (page === 'plan.html') return 'ai';
+    if (page === 'assistant.html') return 'ai';
     if (page === 'partners.html') return 'community';
     if (page === 'profile.html') return 'profile';
     if (page === 'schedule.html') return 'schedule';
