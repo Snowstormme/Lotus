@@ -10,7 +10,7 @@ Never put these values in client files or commit them to Git.
 
 ## Scope
 
-Phase 1 (current): calendar, deadlines, courses, partners, cost estimate, AI plan.
+Phase 1 (current): calendar, deadlines, courses, partners, AI plan.
 Not in scope: grades, attendance, online library. See `AGENTS.md`.
 
 ## Supabase setup
@@ -29,7 +29,6 @@ The service role key is used only by server-side functions and bypasses RLS ther
 
 Run the plain Node tests from this directory:
 
-    node scripts/test-costs.js
     node scripts/test-matching.js
     node scripts/test-plan.js
 

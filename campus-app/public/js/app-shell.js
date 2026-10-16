@@ -29,7 +29,6 @@
   const moreItems = [
     { key: 'partners', label: 'Partners', href: 'partners.html?id=1' },
     { key: 'plan', label: 'Plan', href: 'plan.html?id=1' },
-    { key: 'cost', label: 'Cost', href: 'cost.html' },
     { key: 'todos', label: 'To-do', href: 'todos.html' },
     { key: 'groups', label: 'Groups', href: 'groups.html' },
     { key: 'events', label: 'Events', href: 'events.html' }
@@ -74,7 +73,6 @@
     const currentKey = getCurrentKey();
     const samePage = (page === 'plan.html' && ['ai', 'plan'].includes(item.key)) ||
       (page === 'partners.html' && ['community', 'partners'].includes(item.key)) ||
-      (page === 'cost.html' && item.key === 'cost') ||
       (page === 'todos.html' && item.key === 'todos') ||
       (page === 'groups.html' && item.key === 'groups') ||
       (page === 'events.html' && item.key === 'events');

@@ -32,8 +32,8 @@ Deploy on Cloudflare Pages. Connect the GitHub repository, leave the build comma
 ## Folder layout
 - `server/index.js`: Express app and routes
 - `server/db.js`: database connection and schema
-- `server/routes/`: one file per area (users, courses, calendar, partners, costs, plan)
-- `server/services/`: logic that is not HTTP (matching, cost calc, AI client)
+- `server/routes/`: one file per area (users, courses, calendar, partners, plan)
+- `server/services/`: logic that is not HTTP (matching, AI client)
 - `scripts/seed.js`: demo data
 - `public/`: frontend pages
 

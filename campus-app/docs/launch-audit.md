@@ -1,5 +1,7 @@
 # Lotus Campus launch security audit
 
+Note: the cost estimate feature was removed after this audit.
+
 Audit date: 2026-10-16. This is a repository-only, read-only audit. No SQL, RLS, storage settings, environment variables, packages, or application code were changed. The request ended during the rate-limit section; this report covers the listed checks and does not invent omitted requirements.
 
 ## Summary
