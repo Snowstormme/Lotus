@@ -1,6 +1,7 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { matchStudyPartners } from '../../lib/_matching.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
+import { createContactToken } from '../../lib/_contact.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -32,7 +33,12 @@ export async function onRequestGet(context) {
     if (enrollmentsResult.error) throw enrollmentsResult.error;
     if (slotsResult.error) throw slotsResult.error;
     const enrollments = enrollmentsResult.data.map((enrollment) => ({ user_id: enrollment.user_id, course_id: enrollment.course_id, course_code: enrollment.courses.code }));
-    return json(matchStudyPartners({ requestingUserId, users, enrollments, slots: slotsResult.data }));
+    const matched = matchStudyPartners({ requestingUserId, users, enrollments, slots: slotsResult.data, includeUserId: true });
+    const partners = await Promise.all(matched.map(async function (partner) {
+      const contactToken = await createContactToken(partner.user_id, context.env);
+      return { name: partner.name, year: partner.year, shared_courses: partner.shared_courses, overlapping_free_times: partner.overlapping_free_times, contact_token: contactToken };
+    }));
+    return json(partners);
   } catch (err) {
     if (err.status === 401 || err.status === 404) return json({ error: err.publicMessage }, err.status);
     console.error('Could not load study partners:', err);

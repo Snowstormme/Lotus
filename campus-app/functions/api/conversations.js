@@ -1,6 +1,7 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
 import { areUsersBlocked, isCompleteProfile, otherUserId } from '../../lib/_messaging.js';
+import { readContactToken } from '../../lib/_contact.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -83,31 +84,18 @@ export async function onRequestPost(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
     const body = await parseBody(context.request);
-    const recipientId = body && body.recipient_id;
-    const recipientName = body && typeof body.recipient_name === 'string' ? body.recipient_name.trim() : '';
-    const recipientYear = body && Number.isInteger(body.recipient_year) ? body.recipient_year : null;
-    if ((!Number.isInteger(recipientId) || recipientId < 1) && !recipientName) return json({ error: "You can't message this student." }, 403);
+    const contactToken = body && body.contact_token;
+    const recipientId = await readContactToken(contactToken, context.env);
+    if (!recipientId) return json({ error: 'This contact link has expired. Refresh the page and try again.' }, 400);
 
     const supabase = getSupabase(context.env);
-    let recipient;
-    let recipientError;
-    if (Number.isInteger(recipientId) && recipientId > 0) {
-      const result = await supabase.from('users').select('id, name, university_id, faculty_id, year, allow_messages').eq('id', recipientId).maybeSingle();
-      recipient = result.data;
-      recipientError = result.error;
-    } else {
-      let query = supabase.from('users').select('id, name, university_id, faculty_id, year, allow_messages').eq('name', recipientName).limit(2);
-      if (recipientYear !== null) query = query.eq('year', recipientYear);
-      const result = await query;
-      recipient = result.data && result.data.length === 1 ? result.data[0] : null;
-      recipientError = result.error;
-    }
+    const { data: recipient, error: recipientError } = await supabase.from('users').select('id, name, university_id, faculty_id, year, allow_messages').eq('id', recipientId).maybeSingle();
     if (recipientError) throw recipientError;
     if (recipient && recipient.id === profile.id) return json({ error: "You can't message this student." }, 403);
-    if (!isCompleteProfile(recipient) || recipient.allow_messages === false || await areUsersBlocked(supabase, profile.id, recipientId)) return json({ error: "You can't message this student." }, 403);
+    if (!isCompleteProfile(recipient) || recipient.allow_messages === false || await areUsersBlocked(supabase, profile.id, recipient.id)) return json({ error: "You can't message this student." }, 403);
 
-    const userA = Math.min(profile.id, recipientId);
-    const userB = Math.max(profile.id, recipientId);
+    const userA = Math.min(profile.id, recipient.id);
+    const userB = Math.max(profile.id, recipient.id);
     const { data: existing, error: existingError } = await supabase.from('conversations').select('id').eq('user_a_id', userA).eq('user_b_id', userB).maybeSingle();
     if (existingError) throw existingError;
     if (existing) return json({ conversation_id: existing.id });

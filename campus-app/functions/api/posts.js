@@ -1,5 +1,6 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
+import { createContactToken } from '../../lib/_contact.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -15,7 +16,7 @@ async function parseBody(request) {
   }
 }
 
-function mapPosts(posts, authors, likes, profileId) {
+async function mapPosts(posts, authors, likes, profileId, env) {
   const likeRows = likes || [];
   const counts = new Map();
   const liked = new Set();
@@ -23,7 +24,7 @@ function mapPosts(posts, authors, likes, profileId) {
     counts.set(like.post_id, (counts.get(like.post_id) || 0) + 1);
     if (like.user_id === profileId) liked.add(like.post_id);
   });
-  return (posts || []).map(function (post) {
+  return Promise.all((posts || []).map(async function (post) {
     const author = authors.get(post.author_id) || {};
     return {
       id: post.id,
@@ -33,9 +34,10 @@ function mapPosts(posts, authors, likes, profileId) {
       author_year: author.year,
       like_count: counts.get(post.id) || 0,
       liked_by_me: liked.has(post.id),
-      is_sample: author.is_demo === true
+      is_sample: author.is_demo === true,
+      contact_token: await createContactToken(post.author_id, env)
     };
-  });
+  }));
 }
 
 export async function onRequestGet(context) {
@@ -64,7 +66,7 @@ export async function onRequestGet(context) {
       .in('post_id', postIds);
     if (likesError) throw likesError;
     const authorsById = new Map((authors || []).map((author) => [author.id, author]));
-    return json(mapPosts(posts, authorsById, likes, profile.id));
+    return json(await mapPosts(posts, authorsById, likes, profile.id, context.env));
   } catch (error) {
     if (error.status === 401 || error.status === 404) return json({ error: error.publicMessage }, error.status);
     console.error('Could not load posts:', error);

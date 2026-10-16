@@ -14,7 +14,7 @@ function formatTime(minutes) {
   return String(Math.floor(minutes / 60)).padStart(2, '0') + ':' + String(minutes % 60).padStart(2, '0');
 }
 
-function matchStudyPartners({ requestingUserId, users, enrollments, slots, limit = 5 }) {
+function matchStudyPartners({ requestingUserId, users, enrollments, slots, limit = 5, includeUserId = false }) {
   const userById = new Map(users.map((user) => [user.id, user]));
   const requestUser = userById.get(requestingUserId);
   if (!requestUser) return [];
@@ -58,6 +58,7 @@ function matchStudyPartners({ requestingUserId, users, enrollments, slots, limit
       });
 
       return {
+        id: candidate.id,
         name: candidate.name,
         year: candidate.year,
         shared_courses: sharedCourses,
@@ -68,7 +69,8 @@ function matchStudyPartners({ requestingUserId, users, enrollments, slots, limit
     .filter((candidate) => candidate.shared_courses.length > 0)
     .sort((a, b) => b.score - a.score || String(a.name).localeCompare(String(b.name)))
     .slice(0, limit)
-    .map(({ name, year, shared_courses, overlapping_free_times }) => ({
+    .map(({ id, name, year, shared_courses, overlapping_free_times }) => ({
+      ...(includeUserId ? { user_id: id } : {}),
       name,
       year,
       shared_courses,
