@@ -1,6 +1,7 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
 import { generateChat } from '../../lib/_gemini.js';
+import { checkAiLimit, recordAiUsage } from '../../lib/_ai_limits.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -89,16 +90,24 @@ export async function onRequestPost(context) {
     if (body.courseId !== null && !course) return json({ error: 'That course is not available in your profile.' }, 400);
     const deadlines = body.mode === 'plan' ? await getPlanDeadlines(supabase, courses.map((item) => item.id)) : null;
     const prompt = buildPrompt({ message: body.message, mode: body.mode, course, deadlines });
+    const hasAiProvider = Boolean(context.env.AI || context.env.GEMINI_API_KEY);
+    if (!hasAiProvider) {
+      return json({ reply: 'Demo mode: the AI service is not connected yet.', mode: body.mode, course_code: course ? course.code : null, demo: true });
+    }
+    const limit = await checkAiLimit(supabase, profile.id, context.env);
+    if (!limit.allowed) {
+      if (limit.reason === 'student') return json({ error: "You have used today's assistant messages. Please try again tomorrow." }, 429);
+      return json({ error: 'The study assistant is busy today. Please try again tomorrow.' }, 429);
+    }
     let reply;
     if (context.env.AI) {
       reply = await generateWorkersAi(context.env, prompt);
     } else if (context.env.GEMINI_API_KEY) {
       reply = await generateChat(context.env, prompt);
-    } else {
-      return json({ reply: 'Demo mode: the AI service is not connected yet.', mode: body.mode, course_code: course ? course.code : null, demo: true });
     }
     reply = reply.trim();
-    return json({ reply, mode: body.mode, course_code: course ? course.code : null });
+    const remainingToday = await recordAiUsage(supabase, profile.id, context.env);
+    return json({ reply, mode: body.mode, course_code: course ? course.code : null, remaining_today: remainingToday });
   } catch (error) {
     console.error('Could not generate AI chat reply:', error);
     return json({ error: 'The study assistant could not answer right now. Please try again.' }, 503);
