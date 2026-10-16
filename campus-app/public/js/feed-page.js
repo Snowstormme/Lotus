@@ -85,6 +85,11 @@
         item.className = 'card feed-post';
         const header = document.createElement('div');
         header.className = 'feed-post-header';
+        const avatar = document.createElement('span');
+        avatar.className = 'avatar-circle feed-avatar';
+        const authorName = String(post.author_name || 'Student');
+        avatar.textContent = authorName.split(/\s+/).map(function (part) { return part[0]; }).join('').slice(0, 2).toUpperCase() || 'S';
+        avatar.setAttribute('aria-hidden', 'true');
         const meta = document.createElement('div');
         meta.className = 'feed-post-meta';
         addText(meta, 'strong', String(post.author_name || 'Student'));
@@ -106,7 +111,7 @@
             messageButton.disabled = false;
           }
         });
-        meta.appendChild(messageButton);
+        header.appendChild(avatar);
         header.appendChild(meta);
         addText(header, 'time', formatBakuDateTime(post.created_at) || 'Time unavailable', 'muted');
         const message = addText(item, 'p', String(post.body || ''), 'feed-post-body');
@@ -144,7 +149,7 @@
         reportButton.textContent = 'Report';
         const reportOptions = document.createElement('div');
         reportButton.addEventListener('click', function () { renderReportOptions(post, reportOptions); });
-        actions.append(likeButton, reportButton);
+        actions.append(messageButton, likeButton, reportButton);
         item.append(header, message, actions, reportOptions);
         feedList.appendChild(item);
       });
@@ -214,4 +219,4 @@
     }
 
     init();
-  
+

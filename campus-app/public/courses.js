@@ -29,6 +29,7 @@ function render() {
     const content = document.createElement('span'); content.className = 'course-card-content';
     const code = document.createElement('strong'); code.textContent = String(course.code || 'Course');
     const name = document.createElement('span'); name.className = 'course-card-name'; name.textContent = String(course.name || '');
+    if (course.is_catalog === true) { const catalog = document.createElement('span'); catalog.className = 'badge'; catalog.textContent = 'Catalog'; content.appendChild(catalog); }
     const details = document.createElement('span'); details.className = 'muted'; details.textContent = 'Teacher: ' + String(course.teacher || '—') + ' · Room: ' + String(course.room || '—');
     content.append(code, name, details); card.append(bar, content); return card;
   }));
