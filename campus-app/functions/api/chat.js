@@ -25,7 +25,7 @@ const modeInstructions = {
   plan: 'Suggest practical study steps based only on the student message, course context, and supplied deadlines.'
 };
 
-const DEFAULT_WORKERS_AI_MODEL = '@cf/meta/llama-3.1-8b-instruct';
+const DEFAULT_WORKERS_AI_MODEL = '@cf/meta/llama-3.1-8b-instruct-fp8';
 
 async function generateWorkersAi(env, prompt) {
   const model = env.WORKERS_AI_MODEL || DEFAULT_WORKERS_AI_MODEL;
