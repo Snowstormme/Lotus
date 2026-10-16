@@ -11,6 +11,25 @@
   <main class="page">
     <div class="schedule-page-header"><div><h1 class="page-title">Schedule</h1><p id="schedule-date" class="muted">Loading schedule...</p></div><div class="form-actions"><button id="today-button" class="btn secondary" type="button">Today</button><button id="previous-button" class="btn secondary" type="button" aria-label="Previous period">Previous</button><button id="next-button" class="btn secondary" type="button" aria-label="Next period">Next</button></div></div>
     <div id="schedule-status" class="alert info" role="status">Loading schedule...</div>
+    <section class="card personal-classes-panel" aria-labelledby="personal-classes-title">
+      <h2 id="personal-classes-title" class="card-title">My classes</h2>
+      <p id="personal-status" class="empty-state">Loading your personal classes...</p>
+      <form id="personal-class-form">
+        <div class="grid">
+          <div class="field"><label for="personal-title">Title</label><input id="personal-title" name="title" maxlength="100" required></div>
+          <div class="field"><label for="personal-weekday">Weekday</label><select id="personal-weekday" name="weekday"><option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option><option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option><option value="6">Sunday</option></select></div>
+          <div class="field"><label for="personal-start">Start time</label><input id="personal-start" name="start_time" type="time" required></div>
+          <div class="field"><label for="personal-end">End time</label><input id="personal-end" name="end_time" type="time" required></div>
+          <div class="field"><label for="personal-room">Room (optional)</label><input id="personal-room" name="room" maxlength="30"></div>
+        </div>
+        <button id="personal-add" class="btn primary" type="submit">Add class</button>
+      </form>
+      <form id="personal-import-form" class="personal-import-form">
+        <div class="field"><label for="personal-import">Paste several classes</label><textarea id="personal-import" rows="5" placeholder="Mon 10:00-11:30 Calculus II | B-204"></textarea><span class="muted">Example: Mon 10:00-11:30 Calculus II | B-204</span></div>
+        <button id="personal-import-button" class="btn secondary" type="submit">Import classes</button>
+      </form>
+      <div id="personal-classes-list"><p class="empty-state">Loading your personal classes...</p></div>
+    </section>
     <div class="view-tabs" role="tablist" aria-label="Schedule views">
       <button class="btn secondary view-tab" id="daily-tab" type="button" role="tab" aria-controls="daily-view" aria-selected="true" tabindex="0">Daily</button>
       <button class="btn secondary view-tab" id="weekly-tab" type="button" role="tab" aria-controls="weekly-view" aria-selected="false" tabindex="-1">Weekly</button>
