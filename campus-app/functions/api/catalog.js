@@ -1,5 +1,6 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
+import { getCatalogFacultyIds } from '../../lib/_catalog.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -8,10 +9,12 @@ function json(body, status = 200) {
 export async function onRequestGet(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
-    const { data, error } = await getSupabase(context.env)
+    const supabase = getSupabase(context.env);
+    const facultyIds = await getCatalogFacultyIds(supabase, profile);
+    const { data, error } = await supabase
       .from('courses')
-      .select('id, code, name, teacher')
-      .eq('faculty_id', profile.faculty_id)
+      .select('id, code, name, teacher, is_catalog')
+      .in('faculty_id', facultyIds)
       .order('code', { ascending: true });
     if (error) throw error;
     return json(data || []);

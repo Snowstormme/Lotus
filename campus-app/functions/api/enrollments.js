@@ -1,6 +1,7 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
 import { CURRENT_SEMESTER } from '../../lib/_enrollments.js';
+import { getCatalogFacultyIds } from '../../lib/_catalog.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -49,10 +50,11 @@ export async function onRequestPut(context) {
 
     const supabase = getSupabase(context.env);
     if (courseIds.length > 0) {
+      const facultyIds = await getCatalogFacultyIds(supabase, profile);
       const { data: courses, error: coursesError } = await supabase
         .from('courses')
         .select('id')
-        .eq('faculty_id', profile.faculty_id)
+        .in('faculty_id', facultyIds)
         .in('id', courseIds);
       if (coursesError) throw coursesError;
       const validIds = new Set((courses || []).map((course) => course.id));
