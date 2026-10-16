@@ -1,5 +1,7 @@
 import { getSession } from './js/auth.js';
 
+const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
 function showMessage(container, message, isError) {
   container.replaceChildren();
   const paragraph = document.createElement('p');
@@ -8,41 +10,13 @@ function showMessage(container, message, isError) {
   container.appendChild(paragraph);
 }
 
-async function getAuthHeaders() {
+async function getAuthContext() {
   try {
     const session = await getSession();
-    return session ? { Authorization: 'Bearer ' + session.access_token } : {};
+    return { session, headers: session ? { Authorization: 'Bearer ' + session.access_token } : {} };
   } catch (error) {
-    return {};
+    return { session: null, headers: {} };
   }
-}
-
-function appendTable(container, headings, rows) {
-  container.replaceChildren();
-  const table = document.createElement('table');
-  table.className = 'table';
-  const thead = document.createElement('thead');
-  const headerRow = document.createElement('tr');
-  headings.forEach(function (heading) {
-    const cell = document.createElement('th');
-    cell.textContent = heading;
-    headerRow.appendChild(cell);
-  });
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
-
-  const tbody = document.createElement('tbody');
-  rows.forEach(function (values) {
-    const row = document.createElement('tr');
-    values.forEach(function (value) {
-      const cell = document.createElement('td');
-      cell.textContent = value == null ? '' : String(value);
-      row.appendChild(cell);
-    });
-    tbody.appendChild(row);
-  });
-  table.appendChild(tbody);
-  container.appendChild(table);
 }
 
 function appendCourseTable(container, courses) {
@@ -68,7 +42,6 @@ function appendCourseTable(container, courses) {
     link.textContent = course.code == null ? '' : String(course.code);
     codeCell.appendChild(link);
     row.appendChild(codeCell);
-
     [course.name, course.teacher, course.room].forEach(function (value) {
       const cell = document.createElement('td');
       cell.textContent = value == null ? '' : String(value);
@@ -80,115 +53,116 @@ function appendCourseTable(container, courses) {
   container.appendChild(table);
 }
 
+function renderClasses(container, classes) {
+  container.replaceChildren();
+  const list = document.createElement('div');
+  list.className = 'class-list';
+  classes.forEach(function (classItem, index) {
+    const row = document.createElement('article');
+    row.className = 'class-row';
+    const bar = document.createElement('span');
+    bar.className = 'course-status-bar course-color-' + (index % 4);
+    bar.setAttribute('aria-hidden', 'true');
+    const details = document.createElement('div');
+    const course = document.createElement('strong');
+    course.textContent = String(classItem.code || 'Course');
+    const schedule = document.createElement('p');
+    schedule.className = 'muted';
+    schedule.textContent = (weekdays[classItem.weekday] || 'Day') + ' · ' + String(classItem.start_time || '') + '–' + String(classItem.end_time || '') + ' · Room ' + String(classItem.room || '—');
+    details.append(course, schedule);
+    row.append(bar, details);
+    list.appendChild(row);
+  });
+  container.appendChild(list);
+}
+
+function renderDeadlines(container, deadlines) {
+  container.replaceChildren();
+  const list = document.createElement('ul');
+  list.className = 'dashboard-list';
+  deadlines.forEach(function (deadline) {
+    const item = document.createElement('li');
+    const title = document.createElement('strong');
+    title.textContent = String(deadline.title || 'Deadline');
+    const meta = document.createElement('span');
+    meta.className = 'muted';
+    meta.textContent = String(deadline.code || '') + ' · ' + String(deadline.type || '') + ' · ' + String(deadline.due_at || '');
+    item.append(title, meta);
+    list.appendChild(item);
+  });
+  container.appendChild(list);
+}
+
+function setWelcome(container, title, university) {
+  container.replaceChildren();
+  const heading = document.createElement('h1');
+  heading.className = 'page-title';
+  heading.textContent = title;
+  const detail = document.createElement('p');
+  detail.className = university ? 'muted' : 'empty-state';
+  detail.textContent = university || 'Explore your courses, schedule, and student community.';
+  container.append(heading, detail);
+}
+
 async function init() {
-  const status = document.getElementById('status');
-  const studentsSection = document.getElementById('students');
+  const welcome = document.getElementById('welcome-content');
   const coursesSection = document.getElementById('courses-list');
   const deadlinesSection = document.getElementById('deadlines-list');
   const scheduleSection = document.getElementById('schedule-list');
-  const profileLink = document.querySelector('a[href="#profile"]');
-  const partnersLink = document.querySelector('a[href="#partners"]');
-  const costLink = document.querySelector('a[href="#cost"]');
-  const planLink = document.querySelector('a[href="#plan"]');
-  const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const context = await getAuthContext();
 
-  if (profileLink) profileLink.href = 'profile.html?id=1';
-  if (partnersLink) partnersLink.href = 'partners.html?id=1';
-  if (costLink) costLink.href = 'cost.html';
-  if (planLink) planLink.href = 'plan.html?id=1';
+  if (context.session) {
+    try {
+      const profileResponse = await fetch('/api/profile?id=1', { headers: context.headers });
+      if (!profileResponse.ok) throw new Error('Profile unavailable');
+      const profile = await profileResponse.json();
+      const firstName = String(profile.name || '').trim().split(/\s+/)[0] || 'student';
+      setWelcome(welcome, 'Welcome back, ' + firstName, profile.university || '');
+    } catch (error) {
+      setWelcome(welcome, 'Welcome to Lotus Campus', '');
+    }
+  } else {
+    setWelcome(welcome, 'Welcome to Lotus Campus', '');
+  }
 
   try {
-    const authHeaders = await getAuthHeaders();
-    // Health check
-    const healthRes = await fetch('/api/health');
-    const healthData = await healthRes.json();
-    if (!healthData.ok) throw new Error('Health check failed');
-    status.textContent = 'Connected to server.';
-    status.className = 'alert success';
-
-    // Load demo students
-    try {
-    const usersRes = await fetch('/api/users');
-      if (!usersRes.ok) {
-        showMessage(studentsSection, 'Could not load students.', true);
-      } else {
-        const users = await usersRes.json();
-        if (users.length === 0) {
-          showMessage(studentsSection, 'No demo students found.');
-        } else {
-          const list = document.createElement('ul');
-          users.forEach(function (user) {
-            const item = document.createElement('li');
-            item.textContent = user.name + ' — Year ' + user.year;
-            list.appendChild(item);
-          });
-          studentsSection.replaceChildren(list);
-        }
-      }
-    } catch (e) {
-      showMessage(studentsSection, 'Could not load students.', true);
+    const coursesResponse = await fetch('/api/courses', { headers: context.headers });
+    if (!coursesResponse.ok) throw new Error('Courses unavailable');
+    const courses = await coursesResponse.json();
+    if (!Array.isArray(courses) || courses.length === 0) {
+      showMessage(coursesSection, 'No courses yet. Your schedule will appear here once courses are added.');
+    } else {
+      appendCourseTable(coursesSection, courses);
     }
-
-    // Load courses
-    try {
-      const coursesRes = await fetch('/api/courses', { headers: authHeaders });
-      if (!coursesRes.ok) {
-        showMessage(coursesSection, 'Could not load courses.', true);
-      } else {
-        const courses = await coursesRes.json();
-        if (courses.length === 0) {
-          showMessage(coursesSection, 'No courses yet. Your schedule will appear here once courses are added.');
-        } else {
-          appendCourseTable(coursesSection, courses);
-        }
-      }
-    } catch (e) {
-      showMessage(coursesSection, 'Could not load courses.', true);
-    }
-
-    // Load upcoming deadlines
-    try {
-      const deadlinesRes = await fetch('/api/deadlines', { headers: authHeaders });
-      if (!deadlinesRes.ok) {
-        showMessage(deadlinesSection, 'Could not load deadlines.', true);
-      } else {
-        const deadlines = await deadlinesRes.json();
-        if (deadlines.length === 0) {
-          showMessage(deadlinesSection, 'No deadlines yet. Your upcoming work will appear here once courses are added.');
-        } else {
-          appendTable(deadlinesSection, ['Title', 'Course', 'Type', 'Due'], deadlines.map(function (deadline) {
-            return [deadline.title, deadline.code, deadline.type, deadline.due_at];
-          }));
-        }
-      }
-    } catch (e) {
-      showMessage(deadlinesSection, 'Could not load deadlines.', true);
-    }
-
-    // Load the weekly class schedule
-    try {
-      const scheduleRes = await fetch('/api/calendar', { headers: authHeaders });
-      if (!scheduleRes.ok) {
-        showMessage(scheduleSection, 'Could not load weekly schedule.', true);
-      } else {
-        const schedule = await scheduleRes.json();
-        if (schedule.length === 0) {
-          showMessage(scheduleSection, 'No classes yet. Your weekly schedule will appear here once courses are added.');
-        } else {
-          appendTable(scheduleSection, ['Course', 'Day', 'Start', 'End', 'Room'], schedule.map(function (classItem) {
-            return [classItem.code, weekdays[classItem.weekday] || 'Unknown day', classItem.start_time, classItem.end_time, classItem.room];
-          }));
-        }
-      }
-    } catch (e) {
-      showMessage(scheduleSection, 'Could not load weekly schedule.', true);
-    }
-  } catch (err) {
-    status.textContent = 'Could not reach the server functions. Check the deployment.';
-    showMessage(studentsSection, 'Could not load students.', true);
+  } catch (error) {
     showMessage(coursesSection, 'Could not load courses.', true);
+  }
+
+  try {
+    const deadlinesResponse = await fetch('/api/deadlines', { headers: context.headers });
+    if (!deadlinesResponse.ok) throw new Error('Deadlines unavailable');
+    const deadlines = await deadlinesResponse.json();
+    if (!Array.isArray(deadlines) || deadlines.length === 0) {
+      showMessage(deadlinesSection, 'No deadlines yet. Your upcoming work will appear here once courses are added.');
+    } else {
+      renderDeadlines(deadlinesSection, deadlines);
+    }
+  } catch (error) {
     showMessage(deadlinesSection, 'Could not load deadlines.', true);
-    showMessage(scheduleSection, 'Could not load weekly schedule.', true);
+  }
+
+  try {
+    const scheduleResponse = await fetch('/api/calendar', { headers: context.headers });
+    if (!scheduleResponse.ok) throw new Error('Schedule unavailable');
+    const schedule = await scheduleResponse.json();
+    if (!Array.isArray(schedule) || schedule.length === 0) {
+      showMessage(scheduleSection, 'No classes yet. Your weekly schedule will appear here once courses are added.');
+    } else {
+      renderClasses(scheduleSection, schedule);
+    }
+  } catch (error) {
+    showMessage(scheduleSection, 'Could not load the weekly schedule.', true);
   }
 }
+
 init();

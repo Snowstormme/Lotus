@@ -27,27 +27,59 @@
     </div>
   </header>
   <main class="page">
-    <h1 class="page-title">Lotus Campus</h1>
-    <p id="status" class="alert info" role="status" aria-live="polite">Loading...</p>
-    <div class="grid">
-      <section class="card">
-        <h2 class="card-title">Demo Students</h2>
-        <div id="students"><p class="empty-state">Loading students...</p></div>
+    <section class="card welcome-card" aria-live="polite">
+      <div id="welcome-content">
+        <h1 class="page-title">Loading your campus...</h1>
+        <p class="empty-state">Loading profile details...</p>
+      </div>
+    </section>
+
+    <section class="quick-actions-section" aria-labelledby="quick-actions-title">
+      <h2 id="quick-actions-title" class="section-title">Quick actions</h2>
+      <div class="quick-actions grid">
+        <a class="card action-card" href="plan.html?id=1"><strong>AI Assistant</strong><span class="muted">Build a study plan</span></a>
+        <a class="card action-card" href="index.html#courses"><strong>My Courses</strong><span class="muted">View enrolled courses</span></a>
+        <a class="card action-card" href="index.html#calendar"><strong>Schedule</strong><span class="muted">See your weekly classes</span></a>
+        <a class="card action-card" href="partners.html?id=1"><strong>Community</strong><span class="muted">Find study partners</span></a>
+      </div>
+    </section>
+
+    <div class="dashboard-grid">
+      <section id="calendar" class="card dashboard-card" aria-labelledby="schedule-title">
+        <div class="section-heading"><h2 id="schedule-title" class="card-title">Upcoming classes</h2><a href="index.html#calendar">View schedule</a></div>
+        <div id="schedule-list"><p class="empty-state">Loading upcoming classes...</p></div>
       </section>
 
-      <section id="courses" class="card">
-        <h2 class="card-title">Courses</h2>
+      <section id="deadlines" class="card dashboard-card" aria-labelledby="deadlines-title">
+        <div class="section-heading"><h2 id="deadlines-title" class="card-title">Upcoming deadlines</h2><a href="index.html#deadlines">View deadlines</a></div>
+        <div id="deadlines-list"><p class="empty-state">Loading upcoming deadlines...</p></div>
+      </section>
+
+      <section id="courses" class="card dashboard-card" aria-labelledby="courses-title">
+        <div class="section-heading"><h2 id="courses-title" class="card-title">Courses</h2><a href="index.html#courses">View courses</a></div>
         <div id="courses-list"><p class="empty-state">Loading courses...</p></div>
       </section>
 
-      <section id="deadlines" class="card">
-        <h2 class="card-title">Deadlines</h2>
-        <div id="deadlines-list"><p class="empty-state">Loading deadlines...</p></div>
+      <section class="card sample-card" aria-labelledby="feed-title">
+        <div class="section-heading"><h2 id="feed-title" class="card-title">Feed preview</h2><span class="badge">Sample</span></div>
+        <p class="muted">Sample activity will appear here in a future phase.</p>
+        <p>“Study room 3 is open this afternoon.”</p>
       </section>
 
-      <section id="calendar" class="card">
-        <h2 class="card-title">Weekly schedule</h2>
-        <div id="schedule-list"><p class="empty-state">Loading weekly schedule...</p></div>
+      <section class="card sample-card" aria-labelledby="groups-title">
+        <div class="section-heading"><h2 id="groups-title" class="card-title">Popular groups</h2><span class="badge">Sample</span></div>
+        <ul class="dashboard-list">
+          <li><strong>Calculus learners</strong><span class="muted">Sample group · 24 members</span></li>
+          <li><strong>Campus runners</strong><span class="muted">Sample group · 18 members</span></li>
+        </ul>
+      </section>
+
+      <section class="card sample-card" aria-labelledby="events-title">
+        <div class="section-heading"><h2 id="events-title" class="card-title">Campus events</h2><span class="badge">Sample</span></div>
+        <ul class="dashboard-list">
+          <li><strong>Welcome week meetup</strong><span class="muted">Sample event · Friday at 16:00</span></li>
+          <li><strong>Library orientation</strong><span class="muted">Sample event · Monday at 10:00</span></li>
+        </ul>
       </section>
     </div>
   </main>
