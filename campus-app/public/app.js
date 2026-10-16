@@ -94,6 +94,36 @@ function renderDeadlines(container, deadlines) {
   container.appendChild(list);
 }
 
+function renderFeedPreview(container, posts) {
+  container.replaceChildren();
+  const list = document.createElement('ul');
+  list.className = 'dashboard-list';
+  posts.slice(0, 3).forEach(function (post) {
+    const item = document.createElement('li');
+    const header = document.createElement('div');
+    header.className = 'feed-post-meta';
+    const author = document.createElement('strong');
+    author.textContent = String(post.author_name || 'Student');
+    header.appendChild(author);
+    if (post.is_sample === true) {
+      const sample = document.createElement('span');
+      sample.className = 'badge';
+      sample.textContent = 'Sample';
+      header.appendChild(sample);
+    }
+    const time = document.createElement('time');
+    time.className = 'muted';
+    time.textContent = formatBakuDateTime(post.created_at) || 'Time unavailable';
+    item.append(header, time);
+    const body = document.createElement('p');
+    body.className = 'pre-wrap';
+    body.textContent = String(post.body || '');
+    item.appendChild(body);
+    list.appendChild(item);
+  });
+  container.appendChild(list);
+}
+
 function setWelcome(container, title, university) {
   container.replaceChildren();
   const heading = document.createElement('h1');
@@ -113,6 +143,7 @@ async function init() {
   const coursesSection = document.getElementById('courses-list');
   const deadlinesSection = document.getElementById('deadlines-list');
   const scheduleSection = document.getElementById('schedule-list');
+  const feedSection = document.getElementById('feed-preview-list');
   const context = await getAuthContext();
 
   if (context.session) {
@@ -166,6 +197,19 @@ async function init() {
     }
   } catch (error) {
     showMessage(scheduleSection, 'Could not load the weekly schedule.', true);
+  }
+
+  try {
+    const feedResponse = await fetch('/api/posts', { headers: context.headers });
+    if (!feedResponse.ok) throw new Error('Feed unavailable');
+    const posts = await feedResponse.json();
+    if (!Array.isArray(posts) || posts.length === 0) {
+      showMessage(feedSection, 'No posts yet. Start the conversation.');
+    } else {
+      renderFeedPreview(feedSection, posts);
+    }
+  } catch (error) {
+    showMessage(feedSection, 'Could not load the feed preview.', true);
   }
 }
 
