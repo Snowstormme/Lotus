@@ -379,6 +379,9 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 @media (max-width: 420px) {
   .todo-item { display: grid; }
   .personal-class-row { display: grid; }
+  .upload-row { display: grid; }
+  .upload-actions { align-items: stretch; width: 100%; }
+  .upload-actions .btn, .upload-actions select { flex: 1 1 auto; }
 }
 
 @media (min-width: 700px) {
