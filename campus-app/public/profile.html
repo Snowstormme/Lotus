@@ -50,6 +50,7 @@
       </section>
 
       <section id="course-picker" hidden>
+        <h3 id="course-university-title" class="card-title"></h3>
         <h2 class="card-title">Your courses</h2>
         <p class="muted">Pick the courses you are taking this semester. You can change them later in your profile.</p>
         <p id="course-status" class="alert info" role="status" aria-live="polite">Loading courses...</p>
@@ -213,6 +214,12 @@
         const text = document.createElement('span');
         text.textContent = String(course.code) + ' — ' + String(course.name) + (course.teacher ? ' · ' + String(course.teacher) : '');
         label.append(checkbox, text);
+        if (course.is_catalog === true) {
+          const catalog = document.createElement('span');
+          catalog.className = 'badge';
+          catalog.textContent = 'Catalog';
+          label.appendChild(catalog);
+        }
         item.appendChild(label);
         list.appendChild(item);
       });
@@ -231,7 +238,7 @@
         const courses = Array.isArray(catalog) ? catalog : [];
         const selectedIds = Array.isArray(enrollments.course_ids) ? enrollments.course_ids : [];
         if (courses.length === 0) {
-          showCourseStatus('No courses found for this faculty yet.', 'info');
+          showCourseStatus('No courses listed for your university yet.', 'info');
           coursePickerReady = true;
           return;
         }
@@ -288,6 +295,7 @@
         document.getElementById('languages').value = profile.languages || '';
         document.getElementById('weekly-free-hours').value = profile.weekly_free_hours;
         if (session) {
+          document.getElementById('course-university-title').textContent = profile.university ? 'Courses at ' + String(profile.university) : '';
           document.getElementById('share-for-partners').checked = profile.share_for_partners === true;
           document.getElementById('visibility-setting').hidden = false;
           document.getElementById('allow-messages').checked = profile.allow_messages !== false;

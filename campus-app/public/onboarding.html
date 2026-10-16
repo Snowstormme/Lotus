@@ -43,6 +43,7 @@
         <select id="faculty" name="faculty_id" required></select>
       </div>
       <section id="course-picker" hidden>
+        <h3 id="course-university-title" class="card-title"></h3>
         <h2 class="card-title">Your courses</h2>
         <p class="muted">Pick the courses you are taking this semester. You can change them later in your profile.</p>
         <p id="course-status" class="alert info" role="status" aria-live="polite">Save your profile first to load courses.</p>
@@ -77,6 +78,7 @@
     const courseList = document.getElementById('course-list');
     let session;
     let faculties = [];
+    let universities = [];
     let catalogLoaded = false;
 
     function showStatus(container, message, kind) {
@@ -121,6 +123,12 @@
         const text = document.createElement('span');
         text.textContent = String(course.code) + ' — ' + String(course.name) + (course.teacher ? ' · ' + String(course.teacher) : '');
         label.append(checkbox, text);
+        if (course.is_catalog === true) {
+          const catalog = document.createElement('span');
+          catalog.className = 'badge';
+          catalog.textContent = 'Catalog';
+          label.appendChild(catalog);
+        }
         item.appendChild(label);
         courseList.appendChild(item);
       });
@@ -128,6 +136,8 @@
 
     async function loadCatalog() {
       setCourseStatus('Loading courses...', 'info');
+      const university = universities.find(function (item) { return Number(item.id) === Number(universitySelect.value); });
+      document.getElementById('course-university-title').textContent = university ? String(university.name) : '';
       try {
         const response = await fetch('/api/catalog', { headers: { Authorization: 'Bearer ' + session.access_token } });
         const body = await response.json().catch(function () { return {}; });
@@ -135,7 +145,7 @@
         const courses = Array.isArray(body) ? body : [];
         catalogLoaded = true;
         if (courses.length === 0) {
-          setCourseStatus('No courses found for this faculty yet.', 'info');
+          setCourseStatus('No courses listed for your university yet.', 'info');
           return;
         }
         renderCourses(courses);
@@ -172,7 +182,8 @@
         if (!optionsResponse.ok) throw new Error(optionsBody.error || 'Could not load onboarding data.');
 
         addOption(universitySelect, '', 'Choose a university');
-        optionsBody.universities.forEach(function (university) {
+        universities = Array.isArray(optionsBody.universities) ? optionsBody.universities : [];
+        universities.forEach(function (university) {
           const city = university.city ? ' (' + university.city + ')' : '';
           addOption(universitySelect, university.id, String(university.name) + city);
         });
