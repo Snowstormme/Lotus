@@ -45,7 +45,7 @@ export async function onRequestGet(context) {
 
     const { data, error } = await supabase
       .from('messages')
-      .select('id, sender_id, body, deleted, created_at')
+      .select('id, sender_id, body, created_at')
       .eq('conversation_id', conversation.id)
       .order('created_at', { ascending: true })
       .limit(50);
@@ -55,7 +55,7 @@ export async function onRequestGet(context) {
     const { error: readError } = await supabase.from('conversation_reads').upsert({ conversation_id: conversation.id, user_id: profile.id, last_read_at: now }, { onConflict: 'conversation_id,user_id' });
     if (readError) throw readError;
     return json((data || []).map(function (message) {
-      return { id: message.id, sender_is_me: message.sender_id === profile.id, body: message.deleted ? null : message.body, created_at: message.created_at };
+      return { id: message.id, sender_is_me: message.sender_id === profile.id, body: message.body, created_at: message.created_at };
     }));
   } catch (error) {
     if (error.status === 401 || error.status === 404) return json({ error: error.publicMessage }, error.status);
@@ -83,7 +83,7 @@ export async function onRequestPost(context) {
     if (countError) throw countError;
     if ((count || 0) >= 20) return json({ error: 'Please wait before sending more messages.' }, 429);
 
-    const { data: created, error: createError } = await supabase.from('messages').insert({ conversation_id: conversation.id, sender_id: profile.id, body: messageBody, deleted: false }).select('id').single();
+    const { data: created, error: createError } = await supabase.from('messages').insert({ conversation_id: conversation.id, sender_id: profile.id, body: messageBody }).select('id').single();
     if (createError) throw createError;
     const { error: updateError } = await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversation.id);
     if (updateError) throw updateError;

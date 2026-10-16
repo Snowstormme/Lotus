@@ -18,7 +18,7 @@ async function areUsersBlocked(supabase, firstId, secondId) {
 async function findConversation(supabase, conversationId) {
   const { data, error } = await supabase
     .from('conversations')
-    .select('id, user_a_id, user_b_id, created_at, last_message_at, hidden_for_a, hidden_for_b')
+    .select('id, user_a_id, user_b_id, created_at, last_message_at')
     .eq('id', conversationId)
     .maybeSingle();
   if (error) throw error;
