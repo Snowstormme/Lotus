@@ -3,7 +3,7 @@ import { requireOwnProfile } from '../../lib/_auth.js';
 
 const BUCKET = 'course-files';
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const KINDS = ['syllabus', 'presentation', 'notes', 'assignment', 'other'];
+const KINDS = ['notes', 'presentation', 'other'];
 const MIME_EXTENSIONS = {
   'application/pdf': 'pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
