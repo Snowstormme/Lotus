@@ -1,4 +1,5 @@
 import { getSession } from './js/auth.js';
+import { formatBakuDateTime } from './js/dates.js';
 
 const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -86,7 +87,7 @@ function renderDeadlines(container, deadlines) {
     title.textContent = String(deadline.title || 'Deadline');
     const meta = document.createElement('span');
     meta.className = 'muted';
-    meta.textContent = String(deadline.code || '') + ' · ' + String(deadline.type || '') + ' · ' + String(deadline.due_at || '');
+    meta.textContent = String(deadline.code || '') + ' · ' + String(deadline.type || '') + ' · ' + (formatBakuDateTime(deadline.due_at) || 'Due time unavailable');
     item.append(title, meta);
     list.appendChild(item);
   });

@@ -1,4 +1,5 @@
 import { getSession } from './js/auth.js';
+import { formatBakuDateTime, getBakuDateKey } from './js/dates.js';
 
 const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const shortDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -6,8 +7,7 @@ const state = { view: 'daily', selected: startOfDay(new Date()), classes: [], de
 
 function startOfDay(date) { const result = new Date(date); result.setHours(0, 0, 0, 0); return result; }
 function mondayOf(date) { const result = startOfDay(date); const day = (result.getDay() + 6) % 7; result.setDate(result.getDate() - day); return result; }
-function dateKey(date) { return date.toISOString().slice(0, 10); }
-function dateFromKey(key) { const [year, month, day] = key.split('-').map(Number); return new Date(year, month - 1, day); }
+function dateKey(date) { return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0'); }
 function displayDate(date) { return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }); }
 function classDay(date) { return (date.getDay() + 6) % 7; }
 function parseDueDate(value) { const date = new Date(value); return Number.isNaN(date.getTime()) ? null : date; }
@@ -25,10 +25,10 @@ function classCard(item, index) {
   content.append(createText('span', classLabel(item), 'badge schedule-type'));
   article.append(bar, content); return article;
 }
-function deadlineCard(item) { const itemNode = document.createElement('article'); itemNode.className = 'schedule-deadline'; itemNode.append(createText('strong', item.title || 'Deadline'), createText('span', String(item.type || 'Deadline') + ' · ' + String(item.code || '') + ' · ' + String(item.due_at || ''), 'muted')); return itemNode; }
+function deadlineCard(item) { const itemNode = document.createElement('article'); itemNode.className = 'schedule-deadline'; itemNode.append(createText('strong', item.title || 'Deadline'), createText('span', String(item.type || 'Deadline') + ' · ' + String(item.code || '') + ' · ' + (formatBakuDateTime(item.due_at) || 'Due time unavailable'), 'muted')); return itemNode; }
 function datesForWeek() { const monday = mondayOf(state.selected); return Array.from({ length: 7 }, (_, index) => { const date = new Date(monday); date.setDate(monday.getDate() + index); return date; }); }
 function classesForDate(date) { return state.classes.filter((item) => Number(item.weekday) === classDay(date)); }
-function deadlinesForDate(date) { return state.deadlines.filter((item) => { const due = parseDueDate(item.due_at); return due && dateKey(due) === dateKey(date); }); }
+function deadlinesForDate(date) { return state.deadlines.filter((item) => parseDueDate(item.due_at) && getBakuDateKey(item.due_at) === dateKey(date)); }
 
 function renderDaily() {
   const date = state.selected; document.getElementById('schedule-date').textContent = displayDate(date);
