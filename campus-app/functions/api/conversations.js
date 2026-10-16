@@ -27,7 +27,20 @@ export async function onRequestGet(context) {
       .or('user_a_id.eq.' + profile.id + ',user_b_id.eq.' + profile.id);
     if (conversationError) throw conversationError;
 
-    const visible = (conversations || []).filter(function (conversation) {
+    const conversationRows = conversations || [];
+    if (conversationRows.length === 0) return json([]);
+    const { data: blocks, error: blocksError } = await supabase
+      .from('user_blocks')
+      .select('blocker_id, blocked_id')
+      .or('blocker_id.eq.' + profile.id + ',blocked_id.eq.' + profile.id);
+    if (blocksError) throw blocksError;
+    const blockedPairs = new Set((blocks || []).map(function (block) {
+      return block.blocker_id + ':' + block.blocked_id;
+    }));
+    const visible = conversationRows.filter(function (conversation) {
+      const otherId = otherUserId(conversation, profile.id);
+      const isBlocked = blockedPairs.has(profile.id + ':' + otherId) || blockedPairs.has(otherId + ':' + profile.id);
+      if (isBlocked) return false;
       return conversation.user_a_id === profile.id ? conversation.hidden_for_a !== true : conversation.hidden_for_b !== true;
     });
     if (visible.length === 0) return json([]);
