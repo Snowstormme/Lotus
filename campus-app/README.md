@@ -36,4 +36,5 @@ Run the plain Node tests from this directory:
 ## Deployment log
 
 Redeployed to pick up Workers AI model update (@cf/meta/llama-3.1-8b-instruct-fp8).
+Redeployed to pick up the conversation list query fix.
 
