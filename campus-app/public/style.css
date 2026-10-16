@@ -274,6 +274,11 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .upload-actions { align-items: end; display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .upload-actions .field { margin: 0; min-width: 9rem; }
 .upload-actions select { min-height: 44px; }
+.group-filters { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
+.groups-grid { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }
+.group-card { cursor: pointer; margin: 0; min-width: 0; overflow-wrap: normal; word-break: normal; }
+.group-card:hover { border-color: var(--color-accent); }
+.group-description { min-width: 0; overflow-wrap: normal; white-space: pre-wrap; word-break: normal; }
 .assistant-layout { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }
 .assistant-toolbar { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
 .suggestions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -357,6 +362,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .schedule-view-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .course-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .groups-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .assistant-layout { grid-template-columns: minmax(16rem, 0.8fr) minmax(0, 1.4fr); }
   .assistant-toolbar { align-content: start; }
 }
@@ -382,6 +388,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .upload-row { display: grid; }
   .upload-actions { align-items: stretch; width: 100%; }
   .upload-actions .btn, .upload-actions select { flex: 1 1 auto; }
+  .group-card { padding: var(--space-4); }
 }
 
 @media (min-width: 700px) {
