@@ -293,6 +293,8 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .schedule-view-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .course-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .assistant-layout { grid-template-columns: minmax(16rem, 0.8fr) minmax(0, 1.4fr); }
+  .assistant-toolbar { align-content: start; }
 }
 @media (max-width: 767px) {
   .shell-topbar { align-items: stretch; flex-direction: column; gap: var(--space-2); }
