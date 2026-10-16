@@ -33,9 +33,9 @@
     <form id="profile-form" class="card" hidden>
       <section>
         <h2 class="card-title">Profile details</h2>
-        <div class="field"><label for="name">Name</label><input id="name" type="text" readonly></div>
-        <div class="field"><label for="university">University</label><input id="university" type="text" readonly></div>
-        <div class="field"><label for="faculty">Faculty</label><input id="faculty" type="text" readonly></div>
+        <div class="field"><label for="name">Full name</label><input id="name" type="text" maxlength="80" required></div>
+        <div class="field"><label for="university">University</label><select id="university" required></select></div>
+        <div class="field"><label for="faculty">Faculty</label><select id="faculty" required></select></div>
         <div class="field"><label for="year">Year (1 to 6)</label><input id="year" type="number" min="1" max="6" step="1" required></div>
         <div class="field"><label for="languages">Languages (maximum 50 characters)</label><input id="languages" type="text" maxlength="50" required></div>
         <div class="field"><label for="weekly-free-hours">Weekly free hours (0 to 60)</label><input id="weekly-free-hours" type="number" min="0" max="60" step="1" required></div>
@@ -79,6 +79,9 @@
     const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
     let activeSession = null;
     let coursePickerReady = false;
+    let originalFacultyId = null;
+    let universities = [];
+    let faculties = [];
 
     function showMessage(container, message, isError) {
       container.textContent = message;
@@ -186,10 +189,65 @@
         weekly_free_hours: Number(document.getElementById('weekly-free-hours').value)
       };
       if (includeVisibility) {
+        update.name = document.getElementById('name').value;
+        update.university_id = Number(document.getElementById('university').value);
+        update.faculty_id = Number(document.getElementById('faculty').value);
         update.share_for_partners = document.getElementById('share-for-partners').checked;
         update.allow_messages = document.getElementById('allow-messages').checked;
       }
       return update;
+    }
+
+    function renderFacultyOptions(selectedFacultyId) {
+      const facultySelect = document.getElementById('faculty');
+      const universityId = Number(document.getElementById('university').value);
+      facultySelect.replaceChildren();
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Select a faculty';
+      facultySelect.appendChild(placeholder);
+      faculties.filter(function (faculty) {
+        return faculty.university_id === universityId;
+      }).forEach(function (faculty) {
+        const option = document.createElement('option');
+        option.value = String(faculty.id);
+        option.textContent = String(faculty.name);
+        facultySelect.appendChild(option);
+      });
+      if (selectedFacultyId !== undefined && selectedFacultyId !== null) facultySelect.value = String(selectedFacultyId);
+    }
+
+    async function loadProfileOptions(profile) {
+      const response = await fetch('/api/onboarding');
+      const body = await response.json().catch(function () { return {}; });
+      if (!response.ok || !Array.isArray(body.universities) || !Array.isArray(body.faculties)) throw new Error('Could not load university options.');
+      universities = body.universities;
+      faculties = body.faculties;
+      const universitySelect = document.getElementById('university');
+      universitySelect.replaceChildren();
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Select a university';
+      universitySelect.appendChild(placeholder);
+      universities.forEach(function (university) {
+        const option = document.createElement('option');
+        option.value = String(university.id);
+        option.textContent = String(university.name) + (university.city ? ' — ' + String(university.city) : '');
+        universitySelect.appendChild(option);
+      });
+      universitySelect.value = profile.university_id ? String(profile.university_id) : '';
+      if (!universitySelect.value && profile.university) {
+        const matchingUniversity = universities.find(function (university) { return university.name === profile.university; });
+        if (matchingUniversity) universitySelect.value = String(matchingUniversity.id);
+      }
+      renderFacultyOptions(profile.faculty_id || undefined);
+      if (!document.getElementById('faculty').value && profile.faculty) {
+        const matchingFaculty = faculties.find(function (faculty) {
+          return faculty.university_id === Number(universitySelect.value) && faculty.name === profile.faculty;
+        });
+        if (matchingFaculty) document.getElementById('faculty').value = String(matchingFaculty.id);
+      }
+      universitySelect.addEventListener('change', function () { renderFacultyOptions(); });
     }
 
     function showCourseStatus(message, kind) {
@@ -228,6 +286,7 @@
 
     async function loadCoursesForProfile(session) {
       const picker = document.getElementById('course-picker');
+      document.getElementById('course-list').replaceChildren();
       picker.hidden = false;
       try {
         const headers = { Authorization: 'Bearer ' + session.access_token };
@@ -289,8 +348,11 @@
 
         document.getElementById('demo-note').hidden = profile.is_demo !== true;
         document.getElementById('name').value = profile.name || '';
-        document.getElementById('university').value = profile.university || '';
-        document.getElementById('faculty').value = profile.faculty || '';
+        await loadProfileOptions(profile);
+        originalFacultyId = profile.faculty_id || Number(document.getElementById('faculty').value) || null;
+        document.getElementById('name').readOnly = !session;
+        document.getElementById('university').disabled = !session;
+        document.getElementById('faculty').disabled = !session;
         document.getElementById('year').value = profile.year;
         document.getElementById('languages').value = profile.languages || '';
         document.getElementById('weekly-free-hours').value = profile.weekly_free_hours;
@@ -320,10 +382,15 @@
       const weeklyFreeHours = profileUpdate.weekly_free_hours;
       const slots = collectSlots();
       if (!Number.isInteger(year) || year < 1 || year > 6 || languages.length > 50 || /[\r\n]/.test(languages) ||
+          (activeSession && (profileUpdate.name.trim().length < 2 || profileUpdate.name.trim().length > 80 || /[\r\n]/.test(profileUpdate.name))) ||
+          (activeSession && (!Number.isInteger(profileUpdate.university_id) || profileUpdate.university_id < 1 || !Number.isInteger(profileUpdate.faculty_id) || profileUpdate.faculty_id < 1)) ||
           !Number.isInteger(weeklyFreeHours) || weeklyFreeHours < 0 || weeklyFreeHours > 60 || slots === null) {
         showMessage(saveStatus, 'Please enter valid profile and availability values.', true);
         return;
       }
+
+      const facultyChangedRequested = Boolean(activeSession && Number(profileUpdate.faculty_id) !== Number(originalFacultyId));
+      if (facultyChangedRequested && !window.confirm('Changing your faculty will clear your course selection for this semester. You will need to pick your courses again.')) return;
 
       const id = new URLSearchParams(window.location.search).get('id') || '1';
       try {
@@ -341,7 +408,7 @@
             body: JSON.stringify(slots)
           })
         ];
-        if (activeSession && coursePickerReady) {
+        if (activeSession && coursePickerReady && !facultyChangedRequested) {
           const selectedCourseIds = Array.from(document.querySelectorAll('#course-list input[type="checkbox"]:checked'))
             .map(function (input) { return Number(input.value); });
           requests.push(fetch('/api/enrollments', {
@@ -352,7 +419,15 @@
         }
         const responses = await Promise.all(requests);
         if (responses.some(function (response) { return !response.ok; })) throw new Error('Save failed');
-        showMessage(saveStatus, activeSession && coursePickerReady ? 'Profile, courses, and availability saved.' : 'Profile and availability saved.');
+        const profileResult = await responses[0].json().catch(function () { return {}; });
+        if (profileResult.faculty_changed === true) {
+          originalFacultyId = Number(profileResult.faculty_id);
+          await loadCoursesForProfile(activeSession);
+          showCourseStatus('Please choose your courses for your new faculty.', 'info');
+          showMessage(saveStatus, 'Profile and availability saved.', false);
+        } else {
+          showMessage(saveStatus, activeSession && coursePickerReady ? 'Profile, courses, and availability saved.' : 'Profile and availability saved.');
+        }
       } catch (err) {
         showMessage(saveStatus, 'Could not save profile.', true);
       }
