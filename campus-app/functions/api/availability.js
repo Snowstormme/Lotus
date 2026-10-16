@@ -61,14 +61,12 @@ export async function onRequestGet(context) {
 
 export async function onRequestPut(context) {
   const hasAuth = Boolean(context.request.headers.get('Authorization'));
-  const id = getUserId(context);
-  if (!hasAuth && !id) return json({ error: 'A valid demo user id is required.' }, 400);
+  if (!hasAuth) return json({ error: 'Login is required.' }, 401);
   const slots = await parseSlots(context.request);
   if (!slots) return json({ error: 'Availability slots are invalid.' }, 400);
   try {
     const supabase = getSupabase(context.env);
-    const user = hasAuth ? await requireOwnProfile(context.request, context.env) : await requireDemoUser(supabase, id);
-    if (!user) return json({ error: 'Demo user not found.' }, 404);
+    const user = await requireOwnProfile(context.request, context.env);
     const { error: deleteError } = await supabase.from('availability_slots').delete().eq('user_id', user.id);
     if (deleteError) throw deleteError;
     if (slots.length > 0) {

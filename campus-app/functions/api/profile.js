@@ -63,19 +63,16 @@ export async function onRequestGet(context) {
 
 export async function onRequestPut(context) {
   const hasAuth = Boolean(context.request.headers.get('Authorization'));
-  const id = getUserId(context);
-  if (!hasAuth && !id) return json({ error: 'A valid user id is required.' }, 400);
+  if (!hasAuth) return json({ error: 'Login is required.' }, 401);
   const body = validateBody(await parseBody(context.request));
   if (!body) return json({ error: 'Year, languages, and weekly free hours are invalid.' }, 400);
   try {
     const supabase = getSupabase(context.env);
-    const user = hasAuth ? await requireOwnProfile(context.request, context.env) : await getDemoUser(supabase, id);
-    if (!user) return json({ error: 'Demo user not found.' }, 404);
+    const user = await requireOwnProfile(context.request, context.env);
     const updateFields = { year: body.year, languages: body.languages, weekly_free_hours: body.weekly_free_hours };
-    if (hasAuth && Object.prototype.hasOwnProperty.call(body, 'share_for_partners')) updateFields.share_for_partners = body.share_for_partners;
-    if (hasAuth && Object.prototype.hasOwnProperty.call(body, 'allow_messages')) updateFields.allow_messages = body.allow_messages;
+    if (Object.prototype.hasOwnProperty.call(body, 'share_for_partners')) updateFields.share_for_partners = body.share_for_partners;
+    if (Object.prototype.hasOwnProperty.call(body, 'allow_messages')) updateFields.allow_messages = body.allow_messages;
     const update = supabase.from('users').update(updateFields).eq('id', user.id);
-    if (!hasAuth) update.eq('is_demo', true);
     const { error } = await update;
     if (error) throw error;
     return json({ message: 'Profile updated.' });
