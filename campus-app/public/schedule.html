@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lotus Campus — Schedule</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header"><div class="page header-inner"><a class="brand" href="index.html">Lotus Campus</a><nav class="site-nav" aria-label="Main navigation"><a href="index.html">Campus</a><a class="active" aria-current="page" href="schedule.html">Schedule</a><a href="courses.html">Courses</a><a href="partners.html?id=1">Partners</a><a href="cost.html">Cost</a><a href="plan.html?id=1">Plan</a><a href="profile.html?id=1">Profile</a><span class="auth-actions" id="auth-actions"><a id="login-link" href="login.html">Log in</a><a id="signup-link" href="signup.html">Sign up</a></span></nav></div></header>
+  <main class="page">
+    <div class="schedule-page-header"><div><h1 class="page-title">Schedule</h1><p id="schedule-date" class="muted">Loading schedule...</p></div><div class="form-actions"><button id="today-button" class="btn secondary" type="button">Today</button><button id="previous-button" class="btn secondary" type="button" aria-label="Previous period">Previous</button><button id="next-button" class="btn secondary" type="button" aria-label="Next period">Next</button></div></div>
+    <div id="schedule-status" class="alert info" role="status">Loading schedule...</div>
+    <div class="view-tabs" role="tablist" aria-label="Schedule views">
+      <button class="btn secondary view-tab" id="daily-tab" type="button" role="tab" aria-controls="daily-view" aria-selected="true" tabindex="0">Daily</button>
+      <button class="btn secondary view-tab" id="weekly-tab" type="button" role="tab" aria-controls="weekly-view" aria-selected="false" tabindex="-1">Weekly</button>
+      <button class="btn secondary view-tab" id="calendar-tab" type="button" role="tab" aria-controls="calendar-view" aria-selected="false" tabindex="-1">Calendar</button>
+    </div>
+    <section id="daily-view" class="schedule-view" role="tabpanel" aria-labelledby="daily-tab">
+      <div class="schedule-view-grid"><section class="card"><h2 class="card-title">Classes</h2><div id="daily-classes"><p class="empty-state">Loading classes...</p></div></section><section class="card"><h2 class="card-title">Deadlines</h2><div id="daily-deadlines"><p class="empty-state">Loading deadlines...</p></div></section></div>
+    </section>
+    <section id="weekly-view" class="schedule-view" role="tabpanel" aria-labelledby="weekly-tab" hidden><div id="weekly-content" class="card"><p class="empty-state">Loading weekly schedule...</p></div></section>
+    <section id="calendar-view" class="schedule-view" role="tabpanel" aria-labelledby="calendar-tab" hidden><div id="calendar-content" class="card"><p class="empty-state">Loading calendar...</p></div></section>
+  </main>
+  <script src="js/app-shell.js"></script>
+  <script type="module" src="schedule.js"></script>
+  <script src="js/header-auth.js"></script>
+</body>
+</html>
