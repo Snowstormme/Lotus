@@ -92,6 +92,7 @@ async function init() {
     const healthData = await healthRes.json();
     if (!healthData.ok) throw new Error('Health check failed');
     status.textContent = 'Connected to server.';
+    status.className = 'alert success';
 
     // Load demo students
     try {

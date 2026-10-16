@@ -37,7 +37,7 @@
     </form>
 
     <section class="card" aria-live="polite">
-      <p id="status" class="alert info" role="status"></p>
+      <p id="status" class="alert info" role="status" aria-live="polite">Ready to calculate.</p>
       <p class="muted">Estimate only. Prices are approximate and will be updated.</p>
       <h2 id="total">Total: —</h2>
       <div id="breakdown"></div>
@@ -92,12 +92,13 @@
         params.set(field.name, field.value);
       });
       status.textContent = 'Calculating...';
-      status.className = '';
+      status.className = 'alert info';
       try {
         const response = await fetch('/api/cost-estimate?' + params.toString());
         const body = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(body.error || 'Cost request failed');
-        status.textContent = '';
+        status.textContent = 'Estimate ready.';
+        status.className = 'alert success';
         total.textContent = 'Total: ' + body.total_azn + ' AZN';
         renderBreakdown(body.breakdown);
       } catch (err) {

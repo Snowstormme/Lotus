@@ -30,10 +30,10 @@
     <h1 class="page-title">AI study plan</h1>
     <button class="btn primary" id="generate" type="button">Generate plan</button>
     <section class="card" aria-live="polite">
-      <p id="status" class="alert info" role="status"></p>
-      <p id="source" class="badge"></p>
-      <p id="summary"></p>
-      <div id="plan"></div>
+      <p id="status" class="alert info" role="status" aria-live="polite">Loading saved plan...</p>
+      <p id="source" class="badge">Loading source...</p>
+      <p id="summary" class="empty-state">Loading summary...</p>
+      <div id="plan"><p class="empty-state">Loading weeks...</p></div>
     </section>
   </main>
   <script>
@@ -46,13 +46,14 @@
 
     function setStatus(message, isError) {
       status.textContent = message;
-      status.className = isError ? 'alert error' : '';
+      status.className = isError ? 'alert error' : 'alert info';
     }
 
     function renderPlan(responseBody) {
       const plan = responseBody.plan_json;
       source.textContent = responseBody.source === 'ai' ? 'AI generated' : 'Saved plan';
-      summary.textContent = plan && typeof plan.summary === 'string' ? plan.summary : '';
+      summary.textContent = plan && typeof plan.summary === 'string' && plan.summary
+        ? plan.summary : 'No summary available.';
       planContainer.replaceChildren();
 
       if (responseBody.note) {
@@ -62,7 +63,13 @@
         planContainer.appendChild(note);
       }
 
-      if (!plan || !Array.isArray(plan.weeks)) return;
+      if (!plan || !Array.isArray(plan.weeks) || plan.weeks.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'empty-state';
+        empty.textContent = 'No study plan weeks are available yet.';
+        planContainer.appendChild(empty);
+        return;
+      }
       plan.weeks.forEach(function (week) {
         const weekSection = document.createElement('section');
         weekSection.className = 'card';
@@ -96,7 +103,8 @@
         });
         const body = await response.json().catch(function () { return {}; });
         if (!response.ok) throw new Error(body.error || 'Could not load the study plan.');
-        setStatus('', false);
+        setStatus('Plan loaded.', false);
+        status.className = 'alert success';
         renderPlan(body);
       } catch (error) {
         setStatus(error.message || 'Could not load the study plan.', true);

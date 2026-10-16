@@ -72,13 +72,23 @@
 
       const start = document.createElement('input');
       start.type = 'time';
-      start.setAttribute('aria-label', weekdays[dayIndex] + ' start time');
       start.value = values && values.start_time ? String(values.start_time).slice(0, 5) : '';
+      const startLabel = document.createElement('label');
+      startLabel.textContent = 'Start';
+      startLabel.appendChild(start);
+      const startField = document.createElement('span');
+      startField.className = 'field';
+      startField.appendChild(startLabel);
 
       const end = document.createElement('input');
       end.type = 'time';
-      end.setAttribute('aria-label', weekdays[dayIndex] + ' end time');
       end.value = values && values.end_time ? String(values.end_time).slice(0, 5) : '';
+      const endLabel = document.createElement('label');
+      endLabel.textContent = 'End';
+      endLabel.appendChild(end);
+      const endField = document.createElement('span');
+      endField.className = 'field';
+      endField.appendChild(endLabel);
 
       const remove = document.createElement('button');
       remove.type = 'button';
@@ -87,9 +97,8 @@
         row.remove();
       });
 
-      row.appendChild(start);
-      row.appendChild(document.createTextNode(' to '));
-      row.appendChild(end);
+      row.appendChild(startField);
+      row.appendChild(endField);
       row.appendChild(remove);
       slots.appendChild(row);
     }
