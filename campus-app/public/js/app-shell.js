@@ -13,25 +13,30 @@
   const sidebarBrand = document.createElement('a');
   sidebarBrand.className = 'shell-brand';
   sidebarBrand.href = 'index.html';
-  sidebarBrand.textContent = 'Lotus Campus';
+  const logo = document.createElement('img');
+  logo.src = 'img/lotus-logo.svg';
+  logo.alt = '';
+  logo.className = 'shell-logo';
+  sidebarBrand.appendChild(logo);
+  const brandText = document.createElement('span');
+  brandText.textContent = 'Lotus Campus';
+  sidebarBrand.appendChild(brandText);
   sidebar.appendChild(sidebarBrand);
 
   const navItems = [
     { key: 'home', label: 'Home', href: 'index.html' },
+    { key: 'feed', label: 'Feed', href: 'feed.html' },
+    { key: 'messages', label: 'Messages', href: 'messages.html' },
+    { key: 'community', label: 'Community', href: 'groups.html', icon: 'community' },
     { key: 'courses', label: 'Courses', href: 'courses.html' },
     { key: 'schedule', label: 'Schedule', href: 'schedule.html' },
     { key: 'ai', label: 'AI Assistant', href: 'assistant.html' },
-    { key: 'feed', label: 'Feed', href: 'feed.html' },
-    { key: 'messages', label: 'Messages', href: 'messages.html' },
-    { key: 'community', label: 'Community', href: 'partners.html?id=1' },
-    { key: 'profile', label: 'Profile', href: 'profile.html?id=1' }
+    { key: 'events', label: 'Events', href: 'events.html' },
+    { key: 'todos', label: 'To-do', href: 'todos.html' }
   ];
   const moreItems = [
     { key: 'partners', label: 'Partners', href: 'partners.html?id=1' },
-    { key: 'plan', label: 'Plan', href: 'plan.html?id=1' },
-    { key: 'todos', label: 'To-do', href: 'todos.html' },
-    { key: 'groups', label: 'Groups', href: 'groups.html' },
-    { key: 'events', label: 'Events', href: 'events.html' }
+    { key: 'plan', label: 'Plan', href: 'plan.html?id=1' }
   ];
 
   function getCurrentKey() {
@@ -43,7 +48,7 @@
     }
     if (page === 'plan.html') return 'ai';
     if (page === 'assistant.html') return 'ai';
-    if (page === 'partners.html') return 'community';
+    if (page === 'partners.html' || page === 'groups.html') return 'community';
     if (page === 'profile.html') return 'profile';
     if (page === 'schedule.html') return 'schedule';
     if (page === 'courses.html') return 'courses';
@@ -51,7 +56,6 @@
     if (page === 'feed.html') return 'feed';
     if (page === 'messages.html') return 'messages';
     if (page === 'todos.html') return 'todos';
-    if (page === 'groups.html') return 'groups';
     if (page === 'events.html') return 'events';
     return '';
   }
@@ -61,7 +65,18 @@
     link.className = className || 'shell-nav-link';
     link.href = item.href;
     link.dataset.pageName = item.label;
-    link.textContent = item.label;
+    if (item.icon || item.key) {
+      const icon = document.createElement('svg');
+      icon.className = 'nav-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      const use = document.createElement('use');
+      use.setAttribute('href', 'img/icons.svg#' + (item.icon || item.key));
+      icon.appendChild(use);
+      link.appendChild(icon);
+    }
+    const label = document.createElement('span');
+    label.textContent = item.label;
+    link.appendChild(label);
     if (item.key === 'messages') {
       const badge = document.createElement('span');
       badge.className = 'unread-badge';
@@ -73,6 +88,7 @@
     const currentKey = getCurrentKey();
     const samePage = (page === 'plan.html' && ['ai', 'plan'].includes(item.key)) ||
       (page === 'partners.html' && ['community', 'partners'].includes(item.key)) ||
+      (page === 'groups.html' && item.key === 'community') ||
       (page === 'todos.html' && item.key === 'todos') ||
       (page === 'groups.html' && item.key === 'groups') ||
       (page === 'events.html' && item.key === 'events');
@@ -96,6 +112,23 @@
   moreNav.setAttribute('aria-label', 'More navigation');
   moreItems.forEach(function (item) { moreNav.appendChild(makeNavLink(item)); });
   sidebar.append(moreTitle, moreNav);
+
+  const userCard = document.createElement('a');
+  userCard.className = 'shell-user-card';
+  userCard.href = 'login.html';
+  const userAvatar = document.createElement('span');
+  userAvatar.className = 'avatar-circle';
+  userAvatar.textContent = '·';
+  const userInfo = document.createElement('span');
+  userInfo.className = 'shell-user-info';
+  const userName = document.createElement('strong');
+  userName.textContent = 'Log in';
+  const userUniversity = document.createElement('span');
+  userUniversity.className = 'muted';
+  userUniversity.textContent = 'Sign in to view your profile';
+  userInfo.append(userName, userUniversity);
+  userCard.append(userAvatar, userInfo);
+  sidebar.appendChild(userCard);
 
   const workspace = document.createElement('div');
   workspace.className = 'shell-workspace';
@@ -123,17 +156,23 @@
   notifications.href = 'index.html#reminders';
   notifications.setAttribute('aria-label', 'Notifications');
   notifications.classList.add('notification-button');
-  notifications.textContent = 'Notifications';
+  const bellIcon = document.createElement('svg');
+  bellIcon.className = 'nav-icon';
+  bellIcon.setAttribute('aria-hidden', 'true');
+  const bellUse = document.createElement('use');
+  bellUse.setAttribute('href', 'img/icons.svg#bell');
+  bellIcon.appendChild(bellUse);
+  notifications.appendChild(bellIcon);
   const reminderBadge = document.createElement('span');
   reminderBadge.className = 'unread-badge';
   reminderBadge.hidden = true;
   reminderBadge.dataset.reminderBadge = 'true';
   notifications.appendChild(reminderBadge);
-  const avatar = document.createElement('button');
+  const avatar = document.createElement('a');
   avatar.className = 'icon-button';
-  avatar.type = 'button';
-  avatar.setAttribute('aria-label', 'Avatar placeholder');
-  avatar.textContent = 'Avatar';
+  avatar.href = 'profile.html?id=1';
+  avatar.setAttribute('aria-label', 'Open profile');
+  avatar.textContent = 'You';
   topActions.append(notifications, avatar);
   if (authActions) {
     authActions.classList.add('shell-auth-actions');
@@ -151,7 +190,7 @@
   mobileBar.className = 'mobile-bottom-bar';
   mobileBar.setAttribute('aria-label', 'Mobile navigation');
   navItems.filter(function (item) { return ['home', 'courses', 'schedule', 'ai', 'feed', 'messages', 'profile'].includes(item.key); }).forEach(function (item) {
-    mobileBar.appendChild(makeNavLink(item, 'mobile-nav-link'));
+  mobileBar.appendChild(makeNavLink(item, 'mobile-nav-link'));
   });
   const addButton = document.createElement('button');
   addButton.className = 'mobile-add-button';
@@ -203,6 +242,18 @@
     return auth.getSession();
   }).then(function (session) {
     if (!session) return null;
+    fetch('/api/profile?id=1', { headers: { Authorization: 'Bearer ' + session.access_token } }).then(function (response) {
+      if (!response.ok) return null;
+      return response.json();
+    }).then(function (profile) {
+      if (!profile) return;
+      const name = String(profile.name || 'Student').trim() || 'Student';
+      const initials = name.split(/\s+/).map(function (part) { return part[0]; }).join('').slice(0, 2).toUpperCase();
+      userAvatar.textContent = initials || 'S';
+      userName.textContent = name;
+      userUniversity.textContent = String(profile.university || 'University not set');
+      userCard.href = 'profile.html?id=1';
+    }).catch(function () {});
     return fetch('/api/conversations', { headers: { Authorization: 'Bearer ' + session.access_token } });
   }).then(function (response) {
     if (!response || !response.ok) return null;
