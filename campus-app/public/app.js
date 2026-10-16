@@ -54,11 +54,14 @@ function appendCourseTable(container, courses) {
   container.appendChild(table);
 }
 
-function renderClasses(container, classes) {
+function renderClasses(container, classes, personalClasses) {
   container.replaceChildren();
   const list = document.createElement('div');
   list.className = 'class-list';
-  classes.forEach(function (classItem, index) {
+  const allClasses = (classes || []).map(function (classItem) { return { ...classItem, personal: false }; }).concat((personalClasses || []).map(function (classItem) { return { ...classItem, personal: true }; })).sort(function (first, second) {
+    return Number(first.weekday) - Number(second.weekday) || String(first.start_time || '').localeCompare(String(second.start_time || ''));
+  });
+  allClasses.forEach(function (classItem, index) {
     const row = document.createElement('article');
     row.className = 'class-row';
     const bar = document.createElement('span');
@@ -66,15 +69,28 @@ function renderClasses(container, classes) {
     bar.setAttribute('aria-hidden', 'true');
     const details = document.createElement('div');
     const course = document.createElement('strong');
-    course.textContent = String(classItem.code || 'Course');
+    course.textContent = classItem.personal ? String(classItem.title || 'Personal class') : String(classItem.code || 'Course');
     const schedule = document.createElement('p');
     schedule.className = 'muted';
     schedule.textContent = (weekdays[classItem.weekday] || 'Day') + ' · ' + String(classItem.start_time || '') + '–' + String(classItem.end_time || '') + ' · Room ' + String(classItem.room || '—');
     details.append(course, schedule);
+    if (classItem.personal) {
+      const label = document.createElement('span');
+      label.className = 'badge';
+      label.textContent = 'Personal';
+      details.appendChild(label);
+    }
     row.append(bar, details);
     list.appendChild(row);
   });
   container.appendChild(list);
+}
+
+function showPersonalHomeMessage(container, message) {
+  const paragraph = document.createElement('p');
+  paragraph.className = 'alert error';
+  paragraph.textContent = message;
+  container.appendChild(paragraph);
 }
 
 function renderDeadlines(container, deadlines) {
@@ -223,7 +239,17 @@ async function init() {
     if (!Array.isArray(schedule) || schedule.length === 0) {
       showMessage(scheduleSection, 'No classes yet. Your weekly schedule will appear here once courses are added.');
     } else {
-      renderClasses(scheduleSection, schedule);
+      renderClasses(scheduleSection, schedule, []);
+      if (context.session) {
+        try {
+          const personalResponse = await fetch('/api/personal-classes', { headers: context.headers });
+          if (!personalResponse.ok) throw new Error('Personal classes unavailable');
+          const personalClasses = await personalResponse.json();
+          renderClasses(scheduleSection, schedule, Array.isArray(personalClasses) ? personalClasses : []);
+        } catch (error) {
+          showPersonalHomeMessage(scheduleSection, 'Could not load personal classes.');
+        }
+      }
     }
   } catch (error) {
     showMessage(scheduleSection, 'Could not load the weekly schedule.', true);
