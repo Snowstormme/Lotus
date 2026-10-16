@@ -22,7 +22,6 @@
         <span class="auth-actions" id="auth-actions">
           <a id="login-link" href="login.html">Log in</a>
           <a id="signup-link" href="signup.html">Sign up</a>
-          <a id="logout-link" href="index.html" hidden>Log out</a>
         </span>
       </nav>
     </div>
@@ -50,6 +49,11 @@
       <button class="btn primary" type="submit">Save profile</button>
       <p id="save-status" class="alert" role="status"></p>
     </form>
+    <section class="card">
+      <h2 class="card-title">Account</h2>
+      <button id="profile-logout" class="btn secondary" type="button">Log out</button>
+      <p id="logout-status" class="alert" role="status" aria-live="polite"></p>
+    </section>
   </main>
   <script>
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -211,6 +215,22 @@
     });
 
     loadProfile();
+  </script>
+  <script type="module">
+    import { signOut } from './js/auth.js';
+
+    document.getElementById('profile-logout').addEventListener('click', async function () {
+      const status = document.getElementById('logout-status');
+      status.textContent = 'Signing out...';
+      status.className = 'alert info';
+      try {
+        await signOut();
+        window.location.href = 'login.html';
+      } catch (error) {
+        status.textContent = 'Could not sign out. Please try again.';
+        status.className = 'alert error';
+      }
+    });
   </script>
   <script src="js/header-auth.js"></script>
 </body>

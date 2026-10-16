@@ -2,8 +2,7 @@
   const actions = document.getElementById('auth-actions');
   const loginLink = document.getElementById('login-link');
   const signupLink = document.getElementById('signup-link');
-  const logoutLink = document.getElementById('logout-link');
-  if (!actions || !loginLink || !signupLink || !logoutLink) return;
+  if (!actions || !loginLink || !signupLink) return;
 
   function loadBrowserClient() {
     if (window.supabase) return Promise.resolve(window.supabase);
@@ -26,14 +25,8 @@
     const session = sessionResult.data.session;
     if (!session) return;
 
-    loginLink.hidden = true;
-    signupLink.hidden = true;
-    logoutLink.hidden = false;
-    logoutLink.addEventListener('click', async function (event) {
-      event.preventDefault();
-      await client.auth.signOut();
-      window.location.href = 'index.html';
-    });
+    loginLink.remove();
+    signupLink.remove();
 
     try {
       const profileResponse = await fetch('/api/onboarding', {
