@@ -22,6 +22,11 @@ async function getAuthContext() {
 
 function appendCourseTable(container, courses) {
   container.replaceChildren();
+  const materialsLink = document.getElementById('course-materials-link');
+  if (materialsLink) {
+    materialsLink.hidden = courses.length === 0;
+    if (courses.length > 0) materialsLink.href = 'course.html?id=' + encodeURIComponent(courses[0].id);
+  }
   const table = document.createElement('table');
   table.className = 'table';
   const thead = document.createElement('thead');
@@ -280,11 +285,20 @@ async function init() {
       const profile = await profileResponse.json();
       const firstName = String(profile.name || '').trim().split(/\s+/)[0] || 'student';
       setWelcome(welcome, 'Welcome back, ' + firstName, profile.university || '');
+      const university = document.getElementById('dashboard-university');
+      if (university) {
+        university.textContent = profile.university ? String(profile.university) : 'No university selected yet.';
+        university.className = profile.university ? 'university-name' : 'empty-state';
+      }
     } catch (error) {
       setWelcome(welcome, 'Welcome to Lotus Campus', '');
+      const university = document.getElementById('dashboard-university');
+      if (university) university.textContent = 'No university selected yet.';
     }
   } else {
     setWelcome(welcome, 'Welcome to Lotus Campus', '');
+    const university = document.getElementById('dashboard-university');
+    if (university) university.textContent = 'Log in to see your university.';
   }
 
   try {
