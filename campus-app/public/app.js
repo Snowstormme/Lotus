@@ -98,10 +98,13 @@ function setWelcome(container, title, university) {
   const heading = document.createElement('h1');
   heading.className = 'page-title';
   heading.textContent = title;
-  const detail = document.createElement('p');
-  detail.className = university ? 'muted' : 'empty-state';
-  detail.textContent = university || 'Explore your courses, schedule, and student community.';
-  container.append(heading, detail);
+  container.appendChild(heading);
+  if (university) {
+    const detail = document.createElement('p');
+    detail.className = 'muted';
+    detail.textContent = university;
+    container.appendChild(detail);
+  }
 }
 
 async function init() {
