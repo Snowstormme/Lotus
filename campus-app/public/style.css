@@ -170,6 +170,10 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .field input[readonly] { background: var(--color-readonly-surface); }
 .checkbox-label { align-items: center; display: flex; gap: var(--space-3); min-height: 44px; }
 .field .checkbox-label input[type="checkbox"] { accent-color: var(--color-accent); flex: 0 0 44px; min-height: 44px; width: 44px; }
+.course-checklist { display: grid; gap: var(--space-2); list-style: none; margin: 0; padding: 0; }
+.course-option { align-items: center; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; gap: var(--space-3); min-height: 44px; padding: var(--space-2) var(--space-3); }
+.course-option input[type="checkbox"] { accent-color: var(--color-accent); flex: 0 0 44px; min-height: 44px; width: 44px; }
+.course-option label { cursor: pointer; min-height: 44px; padding: var(--space-2) 0; }
 .form-actions { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-3); }
 
 .table { border-collapse: collapse; display: block; max-width: 100%; overflow-x: auto; width: 100%; }
