@@ -168,6 +168,8 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   width: 100%;
 }
 .field input[readonly] { background: var(--color-readonly-surface); }
+.checkbox-label { align-items: center; display: flex; gap: var(--space-3); min-height: 44px; }
+.field .checkbox-label input[type="checkbox"] { accent-color: var(--color-accent); flex: 0 0 44px; min-height: 44px; width: 44px; }
 .form-actions { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-3); }
 
 .table { border-collapse: collapse; display: block; max-width: 100%; overflow-x: auto; width: 100%; }

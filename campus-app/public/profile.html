@@ -39,6 +39,10 @@
         <div class="field"><label for="year">Year (1 to 6)</label><input id="year" type="number" min="1" max="6" step="1" required></div>
         <div class="field"><label for="languages">Languages (maximum 50 characters)</label><input id="languages" type="text" maxlength="50" required></div>
         <div class="field"><label for="weekly-free-hours">Weekly free hours (0 to 60)</label><input id="weekly-free-hours" type="number" min="0" max="60" step="1" required></div>
+        <div class="field visibility-setting" id="visibility-setting" hidden>
+          <label class="checkbox-label" for="share-for-partners"><input id="share-for-partners" type="checkbox">Show me to study partners in my courses</label>
+          <p class="muted">When this is on, students in your courses can see your name, year, and free times. You can turn it off at any time.</p>
+        </div>
       </section>
 
       <section>
@@ -61,6 +65,7 @@
 
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+    let activeSession = null;
 
     function showMessage(container, message, isError) {
       container.textContent = message;
@@ -161,12 +166,41 @@
       return invalid ? null : slots;
     }
 
+    function getProfileUpdate(includeVisibility) {
+      const update = {
+        year: Number(document.getElementById('year').value),
+        languages: document.getElementById('languages').value,
+        weekly_free_hours: Number(document.getElementById('weekly-free-hours').value)
+      };
+      if (includeVisibility) update.share_for_partners = document.getElementById('share-for-partners').checked;
+      return update;
+    }
+
+    async function saveVisibilitySetting() {
+      const status = document.getElementById('save-status');
+      const update = getProfileUpdate(true);
+      status.textContent = 'Saving visibility setting...';
+      status.className = 'alert info';
+      try {
+        const response = await fetch('/api/profile', {
+          method: 'PUT',
+          headers: { Authorization: 'Bearer ' + activeSession.access_token, 'Content-Type': 'application/json' },
+          body: JSON.stringify(update)
+        });
+        if (!response.ok) throw new Error('Visibility update failed');
+        showMessage(status, 'Partner visibility setting saved.');
+      } catch (err) {
+        showMessage(status, 'Could not save partner visibility setting.', true);
+      }
+    }
+
     async function loadProfile() {
       const loadStatus = document.getElementById('load-status');
       const form = document.getElementById('profile-form');
       const id = new URLSearchParams(window.location.search).get('id') || '1';
       try {
         const session = await getSession().catch(function () { return null; });
+        activeSession = session;
         const authHeaders = session ? { Authorization: 'Bearer ' + session.access_token } : {};
         const [profileResponse, availabilityResponse] = await Promise.all([
           fetch('/api/profile?id=' + encodeURIComponent(id), { headers: authHeaders }),
@@ -186,6 +220,10 @@
         document.getElementById('year').value = profile.year;
         document.getElementById('languages').value = profile.languages || '';
         document.getElementById('weekly-free-hours').value = profile.weekly_free_hours;
+        if (session) {
+          document.getElementById('share-for-partners').checked = profile.share_for_partners === true;
+          document.getElementById('visibility-setting').hidden = false;
+        }
         buildAvailabilityEditor(availability);
         loadStatus.textContent = 'Profile loaded.';
         form.hidden = false;
@@ -197,9 +235,10 @@
     document.getElementById('profile-form').addEventListener('submit', async function (event) {
       event.preventDefault();
       const saveStatus = document.getElementById('save-status');
-      const year = Number(document.getElementById('year').value);
-      const languages = document.getElementById('languages').value;
-      const weeklyFreeHours = Number(document.getElementById('weekly-free-hours').value);
+      const profileUpdate = getProfileUpdate(Boolean(activeSession));
+      const year = profileUpdate.year;
+      const languages = profileUpdate.languages;
+      const weeklyFreeHours = profileUpdate.weekly_free_hours;
       const slots = collectSlots();
       if (!Number.isInteger(year) || year < 1 || year > 6 || languages.length > 50 || /[\r\n]/.test(languages) ||
           !Number.isInteger(weeklyFreeHours) || weeklyFreeHours < 0 || weeklyFreeHours > 60 || slots === null) {
@@ -209,13 +248,13 @@
 
       const id = new URLSearchParams(window.location.search).get('id') || '1';
       try {
-        const session = await getSession().catch(function () { return null; });
+        const session = activeSession || await getSession().catch(function () { return null; });
         const authHeaders = session ? { Authorization: 'Bearer ' + session.access_token } : {};
         const [profileResponse, availabilityResponse] = await Promise.all([
           fetch('/api/profile?id=' + encodeURIComponent(id), {
             method: 'PUT',
             headers: { ...authHeaders, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ year, languages, weekly_free_hours: weeklyFreeHours })
+            body: JSON.stringify(profileUpdate)
           }),
           fetch('/api/availability?user_id=' + encodeURIComponent(id), {
             method: 'PUT',
@@ -228,6 +267,10 @@
       } catch (err) {
         showMessage(saveStatus, 'Could not save profile.', true);
       }
+    });
+
+    document.getElementById('share-for-partners').addEventListener('change', function () {
+      if (activeSession) saveVisibilitySetting();
     });
 
     loadProfile();
