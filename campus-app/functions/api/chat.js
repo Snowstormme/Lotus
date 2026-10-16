@@ -94,9 +94,8 @@ export async function onRequestPost(context) {
     if (!hasAiProvider) {
       return json({ reply: 'Demo mode: the AI service is not connected yet.', mode: body.mode, course_code: course ? course.code : null, demo: true });
     }
-    const limit = await checkAiLimit(supabase, profile.id, context.env);
+    const limit = await checkAiLimit(supabase, context.env);
     if (!limit.allowed) {
-      if (limit.reason === 'student') return json({ error: "You have used today's assistant messages. Please try again tomorrow." }, 429);
       return json({ error: 'The study assistant is busy today. Please try again tomorrow.' }, 429);
     }
     let reply;
@@ -106,8 +105,8 @@ export async function onRequestPost(context) {
       reply = await generateChat(context.env, prompt);
     }
     reply = reply.trim();
-    const remainingToday = await recordAiUsage(supabase, profile.id, context.env);
-    return json({ reply, mode: body.mode, course_code: course ? course.code : null, remaining_today: remainingToday });
+    await recordAiUsage(supabase);
+    return json({ reply, mode: body.mode, course_code: course ? course.code : null });
   } catch (error) {
     console.error('Could not generate AI chat reply:', error);
     return json({ error: 'The study assistant could not answer right now. Please try again.' }, 503);

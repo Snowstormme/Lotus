@@ -1,4 +1,3 @@
-const DEFAULT_PER_STUDENT_LIMIT = 20;
 const DEFAULT_TOTAL_LIMIT = 300;
 
 function readLimit(value, fallback) {
@@ -21,28 +20,20 @@ async function readUsage(supabase, usageDate, scopes) {
   return scopes.map((scope) => usage.get(scope) || 0);
 }
 
-async function checkAiLimit(supabase, profileId, env) {
-  const perStudentLimit = readLimit(env.AI_DAILY_LIMIT_PER_STUDENT, DEFAULT_PER_STUDENT_LIMIT);
+async function checkAiLimit(supabase, env) {
   const totalLimit = readLimit(env.AI_DAILY_LIMIT_TOTAL, DEFAULT_TOTAL_LIMIT);
   const usageDate = todayUtc();
-  const [totalUsed, studentUsed] = await readUsage(supabase, usageDate, ['total', 'user:' + profileId]);
-  if (studentUsed >= perStudentLimit) return { allowed: false, reason: 'student' };
+  const [totalUsed] = await readUsage(supabase, usageDate, ['total']);
   if (totalUsed >= totalLimit) return { allowed: false, reason: 'total' };
-  return { allowed: true, perStudentLimit, remainingBefore: perStudentLimit - studentUsed };
+  return { allowed: true };
 }
 
-async function recordAiUsage(supabase, profileId, env) {
-  const perStudentLimit = readLimit(env.AI_DAILY_LIMIT_PER_STUDENT, DEFAULT_PER_STUDENT_LIMIT);
+async function recordAiUsage(supabase) {
   const usageDate = todayUtc();
-  const studentScope = 'user:' + profileId;
-  const [totalUsed, studentUsed] = await readUsage(supabase, usageDate, ['total', studentScope]);
-  const rows = [
-    { usage_date: usageDate, scope: 'total', count: totalUsed + 1 },
-    { usage_date: usageDate, scope: studentScope, count: studentUsed + 1 }
-  ];
+  const [totalUsed] = await readUsage(supabase, usageDate, ['total']);
+  const rows = [{ usage_date: usageDate, scope: 'total', count: totalUsed + 1 }];
   const { error } = await supabase.from('ai_daily_usage').upsert(rows, { onConflict: 'usage_date,scope' });
   if (error) throw error;
-  return Math.max(perStudentLimit - studentUsed - 1, 0);
 }
 
 export { checkAiLimit, recordAiUsage };
