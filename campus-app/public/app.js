@@ -222,6 +222,31 @@ function renderPopularGroups(container, groups) {
   container.appendChild(list);
 }
 
+function renderNextEvents(container, events) {
+  container.replaceChildren();
+  const list = document.createElement('ul');
+  list.className = 'dashboard-list';
+  events.slice(0, 3).forEach(function (event) {
+    const item = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = 'events.html?id=' + encodeURIComponent(event.id);
+    link.textContent = String(event.title || 'Event');
+    item.appendChild(link);
+    const meta = document.createElement('span');
+    meta.className = 'muted';
+    meta.textContent = (formatBakuDateTime(event.starts_at) || 'Date unavailable') + ' · ' + String(event.location || 'Location unavailable') + ' · ' + String(event.rsvp_count || 0) + ' going';
+    item.appendChild(meta);
+    if (event.is_sample === true) {
+      const sample = document.createElement('span');
+      sample.className = 'badge';
+      sample.textContent = 'Sample';
+      item.appendChild(sample);
+    }
+    list.appendChild(item);
+  });
+  container.appendChild(list);
+}
+
 function setWelcome(container, title, university) {
   container.replaceChildren();
   const heading = document.createElement('h1');
@@ -245,6 +270,7 @@ async function init() {
   const feedSection = document.getElementById('feed-preview-list');
   const todosSection = document.getElementById('todos-list');
   const groupsSection = document.getElementById('popular-groups-list');
+  const eventsSection = document.getElementById('events-list');
   const context = await getAuthContext();
 
   if (context.session) {
@@ -357,6 +383,19 @@ async function init() {
     }
   } catch (error) {
     showMessage(groupsSection, 'Could not load groups.', true);
+  }
+
+  try {
+    const eventsResponse = await fetch('/api/events', { headers: context.headers });
+    if (!eventsResponse.ok) throw new Error('Events unavailable');
+    const events = await eventsResponse.json();
+    if (!Array.isArray(events) || events.length === 0) {
+      showMessage(eventsSection, 'No upcoming events yet. Check back soon.');
+    } else {
+      renderNextEvents(eventsSection, events);
+    }
+  } catch (error) {
+    showMessage(eventsSection, 'Could not load campus events.', true);
   }
 }
 
