@@ -4,7 +4,7 @@ A campus platform for university students in Azerbaijan: calendar, deadlines, co
 
 ## Environment
 
-Deploy on Cloudflare Pages. Connect the GitHub repository, leave the build command empty, set the output directory to public. Add these environment variables under Settings > Environment variables for Production and Preview: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEY, GEMINI_API_KEY.
+Deploy on Cloudflare Pages. Connect the GitHub repository, leave the build command empty, set the output directory to public. Add these environment variables under Settings > Environment variables for Production and Preview: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEY, GEMINI_API_KEY. Add the Workers AI binding named `AI` under Settings > Functions. The assistant uses Cloudflare Workers AI on the free allocation, which is shared and resets daily at 00:00 UTC.
 
 Never put these values in client files or commit them to Git.
 

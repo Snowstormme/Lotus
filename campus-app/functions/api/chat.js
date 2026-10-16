@@ -25,6 +25,27 @@ const modeInstructions = {
   plan: 'Suggest practical study steps based only on the student message, course context, and supplied deadlines.'
 };
 
+const DEFAULT_WORKERS_AI_MODEL = '@cf/meta/llama-3.1-8b-instruct';
+
+async function generateWorkersAi(env, prompt) {
+  const model = env.WORKERS_AI_MODEL || DEFAULT_WORKERS_AI_MODEL;
+  let timeoutId;
+  const timeout = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error('Workers AI request timed out')), 15000);
+  });
+  const request = Promise.resolve(env.AI.run(model, { prompt })).then((result) => {
+    if (!result || typeof result.response !== 'string' || !result.response.trim()) {
+      throw new Error('Workers AI returned no text');
+    }
+    return result.response;
+  });
+  try {
+    return await Promise.race([request, timeout]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 async function getCourses(supabase, userId) {
   const { data, error } = await supabase.from('enrollments').select('course_id, courses!inner(code, name)').eq('user_id', userId);
   if (error) throw error;
@@ -66,9 +87,17 @@ export async function onRequestPost(context) {
     const courses = await getCourses(supabase, profile.id);
     const course = body.courseId === null ? null : courses.find((item) => item.id === body.courseId);
     if (body.courseId !== null && !course) return json({ error: 'That course is not available in your profile.' }, 400);
-    if (!context.env.GEMINI_API_KEY) return json({ reply: 'Demo mode: the AI service is not connected yet.', mode: body.mode, course_code: course ? course.code : null, demo: true });
     const deadlines = body.mode === 'plan' ? await getPlanDeadlines(supabase, courses.map((item) => item.id)) : null;
-    const reply = (await generateChat(context.env, buildPrompt({ message: body.message, mode: body.mode, course, deadlines }))).trim();
+    const prompt = buildPrompt({ message: body.message, mode: body.mode, course, deadlines });
+    let reply;
+    if (context.env.AI) {
+      reply = await generateWorkersAi(context.env, prompt);
+    } else if (context.env.GEMINI_API_KEY) {
+      reply = await generateChat(context.env, prompt);
+    } else {
+      return json({ reply: 'Demo mode: the AI service is not connected yet.', mode: body.mode, course_code: course ? course.code : null, demo: true });
+    }
+    reply = reply.trim();
     return json({ reply, mode: body.mode, course_code: course ? course.code : null });
   } catch (error) {
     console.error('Could not generate AI chat reply:', error);
