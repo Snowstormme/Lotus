@@ -24,6 +24,11 @@
     { key: 'community', label: 'Community', href: 'partners.html?id=1' },
     { key: 'profile', label: 'Profile', href: 'profile.html?id=1' }
   ];
+  const moreItems = [
+    { key: 'partners', label: 'Partners', href: 'partners.html?id=1' },
+    { key: 'plan', label: 'Plan', href: 'plan.html?id=1' },
+    { key: 'cost', label: 'Cost', href: 'cost.html' }
+  ];
 
   function getCurrentKey() {
     const page = window.location.pathname.split('/').pop() || 'index.html';
@@ -45,7 +50,12 @@
     link.href = item.href;
     link.dataset.pageName = item.label;
     link.textContent = item.label;
-    if (item.key === getCurrentKey()) {
+    const page = window.location.pathname.split('/').pop() || 'index.html';
+    const currentKey = getCurrentKey();
+    const samePage = (page === 'plan.html' && ['ai', 'plan'].includes(item.key)) ||
+      (page === 'partners.html' && ['community', 'partners'].includes(item.key)) ||
+      (page === 'cost.html' && item.key === 'cost');
+    if (item.key === currentKey || samePage) {
       link.classList.add('active');
       link.setAttribute('aria-current', 'page');
     }
@@ -57,6 +67,14 @@
   sidebarNav.setAttribute('aria-label', 'Primary navigation');
   navItems.forEach(function (item) { sidebarNav.appendChild(makeNavLink(item)); });
   sidebar.appendChild(sidebarNav);
+  const moreTitle = document.createElement('h2');
+  moreTitle.className = 'shell-nav-heading';
+  moreTitle.textContent = 'More';
+  const moreNav = document.createElement('nav');
+  moreNav.className = 'shell-sidebar-nav shell-more-nav';
+  moreNav.setAttribute('aria-label', 'More navigation');
+  moreItems.forEach(function (item) { moreNav.appendChild(makeNavLink(item)); });
+  sidebar.append(moreTitle, moreNav);
 
   const workspace = document.createElement('div');
   workspace.className = 'shell-workspace';
@@ -129,11 +147,15 @@
   const sheetText = document.createElement('p');
   sheetText.className = 'muted';
   sheetText.textContent = 'This action will be available in a future phase.';
+  const sheetNav = document.createElement('nav');
+  sheetNav.className = 'shell-sidebar-nav coming-sheet-nav';
+  sheetNav.setAttribute('aria-label', 'More navigation');
+  moreItems.forEach(function (item) { sheetNav.appendChild(makeNavLink(item, 'shell-nav-link')); });
   const closeButton = document.createElement('button');
   closeButton.className = 'btn secondary';
   closeButton.type = 'button';
   closeButton.textContent = 'Close';
-  sheetCard.append(sheetTitle, sheetText, closeButton);
+  sheetCard.append(sheetTitle, sheetText, sheetNav, closeButton);
   sheet.appendChild(sheetCard);
   document.body.appendChild(sheet);
   addButton.addEventListener('click', function () { sheet.hidden = false; closeButton.focus(); });
