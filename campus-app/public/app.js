@@ -197,6 +197,31 @@ function renderTodos(container, todos) {
   container.appendChild(list);
 }
 
+function renderPopularGroups(container, groups) {
+  container.replaceChildren();
+  const list = document.createElement('ul');
+  list.className = 'dashboard-list';
+  groups.slice(0, 3).forEach(function (group) {
+    const item = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = 'groups.html?id=' + encodeURIComponent(group.id);
+    link.textContent = String(group.name || 'Group');
+    item.appendChild(link);
+    const meta = document.createElement('span');
+    meta.className = 'muted';
+    meta.textContent = String(group.member_count || 0) + ' member' + (group.member_count === 1 ? '' : 's') + ' · ' + String(group.kind || 'group');
+    item.appendChild(meta);
+    if (group.is_sample === true) {
+      const sample = document.createElement('span');
+      sample.className = 'badge';
+      sample.textContent = 'Sample';
+      item.appendChild(sample);
+    }
+    list.appendChild(item);
+  });
+  container.appendChild(list);
+}
+
 function setWelcome(container, title, university) {
   container.replaceChildren();
   const heading = document.createElement('h1');
@@ -219,6 +244,7 @@ async function init() {
   const scheduleSection = document.getElementById('schedule-list');
   const feedSection = document.getElementById('feed-preview-list');
   const todosSection = document.getElementById('todos-list');
+  const groupsSection = document.getElementById('popular-groups-list');
   const context = await getAuthContext();
 
   if (context.session) {
@@ -318,6 +344,19 @@ async function init() {
     renderTodos(todosSection, todos);
   } catch (error) {
     showMessage(todosSection, 'Could not load to-do items.', true);
+  }
+
+  try {
+    const groupsResponse = await fetch('/api/groups', { headers: context.headers });
+    if (!groupsResponse.ok) throw new Error('Groups unavailable');
+    const groups = await groupsResponse.json();
+    if (!Array.isArray(groups) || groups.length === 0) {
+      showMessage(groupsSection, 'No groups available yet.');
+    } else {
+      renderPopularGroups(groupsSection, groups);
+    }
+  } catch (error) {
+    showMessage(groupsSection, 'Could not load groups.', true);
   }
 }
 
