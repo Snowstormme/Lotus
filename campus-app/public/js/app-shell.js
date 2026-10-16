@@ -31,7 +31,8 @@
     { key: 'plan', label: 'Plan', href: 'plan.html?id=1' },
     { key: 'cost', label: 'Cost', href: 'cost.html' },
     { key: 'todos', label: 'To-do', href: 'todos.html' },
-    { key: 'groups', label: 'Groups', href: 'groups.html' }
+    { key: 'groups', label: 'Groups', href: 'groups.html' },
+    { key: 'events', label: 'Events', href: 'events.html' }
   ];
 
   function getCurrentKey() {
@@ -52,6 +53,7 @@
     if (page === 'messages.html') return 'messages';
     if (page === 'todos.html') return 'todos';
     if (page === 'groups.html') return 'groups';
+    if (page === 'events.html') return 'events';
     return '';
   }
 
@@ -74,7 +76,8 @@
       (page === 'partners.html' && ['community', 'partners'].includes(item.key)) ||
       (page === 'cost.html' && item.key === 'cost') ||
       (page === 'todos.html' && item.key === 'todos') ||
-      (page === 'groups.html' && item.key === 'groups');
+      (page === 'groups.html' && item.key === 'groups') ||
+      (page === 'events.html' && item.key === 'events');
     if (item.key === currentKey || samePage) {
       link.classList.add('active');
       link.setAttribute('aria-current', 'page');
