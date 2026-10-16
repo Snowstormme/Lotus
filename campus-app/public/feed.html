@@ -152,9 +152,9 @@
         messageButton.addEventListener('click', async function () {
           messageButton.disabled = true;
           try {
-            const response = await fetch('/api/conversations', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token }, body: JSON.stringify({ recipient_name: post.author_name, recipient_year: post.author_year }) });
+            const response = await fetch('/api/conversations', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token }, body: JSON.stringify({ contact_token: post.contact_token }) });
             const body = await response.json().catch(function () { return {}; });
-            if (!response.ok) throw new Error(response.status === 403 ? "You can't message this student." : 'Could not start the conversation.');
+            if (!response.ok) throw new Error(body.error || 'Could not start the conversation.');
             window.location.href = 'messages.html?conversation_id=' + encodeURIComponent(body.conversation_id);
           } catch (error) {
             showStatus(postStatus, error.message || "You can't message this student.", 'error');
