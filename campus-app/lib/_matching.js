@@ -17,7 +17,7 @@ function formatTime(minutes) {
 function matchStudyPartners({ requestingUserId, users, enrollments, slots, limit = 5 }) {
   const userById = new Map(users.map((user) => [user.id, user]));
   const requestUser = userById.get(requestingUserId);
-  if (!requestUser || requestUser.is_demo !== true) return [];
+  if (!requestUser) return [];
 
   const coursesByUser = new Map();
   enrollments.forEach((enrollment) => {
@@ -36,7 +36,7 @@ function matchStudyPartners({ requestingUserId, users, enrollments, slots, limit
 
   const requestSlots = slotsByUser.get(requestingUserId) || [];
   return users
-    .filter((candidate) => candidate.id !== requestingUserId && candidate.is_demo === true)
+    .filter((candidate) => candidate.id !== requestingUserId && (candidate.is_demo === true || candidate.share_for_partners === true))
     .map((candidate) => {
       const candidateCourses = coursesByUser.get(candidate.id) || new Map();
       const sharedCourses = Array.from(requestCourses.keys())
