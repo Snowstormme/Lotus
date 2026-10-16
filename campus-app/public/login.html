@@ -75,6 +75,18 @@
           password: document.getElementById('password').value
         });
         if (result.error) throw result.error;
+        try {
+          const profileResponse = await fetch('/api/onboarding', {
+            headers: { Authorization: 'Bearer ' + result.data.session.access_token }
+          });
+          if (profileResponse.ok) {
+            const profileStatus = await profileResponse.json();
+            window.location.replace(profileStatus.hasProfile ? 'index.html' : 'onboarding.html');
+            return;
+          }
+        } catch (profileError) {
+          // A profile check failure should not block a successful login.
+        }
         window.location.replace('index.html');
       } catch (error) {
         showMessage('Email or password is not correct.', true);

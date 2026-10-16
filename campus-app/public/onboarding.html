@@ -100,16 +100,30 @@
           return;
         }
 
-        const response = await fetch('/api/onboarding');
+        const response = await fetch('/api/onboarding', {
+          headers: { Authorization: 'Bearer ' + session.access_token }
+        });
         const body = await response.json().catch(function () { return {}; });
+        if (response.ok && body.hasProfile === true) {
+          window.location.replace('index.html');
+          return;
+        }
+        if (response.status === 401) {
+          window.location.href = 'login.html';
+          return;
+        }
         if (!response.ok) throw new Error(body.error || 'Could not load onboarding data.');
 
+        const optionsResponse = await fetch('/api/onboarding');
+        const optionsBody = await optionsResponse.json().catch(function () { return {}; });
+        if (!optionsResponse.ok) throw new Error(optionsBody.error || 'Could not load onboarding data.');
+
         addOption(universitySelect, '', 'Choose a university');
-        body.universities.forEach(function (university) {
+        optionsBody.universities.forEach(function (university) {
           const city = university.city ? ' (' + university.city + ')' : '';
           addOption(universitySelect, university.id, String(university.name) + city);
         });
-        faculties = Array.isArray(body.faculties) ? body.faculties : [];
+        faculties = Array.isArray(optionsBody.faculties) ? optionsBody.faculties : [];
         universitySelect.addEventListener('change', renderFaculties);
         renderFaculties();
         form.hidden = false;
@@ -159,6 +173,7 @@
         homeLink.href = 'index.html';
         homeLink.textContent = ' Go to the home page';
         saveStatus.appendChild(homeLink);
+        window.setTimeout(function () { window.location.replace('index.html'); }, 700);
       } catch (error) {
         showStatus(saveStatus, error.message || 'Could not save your profile.', 'error');
       }

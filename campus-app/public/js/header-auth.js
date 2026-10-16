@@ -28,6 +28,12 @@
     loginLink.remove();
     signupLink.remove();
 
+    const pageName = window.location.pathname.split('/').pop() || 'index.html';
+    if (pageName === 'login' || pageName === 'login.html' || pageName === 'signup' || pageName === 'signup.html') {
+      window.location.replace('index.html');
+      return;
+    }
+
     try {
       const profileResponse = await fetch('/api/onboarding', {
         headers: { Authorization: 'Bearer ' + session.access_token }
