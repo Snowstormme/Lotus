@@ -244,21 +244,22 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .course-tab[aria-selected="true"] { background: var(--color-accent-surface); border-color: var(--color-accent); color: var(--color-text-primary); }
 .detail-list { display: grid; gap: var(--space-2) var(--space-6); grid-template-columns: minmax(7rem, 0.35fr) minmax(0, 1fr); margin: 0; }
 .detail-list dt { color: var(--color-text-secondary); font-weight: var(--font-weight-bold); }
-.detail-list dd { margin: 0; overflow-wrap: normal; }
+.detail-list dd { margin: 0; overflow-wrap: normal; word-break: normal; }
+.course-panel { overflow-wrap: normal; word-break: normal; }
 .course-panel li { margin-bottom: var(--space-2); }
 .course-panel li > span { display: block; }
 .pre-wrap { white-space: pre-wrap; }
-.schedule-page-header { align-items: flex-start; display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: space-between; }
+.schedule-page-header { align-items: flex-start; display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: space-between; overflow-wrap: normal; word-break: normal; }
 .schedule-page-header .page-title { margin-bottom: var(--space-2); }
 .view-tabs { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); }
 .view-tab[aria-selected="true"] { background: var(--color-accent-surface); border-color: var(--color-accent); color: var(--color-text-primary); }
 .schedule-view-grid { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }
-.schedule-item, .schedule-deadline { align-items: stretch; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; gap: var(--space-3); margin-bottom: var(--space-3); min-height: 68px; overflow: hidden; padding-right: var(--space-3); }
+.schedule-item, .schedule-deadline { align-items: stretch; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; gap: var(--space-3); margin-bottom: var(--space-3); min-height: 68px; overflow: hidden; overflow-wrap: normal; padding-right: var(--space-3); word-break: normal; }
 .schedule-item > div, .schedule-deadline > * { padding: var(--space-3) 0; }
 .schedule-item p, .schedule-deadline span { display: block; margin: var(--space-1) 0 0; }
 .schedule-type { margin-top: var(--space-2); }
-.schedule-week { display: grid; gap: var(--space-3); grid-template-columns: repeat(7, minmax(8rem, 1fr)); min-width: 56rem; }
-.week-day { background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); min-width: 0; padding: var(--space-3); }
+.schedule-week { display: grid; gap: var(--space-3); grid-template-columns: repeat(7, minmax(8rem, 1fr)); max-width: 100%; min-width: 0; overflow-x: auto; }
+.week-day { background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); min-width: 0; overflow-wrap: normal; padding: var(--space-3); word-break: normal; }
 .week-day h3 { font-size: var(--font-size-md); margin: 0 0 var(--space-3); }
 .week-day .schedule-item { display: block; min-height: 0; padding: var(--space-3); }
 .week-day .schedule-item .course-status-bar { display: block; height: 4px; margin: calc(var(--space-3) * -1) calc(var(--space-3) * -1) var(--space-3); width: auto; }
