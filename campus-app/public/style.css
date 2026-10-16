@@ -389,6 +389,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .upload-actions { align-items: stretch; width: 100%; }
   .upload-actions .btn, .upload-actions select { flex: 1 1 auto; }
   .group-card { padding: var(--space-4); }
+  .group-card .btn { width: 100%; }
 }
 
 @media (min-width: 700px) {
