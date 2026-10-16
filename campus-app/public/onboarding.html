@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lotus Campus — Finish your profile</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page header-inner">
+      <a class="brand" href="index.html">Lotus Campus</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Campus</a>
+        <a href="index.html#calendar">Calendar</a>
+        <a href="index.html#deadlines">Deadlines</a>
+        <a href="index.html#courses">Courses</a>
+        <a href="partners.html?id=1">Partners</a>
+        <a href="cost.html">Cost</a>
+        <a href="plan.html?id=1">Plan</a>
+        <a href="profile.html?id=1">Profile</a>
+        <span class="auth-actions" id="auth-actions">
+          <a id="login-link" href="login.html">Log in</a>
+          <a id="signup-link" href="signup.html">Sign up</a>
+          <a id="logout-link" href="index.html" hidden>Log out</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+  <main class="page">
+    <h1 class="page-title">Finish your profile</h1>
+    <p id="status" class="alert info" role="status" aria-live="polite">Loading your profile form...</p>
+    <form id="onboarding-form" class="card" hidden>
+      <div class="field">
+        <label for="name">Full name</label>
+        <input id="name" name="name" type="text" minlength="2" maxlength="80" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label for="university">University</label>
+        <select id="university" name="university_id" required></select>
+      </div>
+      <div class="field">
+        <label for="faculty">Faculty</label>
+        <select id="faculty" name="faculty_id" required></select>
+      </div>
+      <div class="field">
+        <label for="year">Year (1 to 6)</label>
+        <input id="year" name="year" type="number" min="1" max="6" step="1" required>
+      </div>
+      <div class="field">
+        <label for="languages">Languages</label>
+        <input id="languages" name="languages" type="text" maxlength="50" aria-describedby="languages-hint" required>
+        <span id="languages-hint" class="muted">for example az, en, ru</span>
+      </div>
+      <button class="btn primary" type="submit">Save profile</button>
+      <p id="save-status" class="alert" role="status" aria-live="polite"></p>
+      <p class="muted">Your profile is visible only to you for now. Sharing settings come later.</p>
+    </form>
+  </main>
+  <script src="js/header-auth.js"></script>
+  <script type="module">
+    import { getSession } from './js/auth.js';
+
+    const form = document.getElementById('onboarding-form');
+    const status = document.getElementById('status');
+    const saveStatus = document.getElementById('save-status');
+    const universitySelect = document.getElementById('university');
+    const facultySelect = document.getElementById('faculty');
+    let session;
+    let faculties = [];
+
+    function showStatus(container, message, kind) {
+      container.textContent = message;
+      container.className = kind ? 'alert ' + kind : 'alert';
+    }
+
+    function addOption(select, value, label) {
+      const option = document.createElement('option');
+      option.value = String(value);
+      option.textContent = label;
+      select.appendChild(option);
+    }
+
+    function renderFaculties() {
+      const universityId = Number(universitySelect.value);
+      facultySelect.replaceChildren();
+      addOption(facultySelect, '', 'Choose a faculty');
+      faculties
+        .filter(function (faculty) { return Number(faculty.university_id) === universityId; })
+        .forEach(function (faculty) {
+          addOption(facultySelect, faculty.id, faculty.name);
+        });
+      facultySelect.disabled = facultySelect.options.length === 1;
+    }
+
+    async function loadForm() {
+      try {
+        session = await getSession();
+        if (!session) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const response = await fetch('/api/onboarding');
+        const body = await response.json().catch(function () { return {}; });
+        if (!response.ok) throw new Error(body.error || 'Could not load onboarding data.');
+
+        addOption(universitySelect, '', 'Choose a university');
+        body.universities.forEach(function (university) {
+          const city = university.city ? ' (' + university.city + ')' : '';
+          addOption(universitySelect, university.id, String(university.name) + city);
+        });
+        faculties = Array.isArray(body.faculties) ? body.faculties : [];
+        universitySelect.addEventListener('change', renderFaculties);
+        renderFaculties();
+        form.hidden = false;
+        showStatus(status, 'Complete your profile to continue.', 'info');
+      } catch (error) {
+        showStatus(status, error.message || 'Could not load the onboarding form.', 'error');
+      }
+    }
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const year = Number(document.getElementById('year').value);
+      const name = document.getElementById('name').value.trim();
+      const languages = document.getElementById('languages').value.trim();
+      if (name.length < 2 || name.length > 80 || year < 1 || year > 6 || languages.length > 50) {
+        showStatus(saveStatus, 'Please check your profile details.', 'error');
+        return;
+      }
+
+      showStatus(saveStatus, 'Saving your profile...', 'info');
+      try {
+        const response = await fetch('/api/onboarding', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + session.access_token
+          },
+          body: JSON.stringify({
+            name,
+            university_id: Number(universitySelect.value),
+            faculty_id: Number(facultySelect.value),
+            year,
+            languages
+          })
+        });
+        const body = await response.json().catch(function () { return {}; });
+        if (!response.ok) throw new Error(body.error || 'Could not save your profile.');
+
+        saveStatus.replaceChildren();
+        const message = document.createElement('span');
+        message.textContent = 'Your profile is saved';
+        saveStatus.className = 'alert success';
+        saveStatus.appendChild(message);
+        const homeLink = document.createElement('a');
+        homeLink.href = 'index.html';
+        homeLink.textContent = ' Go to the home page';
+        saveStatus.appendChild(homeLink);
+      } catch (error) {
+        showStatus(saveStatus, error.message || 'Could not save your profile.', 'error');
+      }
+    });
+
+    loadForm();
+  </script>
+</body>
+</html>
