@@ -33,3 +33,7 @@ Run the plain Node tests from this directory:
     node scripts/test-matching.js
     node scripts/test-plan.js
 
+## Deployment log
+
+Redeployed to pick up Workers AI model update (@cf/meta/llama-3.1-8b-instruct-fp8).
+
