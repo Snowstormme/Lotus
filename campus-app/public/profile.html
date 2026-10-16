@@ -28,7 +28,7 @@
   </header>
   <main class="page">
     <h1 class="page-title">Profile</h1>
-    <p class="alert info">Demo mode: only the demo student can be edited. Real accounts come in the next phase.</p>
+    <p id="demo-note" class="alert info" hidden>Demo mode: only the demo student can be edited. Real accounts come in the next phase.</p>
     <p id="load-status" class="alert info">Loading profile...</p>
     <form id="profile-form" class="card" hidden>
       <section>
@@ -280,6 +280,7 @@
         }
         if (!profileResponse.ok || !availabilityResponse.ok) throw new Error('Profile request failed');
 
+        document.getElementById('demo-note').hidden = profile.is_demo !== true;
         document.getElementById('name').value = profile.name || '';
         document.getElementById('university').value = profile.university || '';
         document.getElementById('faculty').value = profile.faculty || '';
@@ -297,7 +298,8 @@
         loadStatus.textContent = 'Profile loaded.';
         form.hidden = false;
       } catch (err) {
-        showMessage(loadStatus, 'Could not load the profile.', true);
+        console.error('Could not load profile:', err);
+        showMessage(loadStatus, 'Could not load your profile. Try again in a moment.', true);
       }
     }
 
