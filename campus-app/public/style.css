@@ -286,7 +286,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .personal-import-form { border-top: 1px solid var(--color-border); margin-top: var(--space-6); padding-top: var(--space-6); }
 .personal-class-list { display: grid; gap: var(--space-3); list-style: none; margin: var(--space-6) 0 0; padding: 0; }
 .personal-class-row { align-items: center; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: space-between; min-width: 0; padding: var(--space-3); }
-.personal-class-row > div { display: grid; gap: var(--space-1); min-width: 0; }
+.personal-class-row > div { display: grid; flex: 1 1 12rem; gap: var(--space-1); min-width: 0; overflow-wrap: normal; word-break: normal; }
 .schedule-item > div, .schedule-deadline > * { padding: var(--space-3) 0; }
 .schedule-item p, .schedule-deadline span { display: block; margin: var(--space-1) 0 0; }
 .schedule-type { margin-top: var(--space-2); }
@@ -368,6 +368,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 
 @media (max-width: 420px) {
   .todo-item { display: grid; }
+  .personal-class-row { display: grid; }
 }
 
 @media (min-width: 700px) {
