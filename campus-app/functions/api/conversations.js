@@ -23,7 +23,7 @@ export async function onRequestGet(context) {
     const supabase = getSupabase(context.env);
     const { data: conversations, error: conversationError } = await supabase
       .from('conversations')
-      .select('id, user_a_id, user_b_id, created_at, last_message_at, hidden_for_a, hidden_for_b')
+      .select('id, user_a_id, user_b_id, created_at, last_message_at')
       .or('user_a_id.eq.' + profile.id + ',user_b_id.eq.' + profile.id);
     if (conversationError) throw conversationError;
 
@@ -40,8 +40,7 @@ export async function onRequestGet(context) {
     const visible = conversationRows.filter(function (conversation) {
       const otherId = otherUserId(conversation, profile.id);
       const isBlocked = blockedPairs.has(profile.id + ':' + otherId) || blockedPairs.has(otherId + ':' + profile.id);
-      if (isBlocked) return false;
-      return conversation.user_a_id === profile.id ? conversation.hidden_for_a !== true : conversation.hidden_for_b !== true;
+      return !isBlocked;
     });
     if (visible.length === 0) return json([]);
 
@@ -49,7 +48,7 @@ export async function onRequestGet(context) {
     const conversationIds = visible.map((conversation) => conversation.id);
     const [usersResult, messagesResult, readsResult] = await Promise.all([
       supabase.from('users').select('id, name, year').in('id', otherIds),
-      supabase.from('messages').select('conversation_id, sender_id, body, deleted, created_at').in('conversation_id', conversationIds).order('created_at', { ascending: false }),
+      supabase.from('messages').select('conversation_id, sender_id, body, created_at').in('conversation_id', conversationIds).order('created_at', { ascending: false }),
       supabase.from('conversation_reads').select('conversation_id, last_read_at').eq('user_id', profile.id).in('conversation_id', conversationIds)
     ]);
     if (usersResult.error) throw usersResult.error;
