@@ -12,6 +12,7 @@
   --color-warning: #facc15;
   --color-danger: #fb7185;
   --color-info: #60a5fa;
+  --color-overlay: rgb(0 0 0 / 0.62);
   --color-accent-surface: rgb(124 92 255 / 0.16);
   --color-accent-border: rgb(124 92 255 / 0.42);
   --color-accent-text: #dcd6ff;
@@ -69,6 +70,7 @@ body {
 }
 a { color: var(--color-accent-hover); }
 a:hover { color: var(--color-text-primary); }
+.app-shell a { align-items: center; display: inline-flex; min-height: 44px; }
 button, input { font: inherit; }
 button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 button, .btn {
@@ -204,7 +206,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .mobile-nav-link { flex: 1 1 0; font-size: var(--font-size-xs); justify-content: center; min-width: 0; padding-left: var(--space-1); padding-right: var(--space-1); text-align: center; }
 .mobile-add-button { background: var(--color-accent); border-radius: 50%; color: var(--color-background); flex: 0 0 48px; font-size: var(--font-size-xl); min-height: 48px; padding: 0; }
 .mobile-add-button:hover { background: var(--color-accent-hover); }
-.coming-sheet { align-items: flex-end; background: rgb(0 0 0 / 0.62); display: flex; inset: 0; justify-content: center; padding: var(--space-4); position: fixed; z-index: 20; }
+.coming-sheet { align-items: flex-end; background: var(--color-overlay); display: flex; inset: 0; justify-content: center; padding: var(--space-4); position: fixed; z-index: 20; }
 .coming-sheet[hidden] { display: none; }
 .coming-sheet-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle); max-width: 28rem; padding: var(--space-6); width: 100%; }
 .section-title { font-size: var(--font-size-lg); margin: 0 0 var(--space-4); }
@@ -213,7 +215,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .action-card:hover { border-color: var(--color-accent); color: var(--color-text-primary); transform: translateY(-1px); }
 .dashboard-grid { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }
 .dashboard-card, .sample-card { margin: 0; min-width: 0; }
-.section-heading { align-items: flex-start; display: flex; gap: var(--space-3); justify-content: space-between; }
+.section-heading { align-items: flex-start; display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: space-between; }
 .section-heading .card-title { margin-bottom: var(--space-4); }
 .class-list { display: grid; gap: var(--space-3); }
 .class-row { align-items: stretch; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; gap: var(--space-3); min-height: 68px; overflow: hidden; padding-right: var(--space-3); }
