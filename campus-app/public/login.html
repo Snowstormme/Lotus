@@ -75,7 +75,7 @@
           password: document.getElementById('password').value
         });
         if (result.error) throw result.error;
-        window.location.href = 'onboarding.html';
+        window.location.replace('index.html');
       } catch (error) {
         showMessage('Email or password is not correct.', true);
       }

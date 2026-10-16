@@ -234,7 +234,7 @@
       status.className = 'alert info';
       try {
         await signOut();
-        window.location.href = 'login.html';
+        window.location.replace('index.html');
       } catch (error) {
         status.textContent = 'Could not sign out. Please try again.';
         status.className = 'alert error';
