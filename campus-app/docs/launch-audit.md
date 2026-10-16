@@ -5,8 +5,8 @@ Audit date: 2026-10-16. This is a repository-only, read-only audit. No SQL, RLS,
 ## Summary
 
 - **Pass:** no secret-looking values were found in committed files, `public/`, or `README.md`.
-- **Pass:** all 18 tables represented in `supabase/schema.sql` have RLS enable statements, and the file has no public policy statements.
-- **Warning:** the checked-in schema is behind the feature code and omits several live tables and columns.
+- **Pass:** the supplied live results enumerate 27 public tables, all with RLS enabled, and zero policies. The task text says 28 tables, so that count discrepancy remains open rather than being resolved by inventing a table.
+- **Warning:** `user-block.js` still reads two conversation columns that are absent from the supplied live column results.
 - **Warning:** demo fallback routes and public demo IDs remain enabled.
 - **Warning:** most write endpoints have no time-window rate limit.
 
@@ -59,13 +59,13 @@ The shared helper is `lib/_auth.js:44-52`. Onboarding has equivalent local token
 
 ## 3. Database access and RLS
 
-The schema declares: `universities`, `faculties`, `users`, `courses`, `enrollments`, `classes`, `deadlines`, `availability_slots`, `course_files`, `study_plans`, `posts`, `post_likes`, `post_reports`, `conversations`, `messages`, `conversation_reads`, `user_blocks`, and `conversation_reports` at `supabase/schema.sql:4-156`.
+The synced schema declares the 27 named tables from the supplied results at `supabase/schema.sql:4-238`: `ai_daily_usage`, `availability_slots`, `classes`, `conversation_reads`, `conversation_reports`, `conversations`, `course_files`, `course_uploads`, `courses`, `deadlines`, `enrollments`, `event_rsvps`, `events`, `faculties`, `group_members`, `groups`, `messages`, `personal_classes`, `post_likes`, `post_reports`, `posts`, `study_plans`, `todo_items`, `universities`, `upload_reports`, `user_blocks`, and `users`.
 
-**Status: pass for declared tables.** RLS is enabled for every declared table at `supabase/schema.sql:162-179`. There are no `create policy` statements in the file, so no public/anon policies are declared.
+**Status: pass for the supplied live RLS result.** All 27 named tables report `rowsecurity = true` in the owner-provided Query 2 result and have enable statements at `supabase/schema.sql:241-267`. Query 3 returned zero policies, and the file contains no `create policy` statements. The task text says 28 tables, but the supplied result contains 27 rows; this is reported as a data discrepancy rather than guessed around.
 
-**Status: fail for schema completeness.** Code uses tables absent from the file: `ai_daily_usage`, `groups`, `group_members`, `events`, `event_rsvps`, `todo_items`, `personal_classes`, `course_uploads`, and `upload_reports`. Code also relies on live columns absent from the file, including `users.auth_user_id`, `users.share_for_partners`, `messages.deleted` (used at `messages.js:48,108`), and conversation hidden-state columns used at `user-block.js:41,47`.
+**Status: warning for code/schema mismatch.** `functions/api/user-block.js:41,47` reads `conversations.hidden_for_a` and `conversations.hidden_for_b`, but neither column appears in the supplied live columns. No other code-read column was found missing from the supplied results.
 
-**Risk:** a clean database created from this repository will not reproduce the deployed application and may fail at runtime.
+**Risk:** user-block operations may fail at runtime until the live database result and the code agree on those columns.
 
 ## 4. Response data
 
@@ -101,3 +101,58 @@ The schema declares: `universities`, `faculties`, `users`, `courses`, `enrollmen
 2. Decide whether demo fallback routes should remain enabled in production.
 3. Add request-body/platform limits and rate limits to the endpoints above.
 4. Confirm Cloudflare production/preview secrets and the Workers AI binding in the dashboard; this audit cannot inspect dashboard configuration.
+
+## 7. Output safety
+
+**Status: pass.** No `innerHTML`, `outerHTML`, `insertAdjacentHTML`, or `document.write` occurrences were found under `public/`. Pages create DOM nodes and assign server data with `textContent` or safe URL checks instead.
+
+**File and line:** repository search across `public/` returned no matches.
+
+**Risk:** future use of HTML sinks could turn server text into scriptable markup. Keep the current text-only rendering pattern.
+
+## 8. Logging
+
+**Status: warning.** `console.error` is used throughout `functions/api/` for operational details, including `messages.js:62,93,113`, `chat.js:79,111`, `uploads.js:42,65,69`, `upload-link.js:9`, `conversations.js:90,120`, and the other endpoint handlers listed by the repository scan. No `console.log` calls were found.
+
+**File and line:** the handlers log error objects, not request message bodies, tokens, emails, storage paths, or signed URLs directly. However, the raw Supabase/storage error objects passed at `uploads.js:42,65,69` and `upload-link.js:9` could contain provider diagnostics; this was not proven safe from source alone.
+
+**Risk:** an upstream error object could accidentally include sensitive operational detail in function logs. Sanitize logged error fields before production launch.
+
+## 9. Storage
+
+**Status: pass with logging warning.** `functions/api/uploads.js:49-52` checks enrollment, validates the upload, and creates a 15-minute signed upload URL. `uploads.js:55-57` checks the signed upload token and enrollment, verifies the object, removes invalid objects, and stores only the generated path server-side. `functions/api/upload-link.js:8` checks enrollment and `hidden` before creating a five-minute signed download URL.
+
+**File and line:** `uploads.js:52,56-57`; `upload-link.js:8`.
+
+**Risk:** signed URLs are bearer capabilities. They are short-lived and not returned with storage paths, but raw storage errors should still be sanitized before logging.
+
+## 10. Headers
+
+**Status: fail.** No `_headers` or equivalent header configuration file was found. The repository does not set Content-Security-Policy, X-Content-Type-Options, Referrer-Policy, or frame protection.
+
+**File and line:** no matching header file exists under the repository; `wrangler.toml` only configures the Pages output directory and binding.
+
+**Risk:** browsers lack defense-in-depth against framing, MIME confusion, referrer leakage, and script injection.
+
+## 11. Demo exposure
+
+**Status: warning.** Logged-out read-only demo exposure exists in `users.js:7-12`, `courses.js:8-27`, `calendar.js:8-43`, `deadlines.js:8-30`, `course.js:7-28`, `profile.js:52-60`, `availability.js:44-59`, `partners.js:14-47`, `plan.js:82-95`, and the public estimate path in `cost-estimate.js:9-31`. Public non-student routes also include `health.js`, `config.js`, and onboarding catalog GET.
+
+**File and line:** logged-out write-capable demo fallbacks are `profile.js:64-81`, `availability.js:62-78`, and `plan.js:78-107`; these currently allow a request without a bearer token to target an `is_demo` row.
+
+**Risk:** demo write routes can be modified anonymously. Commit 3 is intended to remove this write exposure while preserving the requested read-only demo pages.
+
+## 12. Dependencies
+
+**Status: pass.** `package.json:7-9` contains only `@supabase/supabase-js` (`^2.45.0`), which is used by `lib/_supabase.js:1`. There are no unused package entries and no new packages were added.
+
+**File and line:** `package.json:7-9`; `lib/_supabase.js:1`.
+
+**Risk:** the dependency is maintained externally, so keep its version reviewed and deploy with lockfile/reproducible-install controls if the project adds a lockfile later.
+
+## Prioritized fixes
+
+- **Critical (0):** No critical finding was established in this repository-only audit.
+- **High (2):** Add response security headers and resolve the missing `conversations.hidden_for_a/hidden_for_b` columns before production use.
+- **Medium (4):** Remove anonymous demo writes, sanitize raw provider errors in logs, add request-body limits, and add time-window limits to the remaining write endpoints.
+- **Low (2):** Resolve the supplied 27-versus-28 table count discrepancy and keep public demo numeric IDs documented as intentionally non-real.
