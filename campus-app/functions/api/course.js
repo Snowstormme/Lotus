@@ -10,7 +10,7 @@ export async function onRequestGet(context) {
   if (!rawId || !Number.isInteger(id) || id <= 0) return json({ error: 'A valid course id is required.' }, 400);
   try {
     const supabase = getSupabase(context.env);
-    const { data: course, error: courseError } = await supabase.from('courses').select('code, name, teacher, room, schedule_text, syllabus').eq('id', id).maybeSingle();
+    const { data: course, error: courseError } = await supabase.from('courses').select('code, name, teacher, room, schedule_text, syllabus, source_url, source_note, is_catalog').eq('id', id).maybeSingle();
     if (courseError) throw courseError;
     if (!course) return json({ error: 'Course not found.' }, 404);
     const [classesResult, deadlinesResult, filesResult] = await Promise.all([
