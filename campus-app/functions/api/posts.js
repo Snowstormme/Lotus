@@ -15,7 +15,7 @@ async function parseBody(request) {
   }
 }
 
-function mapPosts(posts, likes, profileId) {
+function mapPosts(posts, authors, likes, profileId) {
   const likeRows = likes || [];
   const counts = new Map();
   const liked = new Set();
@@ -24,7 +24,7 @@ function mapPosts(posts, likes, profileId) {
     if (like.user_id === profileId) liked.add(like.post_id);
   });
   return (posts || []).map(function (post) {
-    const author = post.author || {};
+    const author = authors.get(post.author_id) || {};
     return {
       id: post.id,
       body: post.body,
@@ -44,7 +44,7 @@ export async function onRequestGet(context) {
     const supabase = getSupabase(context.env);
     const { data: posts, error: postsError } = await supabase
       .from('posts')
-      .select('id, body, created_at, author:users(name, year, is_demo)')
+      .select('id, author_id, body, created_at')
       .eq('university_id', profile.university_id)
       .eq('hidden', false)
       .order('created_at', { ascending: false })
@@ -53,12 +53,18 @@ export async function onRequestGet(context) {
 
     const postIds = (posts || []).map((post) => post.id);
     if (postIds.length === 0) return json([]);
+    const authorIds = Array.from(new Set((posts || []).map((post) => post.author_id).filter(Boolean)));
+    const { data: authors, error: authorsError } = authorIds.length > 0
+      ? await supabase.from('users').select('id, name, year, is_demo').in('id', authorIds)
+      : { data: [], error: null };
+    if (authorsError) throw authorsError;
     const { data: likes, error: likesError } = await supabase
       .from('post_likes')
       .select('post_id, user_id')
       .in('post_id', postIds);
     if (likesError) throw likesError;
-    return json(mapPosts(posts, likes, profile.id));
+    const authorsById = new Map((authors || []).map((author) => [author.id, author]));
+    return json(mapPosts(posts, authorsById, likes, profile.id));
   } catch (error) {
     if (error.status === 401 || error.status === 404) return json({ error: error.publicMessage }, error.status);
     console.error('Could not load posts:', error);
