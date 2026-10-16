@@ -7,14 +7,10 @@ function json(body, status = 200) {
 
 export async function onRequestGet(context) {
   try {
+    if (!context.request.headers.get('Authorization')) return json([]);
     const supabase = getSupabase(context.env);
-    let enrollmentQuery = supabase.from('enrollments').select('course_id, users!inner(is_demo)');
-    if (context.request.headers.get('Authorization')) {
-      const profile = await requireOwnProfile(context.request, context.env);
-      enrollmentQuery = supabase.from('enrollments').select('course_id').eq('user_id', profile.id);
-    } else {
-      enrollmentQuery = enrollmentQuery.eq('users.is_demo', true);
-    }
+    const profile = await requireOwnProfile(context.request, context.env);
+    const enrollmentQuery = supabase.from('enrollments').select('course_id').eq('user_id', profile.id);
     const { data: enrollments, error: enrollmentsError } = await enrollmentQuery;
     if (enrollmentsError) throw enrollmentsError;
     const courseIds = Array.from(new Set(enrollments.map((enrollment) => enrollment.course_id)));

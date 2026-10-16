@@ -81,9 +81,9 @@ export async function onRequestPost(context) {
 
 async function handlePlanRequest(context, isGenerate) {
   const hasAuth = Boolean(context.request.headers.get('Authorization'));
+  if (!hasAuth && !isGenerate) return json({ plan: null });
   const requestedId = getUserId(context);
   if (isGenerate && !hasAuth) return json({ error: 'Login is required.' }, 401);
-  if (!hasAuth && !requestedId) return json({ error: 'A valid demo user id is required.' }, 400);
   try {
     const supabase = getSupabase(context.env);
     const user = hasAuth ? await requireOwnProfile(context.request, context.env) : await getDemoUser(supabase, requestedId);

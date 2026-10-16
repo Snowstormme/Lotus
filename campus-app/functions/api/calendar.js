@@ -7,26 +7,23 @@ function json(body, status = 200) {
 
 export async function onRequestGet(context) {
   try {
+    if (!context.request.headers.get('Authorization')) return json([]);
     const supabase = getSupabase(context.env);
-    const hasAuth = Boolean(context.request.headers.get('Authorization'));
-    let courseIds = null;
-    if (hasAuth) {
-      const profile = await requireOwnProfile(context.request, context.env);
-      const { data: enrollments, error: enrollmentsError } = await supabase
-        .from('enrollments')
-        .select('course_id')
-        .eq('user_id', profile.id);
-      if (enrollmentsError) throw enrollmentsError;
-      courseIds = Array.from(new Set(enrollments.map((enrollment) => enrollment.course_id)));
-      if (courseIds.length === 0) return json([]);
-    }
+    const profile = await requireOwnProfile(context.request, context.env);
+    const { data: enrollments, error: enrollmentsError } = await supabase
+      .from('enrollments')
+      .select('course_id')
+      .eq('user_id', profile.id);
+    if (enrollmentsError) throw enrollmentsError;
+    const courseIds = Array.from(new Set(enrollments.map((enrollment) => enrollment.course_id)));
+    if (courseIds.length === 0) return json([]);
 
     let classesQuery = supabase
       .from('classes')
       .select('weekday, start_time, end_time, room, courses!inner(code)')
       .order('weekday', { ascending: true })
       .order('start_time', { ascending: true });
-    if (courseIds) classesQuery = classesQuery.in('course_id', courseIds);
+    classesQuery = classesQuery.in('course_id', courseIds);
     const { data, error } = await classesQuery;
     if (error) throw error;
     return json(data.map((classItem) => ({
