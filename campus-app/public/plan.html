@@ -62,6 +62,17 @@
       status.className = isError ? 'alert error' : 'alert info';
     }
 
+    function showLoggedOutMessage() {
+      status.replaceChildren();
+      status.className = 'empty-state';
+      status.append(document.createTextNode('Log in to create and view your study plan. '));
+      const link = document.createElement('a');
+      link.className = 'btn secondary';
+      link.href = 'login.html';
+      link.textContent = 'Log in';
+      status.appendChild(link);
+    }
+
     function renderPlan(responseBody) {
       const plan = responseBody.plan_json;
       source.textContent = responseBody.source === 'ai' ? 'AI generated' : 'Saved plan';
@@ -112,13 +123,20 @@
       generateButton.disabled = method === 'POST';
       try {
         const session = await getSession().catch(function () { return null; });
-        const headers = session ? { Authorization: 'Bearer ' + session.access_token } : {};
+        if (!session) {
+          generateButton.disabled = true;
+          showLoggedOutMessage();
+          clearPlan('Log in to create and view your study plan.');
+          return;
+        }
+        generateButton.disabled = false;
+        const headers = { Authorization: 'Bearer ' + session.access_token };
         const response = await fetch('/api/plan?user_id=' + encodeURIComponent(userId), {
           method: method,
           headers
         });
         const body = await response.json().catch(function () { return {}; });
-        if (!response.ok) throw new Error(body.error || 'Could not load the study plan.');
+        if (!response.ok) throw new Error(response.status === 401 ? 'Your session is not valid.' : (body.error || 'Could not load the study plan.'));
         setStatus('Plan loaded.', false);
         status.className = 'alert success';
         renderPlan(body);

@@ -12,6 +12,7 @@ function displayDate(date) { return date.toLocaleDateString(undefined, { year: '
 function classDay(date) { return (date.getDay() + 6) % 7; }
 function parseDueDate(value) { const date = new Date(value); return Number.isNaN(date.getTime()) ? null : date; }
 function showMessage(container, message, error = false) { container.replaceChildren(); const p = document.createElement('p'); p.className = error ? 'alert error' : 'empty-state'; p.textContent = message; container.appendChild(p); }
+function showLoginMessage(container, message) { container.replaceChildren(); const p = document.createElement('p'); p.className = 'empty-state'; p.append(document.createTextNode(message + ' ')); const link = document.createElement('a'); link.className = 'btn secondary'; link.href = 'login.html'; link.textContent = 'Log in'; p.appendChild(link); container.appendChild(p); }
 function createText(tag, value, className) { const node = document.createElement(tag); if (className) node.className = className; node.textContent = value == null ? '' : String(value); return node; }
 function courseName(code) { const course = state.courses.find((item) => item.code === code); return course ? course.name : ''; }
 function classLabel(item) { return item.type ? String(item.type) : 'Class'; }
@@ -116,12 +117,23 @@ async function load() {
   const status = document.getElementById('schedule-status');
   try {
     state.session = await getSession();
-    const headers = state.session ? { Authorization: 'Bearer ' + state.session.access_token } : {};
+    if (!state.session) {
+      state.classes = []; state.deadlines = []; state.courses = [];
+      showLoginMessage(status, 'Log in to see your weekly schedule and deadlines.');
+      showMessage(document.getElementById('daily-classes'), 'No classes scheduled for this day.');
+      showMessage(document.getElementById('daily-deadlines'), 'No deadlines for this day.');
+      setupPersonalForms();
+      await loadPersonalClasses();
+      updateView();
+      return;
+    }
+    const headers = { Authorization: 'Bearer ' + state.session.access_token };
     const responses = await Promise.all([fetch('/api/calendar', { headers }), fetch('/api/deadlines', { headers }), fetch('/api/courses', { headers })]);
+    if (responses.some((response) => response.status === 401)) throw new Error('Your session is not valid.');
     if (responses.some((response) => !response.ok)) throw new Error('Schedule request failed');
     const [classes, deadlines, courses] = await Promise.all(responses.map((response) => response.json())); state.classes = Array.isArray(classes) ? classes : []; state.deadlines = Array.isArray(deadlines) ? deadlines : []; state.courses = Array.isArray(courses) ? courses : []; status.textContent = 'Schedule loaded.'; status.className = 'alert success';
   } catch (error) {
-    status.textContent = 'Could not load the schedule.'; status.className = 'alert error'; showMessage(document.getElementById('daily-classes'), 'Could not load classes.', true); showMessage(document.getElementById('daily-deadlines'), 'Could not load deadlines.', true); showMessage(document.getElementById('weekly-content'), 'Could not load the weekly schedule.', true); showMessage(document.getElementById('calendar-content'), 'Could not load the calendar.', true);
+    status.textContent = error.message === 'Your session is not valid.' ? error.message : 'Could not load the schedule.'; status.className = 'alert error'; showMessage(document.getElementById('daily-classes'), 'Could not load classes.', true); showMessage(document.getElementById('daily-deadlines'), 'Could not load deadlines.', true); showMessage(document.getElementById('weekly-content'), 'Could not load the weekly schedule.', true); showMessage(document.getElementById('calendar-content'), 'Could not load the calendar.', true);
   }
   setupPersonalForms();
   await loadPersonalClasses().catch(() => { const statusNode = document.getElementById('personal-status'); statusNode.className = 'alert error'; statusNode.textContent = 'Could not load your personal classes.'; showMessage(document.getElementById('personal-classes-list'), 'Could not load your personal classes.', true); });
