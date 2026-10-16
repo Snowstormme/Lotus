@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lotus Campus — Courses</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header"><div class="page header-inner"><a class="brand" href="index.html">Lotus Campus</a><nav class="site-nav" aria-label="Main navigation"><a href="index.html">Campus</a><a href="schedule.html">Schedule</a><a class="active" aria-current="page" href="courses.html">Courses</a><a href="partners.html?id=1">Partners</a><a href="cost.html">Cost</a><a href="plan.html?id=1">Plan</a><a href="profile.html?id=1">Profile</a><span class="auth-actions" id="auth-actions"><a id="login-link" href="login.html">Log in</a><a id="signup-link" href="signup.html">Sign up</a></span></nav></div></header>
+  <main class="page">
+    <h1 class="page-title">Courses</h1>
+    <section class="card course-filters" aria-label="Course filters">
+      <div class="field"><label for="course-search">Search courses</label><input id="course-search" type="search" placeholder="Search by code, name, teacher, or room"></div>
+      <div class="field" id="semester-field" hidden><label for="semester-filter">Semester</label><select id="semester-filter"></select></div>
+    </section>
+    <section aria-live="polite"><p id="courses-status" class="alert info">Loading courses...</p><div id="courses-list" class="course-cards"></div></section>
+  </main>
+  <script src="js/app-shell.js"></script>
+  <script type="module" src="courses.js"></script>
+  <script src="js/header-auth.js"></script>
+</body>
+</html>
