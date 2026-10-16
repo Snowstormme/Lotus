@@ -1,0 +1,148 @@
+
+    import { getSession } from './js/auth.js';
+    import { formatBakuDateTime } from './js/dates.js';
+
+    const form = document.getElementById('todo-form');
+    const titleInput = document.getElementById('todo-title');
+    const dueInput = document.getElementById('todo-due');
+    const deadlineSelect = document.getElementById('todo-deadline');
+    const addButton = document.getElementById('todo-add');
+    const formStatus = document.getElementById('todo-form-status');
+    const openContainer = document.getElementById('open-todos');
+    const doneContainer = document.getElementById('done-todos');
+    let session = null;
+
+    function showMessage(container, message, isError) {
+      container.replaceChildren();
+      const paragraph = document.createElement('p');
+      paragraph.className = isError ? 'alert error' : 'empty-state';
+      paragraph.textContent = message;
+      container.appendChild(paragraph);
+    }
+
+    function serverMessage(response, fallback) {
+      return response.json().then((body) => body && typeof body.error === 'string' ? body.error : fallback).catch(() => fallback);
+    }
+
+    async function request(path, options) {
+      return fetch(path, { ...options, headers: { ...(options && options.headers), Authorization: 'Bearer ' + session.access_token, 'Content-Type': 'application/json' } });
+    }
+
+    function renderTodo(container, todo) {
+      const item = document.createElement('li');
+      item.className = 'todo-item';
+      const main = document.createElement('div');
+      main.className = 'todo-item-main';
+      const label = document.createElement('label');
+      label.className = 'todo-checkbox-label';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = todo.done === true;
+      checkbox.setAttribute('aria-label', 'Mark task done: ' + String(todo.title || 'task'));
+      const title = document.createElement('span');
+      title.className = 'todo-item-title';
+      title.textContent = String(todo.title || 'Untitled task');
+      label.append(checkbox, title);
+      main.appendChild(label);
+      const meta = document.createElement('div');
+      meta.className = 'todo-item-meta muted';
+      const due = document.createElement('span');
+      due.textContent = todo.due_at ? 'Due ' + (formatBakuDateTime(todo.due_at) || 'date unavailable') : 'No due date';
+      meta.appendChild(due);
+      if (todo.deadline_title) {
+        const deadline = document.createElement('span');
+        deadline.textContent = 'Deadline: ' + String(todo.deadline_title);
+        meta.appendChild(deadline);
+      }
+      if (todo.is_due_soon) {
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = 'Due soon';
+        meta.appendChild(badge);
+      }
+      main.appendChild(meta);
+      const actions = document.createElement('div');
+      actions.className = 'todo-item-actions';
+      const deleteButton = document.createElement('button');
+      deleteButton.type = 'button';
+      deleteButton.className = 'btn danger';
+      deleteButton.textContent = 'Delete';
+      deleteButton.addEventListener('click', async () => {
+        if (!window.confirm('Delete this task?')) return;
+        deleteButton.disabled = true;
+        const response = await request('/api/todos', { method: 'DELETE', body: JSON.stringify({ id: todo.id }) });
+        if (!response.ok) {
+          formStatus.className = 'alert error';
+          formStatus.textContent = await serverMessage(response, 'Could not delete the task.');
+          deleteButton.disabled = false;
+          return;
+        }
+        await loadTodos();
+      });
+      actions.appendChild(deleteButton);
+      checkbox.addEventListener('change', async () => {
+        checkbox.disabled = true;
+        const response = await request('/api/todos', { method: 'PUT', body: JSON.stringify({ id: todo.id, done: checkbox.checked }) });
+        if (!response.ok) {
+          formStatus.className = 'alert error';
+          formStatus.textContent = await serverMessage(response, 'Could not update the task.');
+          checkbox.checked = !checkbox.checked;
+        }
+        checkbox.disabled = false;
+        await loadTodos();
+      });
+      item.append(main, actions);
+      container.appendChild(item);
+    }
+
+    function renderTodos(todos) {
+      const open = todos.filter((todo) => todo.done !== true);
+      const done = todos.filter((todo) => todo.done === true);
+      if (open.length === 0) showMessage(openContainer, 'Nothing to do yet. Add a task or link one to a deadline.');
+      else { openContainer.replaceChildren(); const list = document.createElement('ul'); list.className = 'todo-list'; open.forEach((todo) => renderTodo(list, todo)); openContainer.appendChild(list); }
+      if (done.length === 0) showMessage(doneContainer, 'No completed tasks yet.');
+      else { doneContainer.replaceChildren(); const list = document.createElement('ul'); list.className = 'todo-list'; done.forEach((todo) => renderTodo(list, todo)); doneContainer.appendChild(list); }
+    }
+
+    async function loadTodos() {
+      const response = await request('/api/todos');
+      if (!response.ok) { showMessage(openContainer, await serverMessage(response, 'Could not load your to-do items.'), true); showMessage(doneContainer, 'Could not load your to-do items.', true); return; }
+      const todos = await response.json();
+      renderTodos(Array.isArray(todos) ? todos : []);
+    }
+
+    async function loadDeadlines() {
+      const response = await request('/api/deadlines');
+      if (!response.ok) { deadlineSelect.replaceChildren(); const option = document.createElement('option'); option.textContent = 'Could not load deadlines'; deadlineSelect.appendChild(option); return; }
+      const deadlines = await response.json();
+      deadlineSelect.replaceChildren();
+      const none = document.createElement('option'); none.value = ''; none.textContent = 'No linked deadline'; deadlineSelect.appendChild(none);
+      if (!Array.isArray(deadlines) || deadlines.length === 0) { none.textContent = 'No deadlines available'; return; }
+      deadlines.forEach((deadline) => { const option = document.createElement('option'); option.value = String(deadline.id); option.textContent = String(deadline.code || '') + ' · ' + String(deadline.title || 'Deadline') + ' · ' + (formatBakuDateTime(deadline.due_at) || 'date unavailable'); deadlineSelect.appendChild(option); });
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      addButton.disabled = true;
+      formStatus.className = 'empty-state';
+      formStatus.textContent = 'Adding task...';
+      const body = { title: titleInput.value.trim() };
+      if (dueInput.value) body.due_at = dueInput.value;
+      if (deadlineSelect.value) body.deadline_id = Number(deadlineSelect.value);
+      const response = await request('/api/todos', { method: 'POST', body: JSON.stringify(body) });
+      if (!response.ok) { formStatus.className = 'alert error'; formStatus.textContent = await serverMessage(response, 'Could not add the task.'); addButton.disabled = false; return; }
+      form.reset();
+      formStatus.className = 'alert success';
+      formStatus.textContent = 'Task added.';
+      addButton.disabled = false;
+      await loadTodos();
+    });
+
+    try {
+      session = await getSession();
+      if (!session) { window.location.replace('login.html'); } else { await Promise.all([loadTodos(), loadDeadlines()]); }
+    } catch (error) {
+      showMessage(openContainer, 'Could not load your to-do items.', true);
+      showMessage(doneContainer, 'Could not load your to-do items.', true);
+    }
+  
