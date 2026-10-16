@@ -45,6 +45,13 @@
         </div>
       </section>
 
+      <section id="course-picker" hidden>
+        <h2 class="card-title">Your courses</h2>
+        <p class="muted">Pick the courses you are taking this semester. You can change them later in your profile.</p>
+        <p id="course-status" class="alert info" role="status" aria-live="polite">Loading courses...</p>
+        <ul id="course-list" class="course-checklist"></ul>
+      </section>
+
       <section>
         <h2 class="card-title">Weekly availability</h2>
         <div id="availability-editor"></div>
@@ -66,6 +73,7 @@
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
     let activeSession = null;
+    let coursePickerReady = false;
 
     function showMessage(container, message, isError) {
       container.textContent = message;
@@ -176,6 +184,57 @@
       return update;
     }
 
+    function showCourseStatus(message, kind) {
+      const status = document.getElementById('course-status');
+      status.textContent = message;
+      status.className = kind ? 'alert ' + kind : 'alert';
+    }
+
+    function renderCourses(courses, selectedIds) {
+      const list = document.getElementById('course-list');
+      list.replaceChildren();
+      const selected = new Set(selectedIds);
+      courses.forEach(function (course) {
+        const item = document.createElement('li');
+        const label = document.createElement('label');
+        label.className = 'course-option';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = 'course_ids';
+        checkbox.value = String(course.id);
+        checkbox.checked = selected.has(course.id);
+        const text = document.createElement('span');
+        text.textContent = String(course.code) + ' — ' + String(course.name) + (course.teacher ? ' · ' + String(course.teacher) : '');
+        label.append(checkbox, text);
+        item.appendChild(label);
+        list.appendChild(item);
+      });
+      coursePickerReady = true;
+    }
+
+    async function loadCoursesForProfile(session) {
+      const picker = document.getElementById('course-picker');
+      picker.hidden = false;
+      try {
+        const headers = { Authorization: 'Bearer ' + session.access_token };
+        const responses = await Promise.all([fetch('/api/catalog', { headers }), fetch('/api/enrollments', { headers })]);
+        const catalog = await responses[0].json().catch(function () { return {}; });
+        const enrollments = await responses[1].json().catch(function () { return {}; });
+        if (!responses[0].ok || !responses[1].ok) throw new Error('Could not load courses.');
+        const courses = Array.isArray(catalog) ? catalog : [];
+        const selectedIds = Array.isArray(enrollments.course_ids) ? enrollments.course_ids : [];
+        if (courses.length === 0) {
+          showCourseStatus('No courses found for this faculty yet.', 'info');
+          coursePickerReady = true;
+          return;
+        }
+        renderCourses(courses, selectedIds);
+        showCourseStatus('Choose the courses you are taking this semester.', 'info');
+      } catch (error) {
+        showCourseStatus(error.message || 'Could not load courses.', 'error');
+      }
+    }
+
     async function saveVisibilitySetting() {
       const status = document.getElementById('save-status');
       const update = getProfileUpdate(true);
@@ -223,6 +282,7 @@
         if (session) {
           document.getElementById('share-for-partners').checked = profile.share_for_partners === true;
           document.getElementById('visibility-setting').hidden = false;
+          await loadCoursesForProfile(session);
         }
         buildAvailabilityEditor(availability);
         loadStatus.textContent = 'Profile loaded.';
@@ -250,7 +310,7 @@
       try {
         const session = activeSession || await getSession().catch(function () { return null; });
         const authHeaders = session ? { Authorization: 'Bearer ' + session.access_token } : {};
-        const [profileResponse, availabilityResponse] = await Promise.all([
+        const requests = [
           fetch('/api/profile?id=' + encodeURIComponent(id), {
             method: 'PUT',
             headers: { ...authHeaders, 'Content-Type': 'application/json' },
@@ -261,9 +321,19 @@
             headers: { ...authHeaders, 'Content-Type': 'application/json' },
             body: JSON.stringify(slots)
           })
-        ]);
-        if (!profileResponse.ok || !availabilityResponse.ok) throw new Error('Save failed');
-        showMessage(saveStatus, 'Profile and availability saved.');
+        ];
+        if (activeSession && coursePickerReady) {
+          const selectedCourseIds = Array.from(document.querySelectorAll('#course-list input[type="checkbox"]:checked'))
+            .map(function (input) { return Number(input.value); });
+          requests.push(fetch('/api/enrollments', {
+            method: 'PUT',
+            headers: { ...authHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ course_ids: selectedCourseIds })
+          }));
+        }
+        const responses = await Promise.all(requests);
+        if (responses.some(function (response) { return !response.ok; })) throw new Error('Save failed');
+        showMessage(saveStatus, activeSession && coursePickerReady ? 'Profile, courses, and availability saved.' : 'Profile and availability saved.');
       } catch (err) {
         showMessage(saveStatus, 'Could not save profile.', true);
       }
