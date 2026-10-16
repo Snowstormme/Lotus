@@ -1,0 +1,152 @@
+(function () {
+  const main = document.querySelector('main');
+  const legacyHeader = document.querySelector('.site-header');
+  if (!main || document.querySelector('.app-shell')) return;
+
+  const authActions = document.getElementById('auth-actions');
+  const shell = document.createElement('div');
+  shell.className = 'app-shell';
+
+  const sidebar = document.createElement('aside');
+  sidebar.className = 'shell-sidebar';
+  sidebar.setAttribute('aria-label', 'App navigation');
+  const sidebarBrand = document.createElement('a');
+  sidebarBrand.className = 'shell-brand';
+  sidebarBrand.href = 'index.html';
+  sidebarBrand.textContent = 'Lotus Campus';
+  sidebar.appendChild(sidebarBrand);
+
+  const navItems = [
+    { key: 'home', label: 'Home', href: 'index.html' },
+    { key: 'courses', label: 'Courses', href: 'index.html#courses' },
+    { key: 'schedule', label: 'Schedule', href: 'index.html#calendar' },
+    { key: 'ai', label: 'AI Assistant', href: 'plan.html?id=1' },
+    { key: 'community', label: 'Community', href: 'partners.html?id=1' },
+    { key: 'profile', label: 'Profile', href: 'profile.html?id=1' }
+  ];
+
+  function getCurrentKey() {
+    const page = window.location.pathname.split('/').pop() || 'index.html';
+    if (page === 'index.html' || page === '') {
+      if (window.location.hash === '#courses') return 'courses';
+      if (window.location.hash === '#calendar') return 'schedule';
+      return 'home';
+    }
+    if (page === 'plan.html') return 'ai';
+    if (page === 'partners.html') return 'community';
+    if (page === 'profile.html') return 'profile';
+    if (page === 'course.html') return 'courses';
+    return '';
+  }
+
+  function makeNavLink(item, className) {
+    const link = document.createElement('a');
+    link.className = className || 'shell-nav-link';
+    link.href = item.href;
+    link.dataset.pageName = item.label;
+    link.textContent = item.label;
+    if (item.key === getCurrentKey()) {
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
+    }
+    return link;
+  }
+
+  const sidebarNav = document.createElement('nav');
+  sidebarNav.className = 'shell-sidebar-nav';
+  sidebarNav.setAttribute('aria-label', 'Primary navigation');
+  navItems.forEach(function (item) { sidebarNav.appendChild(makeNavLink(item)); });
+  sidebar.appendChild(sidebarNav);
+
+  const workspace = document.createElement('div');
+  workspace.className = 'shell-workspace';
+  const topbar = document.createElement('div');
+  topbar.className = 'shell-topbar';
+
+  const searchWrap = document.createElement('div');
+  searchWrap.className = 'shell-search-wrap';
+  const searchLabel = document.createElement('label');
+  searchLabel.className = 'sr-only';
+  searchLabel.htmlFor = 'shell-search';
+  searchLabel.textContent = 'Search courses and pages';
+  const search = document.createElement('input');
+  search.id = 'shell-search';
+  search.className = 'shell-search';
+  search.type = 'search';
+  search.placeholder = 'Search courses or pages';
+  search.setAttribute('aria-label', 'Search courses and pages');
+  searchWrap.append(searchLabel, search);
+
+  const topActions = document.createElement('div');
+  topActions.className = 'shell-top-actions';
+  const notifications = document.createElement('button');
+  notifications.className = 'icon-button';
+  notifications.type = 'button';
+  notifications.setAttribute('aria-label', 'Notifications placeholder');
+  notifications.textContent = 'Notifications';
+  const avatar = document.createElement('button');
+  avatar.className = 'icon-button';
+  avatar.type = 'button';
+  avatar.setAttribute('aria-label', 'Avatar placeholder');
+  avatar.textContent = 'Avatar';
+  topActions.append(notifications, avatar);
+  if (authActions) {
+    authActions.classList.add('shell-auth-actions');
+    topActions.appendChild(authActions);
+  }
+  topbar.append(searchWrap, topActions);
+
+  main.classList.add('app-main');
+  workspace.append(topbar, main);
+  shell.append(sidebar, workspace);
+  if (legacyHeader) legacyHeader.remove();
+  document.body.prepend(shell);
+
+  const mobileBar = document.createElement('nav');
+  mobileBar.className = 'mobile-bottom-bar';
+  mobileBar.setAttribute('aria-label', 'Mobile navigation');
+  navItems.filter(function (item) { return ['home', 'courses', 'schedule', 'ai', 'profile'].includes(item.key); }).forEach(function (item) {
+    mobileBar.appendChild(makeNavLink(item, 'mobile-nav-link'));
+  });
+  const addButton = document.createElement('button');
+  addButton.className = 'mobile-add-button';
+  addButton.type = 'button';
+  addButton.setAttribute('aria-label', 'Add placeholder');
+  addButton.textContent = '+';
+  mobileBar.appendChild(addButton);
+  document.body.appendChild(mobileBar);
+
+  const sheet = document.createElement('div');
+  sheet.className = 'coming-sheet';
+  sheet.hidden = true;
+  sheet.setAttribute('role', 'dialog');
+  sheet.setAttribute('aria-modal', 'true');
+  const sheetCard = document.createElement('div');
+  sheetCard.className = 'coming-sheet-card';
+  const sheetTitle = document.createElement('h2');
+  sheetTitle.className = 'card-title';
+  sheetTitle.textContent = 'Coming soon';
+  const sheetText = document.createElement('p');
+  sheetText.className = 'muted';
+  sheetText.textContent = 'This action will be available in a future phase.';
+  const closeButton = document.createElement('button');
+  closeButton.className = 'btn secondary';
+  closeButton.type = 'button';
+  closeButton.textContent = 'Close';
+  sheetCard.append(sheetTitle, sheetText, closeButton);
+  sheet.appendChild(sheetCard);
+  document.body.appendChild(sheet);
+  addButton.addEventListener('click', function () { sheet.hidden = false; closeButton.focus(); });
+  closeButton.addEventListener('click', function () { sheet.hidden = true; addButton.focus(); });
+  sheet.addEventListener('click', function (event) { if (event.target === sheet) sheet.hidden = true; });
+
+  search.addEventListener('input', function () {
+    const term = search.value.trim().toLowerCase();
+    document.querySelectorAll('.shell-nav-link, .mobile-nav-link').forEach(function (link) {
+      link.hidden = Boolean(term) && !link.textContent.toLowerCase().includes(term);
+    });
+    document.querySelectorAll('.table tbody tr').forEach(function (row) {
+      row.hidden = Boolean(term) && !row.textContent.toLowerCase().includes(term);
+    });
+  });
+}());
