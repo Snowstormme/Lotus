@@ -408,6 +408,11 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .mobile-bottom-bar { display: none; }
 }
 @media (min-width: 1024px) {
+  .schedule-page-header { align-items: center; }
+  .personal-classes-panel, .schedule-view-grid > .card, .schedule-view > .card { margin-bottom: var(--space-6); }
+  .schedule-view-grid > .card { min-width: 0; }
+  .schedule-week { border-radius: var(--radius-lg); }
+}
   .course-filters, .course-heading, .course-panel, .sample-card { margin-bottom: var(--space-6); }
   .course-cards { align-items: stretch; }
   .course-cards > .course-card { margin-bottom: 0; }
