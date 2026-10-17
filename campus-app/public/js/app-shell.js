@@ -35,15 +35,6 @@
     { key: 'todos', label: 'To-do', href: 'todos.html', icon: 'todo' },
     { key: 'profile', label: 'Profile', href: 'profile.html?id=1', icon: 'profile' }
   ];
-  const moreItems = [
-    { key: 'feed', label: 'Feed', href: 'feed.html' },
-    { key: 'messages', label: 'Messages', href: 'messages.html' },
-    { key: 'community', label: 'Community', href: 'groups.html' },
-    { key: 'todos', label: 'To-do', href: 'todos.html' },
-    { key: 'events', label: 'Events', href: 'events.html' }
-  ];
-  const sidebarMoreItems = [];
-
   function getCurrentKey() {
     const page = window.location.pathname.split('/').pop() || 'index.html';
     if (page === 'index.html' || page === '') {
@@ -104,16 +95,8 @@
   const sidebarNav = document.createElement('nav');
   sidebarNav.className = 'shell-sidebar-nav';
   sidebarNav.setAttribute('aria-label', 'Primary navigation');
-  navItems.filter(function (item) { return item.key !== 'profile'; }).forEach(function (item) { sidebarNav.appendChild(makeNavLink(item)); });
+  navItems.forEach(function (item) { sidebarNav.appendChild(makeNavLink(item)); });
   sidebar.appendChild(sidebarNav);
-  const moreTitle = document.createElement('h2');
-  moreTitle.className = 'shell-nav-heading';
-  moreTitle.textContent = 'More';
-  const moreNav = document.createElement('nav');
-  moreNav.className = 'shell-sidebar-nav shell-more-nav';
-  moreNav.setAttribute('aria-label', 'More navigation');
-  sidebarMoreItems.forEach(function (item) { moreNav.appendChild(makeNavLink(item)); });
-  sidebar.append(moreTitle, moreNav);
 
   const userCard = document.createElement('a');
   userCard.className = 'shell-user-card';
@@ -201,34 +184,6 @@
   addButton.textContent = '+';
   mobileBar.appendChild(addButton);
   document.body.appendChild(mobileBar);
-
-  const sheet = document.createElement('div');
-  sheet.className = 'coming-sheet';
-  sheet.hidden = true;
-  sheet.setAttribute('role', 'dialog');
-  sheet.setAttribute('aria-modal', 'true');
-  const sheetCard = document.createElement('div');
-  sheetCard.className = 'coming-sheet-card';
-  const sheetTitle = document.createElement('h2');
-  sheetTitle.className = 'card-title';
-  sheetTitle.textContent = 'Coming soon';
-  const sheetText = document.createElement('p');
-  sheetText.className = 'muted';
-  sheetText.textContent = 'This action will be available in a future phase.';
-  const sheetNav = document.createElement('nav');
-  sheetNav.className = 'shell-sidebar-nav coming-sheet-nav';
-  sheetNav.setAttribute('aria-label', 'More navigation');
-  moreItems.forEach(function (item) { sheetNav.appendChild(makeNavLink(item, 'shell-nav-link')); });
-  const closeButton = document.createElement('button');
-  closeButton.className = 'btn secondary';
-  closeButton.type = 'button';
-  closeButton.textContent = 'Close';
-  sheetCard.append(sheetTitle, sheetText, sheetNav, closeButton);
-  sheet.appendChild(sheetCard);
-  document.body.appendChild(sheet);
-  addButton.addEventListener('click', function () { sheet.hidden = false; closeButton.focus(); });
-  closeButton.addEventListener('click', function () { sheet.hidden = true; addButton.focus(); });
-  sheet.addEventListener('click', function (event) { if (event.target === sheet) sheet.hidden = true; });
 
   search.addEventListener('input', function () {
     const term = search.value.trim().toLowerCase();
