@@ -171,7 +171,6 @@
   universityButton.hidden = true;
   const universityBadge = document.createElement('span');
   universityBadge.className = 'university-topbar-badge';
-  universityBadge.setAttribute('aria-hidden', 'true');
   universityButton.appendChild(universityBadge);
   const avatar = document.createElement('a');
   avatar.className = 'icon-button topbar-avatar';
@@ -274,6 +273,9 @@
         universityButton.title = universityName;
         universityButton.setAttribute('aria-label', universityName);
         universityButton.hidden = false;
+        import('./university-logo.js').then(function (logos) {
+          logos.renderUniversityLogo(universityBadge, universityName, profile.logo_url);
+        }).catch(function () {});
       }
     }).catch(function () {});
     return fetch('/api/conversations', { headers: { Authorization: 'Bearer ' + session.access_token } });

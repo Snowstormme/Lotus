@@ -1,5 +1,6 @@
 
     import { getSession } from './auth.js';
+    import { renderUniversityLogo } from './university-logo.js';
 
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
@@ -8,6 +9,15 @@
     let originalFacultyId = null;
     let universities = [];
     let faculties = [];
+    let logoProfile = {};
+
+    function updateUniversityLogo() {
+      const selectedId = Number(document.getElementById('university').value);
+      const university = universities.find(function (item) { return item.id === selectedId; });
+      const name = university ? university.name : '';
+      renderUniversityLogo(document.getElementById('profile-university-logo'), name,
+        selectedId === logoProfile.university_id ? logoProfile.logo_url : null, 44);
+    }
 
     function showMessage(container, message, isError) {
       container.textContent = message;
@@ -144,6 +154,7 @@
     }
 
     async function loadProfileOptions(profile) {
+      logoProfile = profile;
       const response = await fetch('/api/onboarding');
       const body = await response.json().catch(function () { return {}; });
       if (!response.ok || !Array.isArray(body.universities) || !Array.isArray(body.faculties)) throw new Error('Could not load university options.');
@@ -173,7 +184,8 @@
         });
         if (matchingFaculty) document.getElementById('faculty').value = String(matchingFaculty.id);
       }
-      universitySelect.addEventListener('change', function () { renderFacultyOptions(); });
+      updateUniversityLogo();
+      universitySelect.addEventListener('change', function () { renderFacultyOptions(); updateUniversityLogo(); });
     }
 
     function showCourseStatus(message, kind) {
@@ -346,6 +358,8 @@
         const responses = await Promise.all(requests);
         if (responses.some(function (response) { return !response.ok; })) throw new Error('Save failed');
         const profileResult = await responses[0].json().catch(function () { return {}; });
+        logoProfile = profileResult;
+        updateUniversityLogo();
         if (profileResult.faculty_changed === true) {
           originalFacultyId = Number(profileResult.faculty_id);
           await loadCoursesForProfile(activeSession);
