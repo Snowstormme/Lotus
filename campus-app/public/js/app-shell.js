@@ -39,13 +39,10 @@
     { key: 'feed', label: 'Feed', href: 'feed.html' },
     { key: 'messages', label: 'Messages', href: 'messages.html' },
     { key: 'community', label: 'Community', href: 'groups.html' },
-    { key: 'plan', label: 'Plan', href: 'plan.html?id=1' },
     { key: 'todos', label: 'To-do', href: 'todos.html' },
     { key: 'events', label: 'Events', href: 'events.html' }
   ];
-  const sidebarMoreItems = [
-    { key: 'plan', label: 'Plan', href: 'plan.html?id=1' }
-  ];
+  const sidebarMoreItems = [];
 
   function getCurrentKey() {
     const page = window.location.pathname.split('/').pop() || 'index.html';
@@ -54,7 +51,6 @@
       if (window.location.hash === '#calendar') return 'schedule';
       return 'home';
     }
-    if (page === 'plan.html') return 'ai';
     if (page === 'assistant.html') return 'ai';
     if (page === 'groups.html') return 'community';
     if (page === 'profile.html') return 'profile';
@@ -94,8 +90,7 @@
     }
     const page = window.location.pathname.split('/').pop() || 'index.html';
     const currentKey = getCurrentKey();
-    const samePage = (page === 'plan.html' && ['ai', 'plan'].includes(item.key)) ||
-      (page === 'groups.html' && item.key === 'community') ||
+    const samePage = (page === 'groups.html' && item.key === 'community') ||
       (page === 'todos.html' && item.key === 'todos') ||
       (page === 'groups.html' && item.key === 'groups') ||
       (page === 'events.html' && item.key === 'events');
