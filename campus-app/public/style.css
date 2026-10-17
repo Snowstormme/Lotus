@@ -473,3 +473,9 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 1000px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+@media (min-width: 1024px) {
+  .feed-layout { align-items: start; }
+  .feed-layout > .card { margin-bottom: 0; }
+  .feed-composer { align-self: start; }
+}
