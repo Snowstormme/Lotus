@@ -25,28 +25,55 @@
     </div>
   </header>
   <main class="page">
-    <h1 class="page-title">Feed</h1>
+    <div class="feed-page-heading">
+      <svg class="feed-page-icon" aria-hidden="true"><use href="img/icons.svg#feed"></use></svg>
+      <div>
+        <h1 class="page-title">Feed</h1>
+        <p class="muted">See what's happening in your university and community.</p>
+      </div>
+    </div>
     <div class="feed-layout">
-      <section class="card feed-composer" aria-labelledby="composer-title">
-        <h2 id="composer-title" class="card-title">Share with your university</h2>
-        <form id="post-form">
-          <div class="field">
-            <label for="post-body">Post</label>
-            <textarea id="post-body" maxlength="500" aria-describedby="post-counter" required></textarea>
-            <span id="post-counter" class="muted character-count">0/500</span>
+      <div class="feed-main-column">
+        <section class="card feed-composer" aria-labelledby="composer-title">
+          <div class="composer-head">
+            <span class="avatar-circle composer-avatar" aria-hidden="true"><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#profile"></use></svg></span>
+            <h2 id="composer-title" class="card-title">What's on your mind?</h2>
           </div>
-          <button id="post-submit" class="btn primary" type="submit">Post</button>
-          <p id="post-status" class="alert" role="status" aria-live="polite"></p>
-        </form>
-      </section>
-      <section class="card" aria-labelledby="feed-list-title">
+          <form id="post-form">
+            <div class="field">
+              <label for="post-body">Post</label>
+              <textarea id="post-body" maxlength="500" aria-describedby="post-counter" placeholder="What's on your mind?" required></textarea>
+              <span id="post-counter" class="muted character-count">0/500</span>
+            </div>
+            <div class="composer-actions">
+              <div class="composer-tabs" aria-label="Post types">
+                <button class="btn secondary" type="button" disabled><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#feed"></use></svg>Photo <span class="badge">Soon</span></button>
+                <button class="btn secondary" type="button" disabled><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#events"></use></svg>Event <span class="badge">Soon</span></button>
+                <button class="btn secondary" type="button" disabled><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#messages"></use></svg>Question <span class="badge">Soon</span></button>
+              </div>
+              <button id="post-submit" class="btn primary" type="submit">Post</button>
+            </div>
+            <p id="post-status" class="alert" role="status" aria-live="polite"></p>
+          </form>
+        </section>
+        <section class="card" aria-labelledby="feed-list-title">
+          <div class="section-heading">
+            <h2 id="feed-list-title" class="card-title">University feed</h2>
+            <button id="refresh-feed" class="btn secondary" type="button">Refresh</button>
+          </div>
+          <div class="feed-filter" role="group" aria-label="Feed filter"><button class="btn secondary" type="button" aria-pressed="true">All</button></div>
+          <p id="feed-status" class="empty-state" role="status" aria-live="polite">Loading posts...</p>
+          <ul id="feed-list" class="feed-list"></ul>
+        </section>
+      </div>
+      <aside class="card feed-events-panel" aria-labelledby="feed-events-title">
         <div class="section-heading">
-          <h2 id="feed-list-title" class="card-title">University feed</h2>
-          <button id="refresh-feed" class="btn secondary" type="button">Refresh</button>
+          <h2 id="feed-events-title" class="card-title">Upcoming events</h2>
+          <a href="events.html">View all</a>
         </div>
-        <p id="feed-status" class="empty-state" role="status" aria-live="polite">Loading posts...</p>
-        <ul id="feed-list" class="feed-list"></ul>
-      </section>
+        <p id="feed-events-status" class="empty-state" role="status" aria-live="polite">Loading upcoming events...</p>
+        <ul id="feed-events-list" class="feed-events-list"></ul>
+      </aside>
     </div>
   </main>
   <script src="js/app-shell.js"></script>

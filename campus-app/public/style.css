@@ -132,6 +132,10 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 
 .page { margin: 0 auto; max-width: 1120px; padding: var(--space-6) var(--space-4) var(--space-12); }
 .page-title { font-size: var(--font-size-2xl); line-height: 1.2; margin: 0 0 var(--space-6); }
+.feed-page-heading { align-items: center; display: flex; gap: var(--space-3); margin-bottom: var(--space-6); }
+.feed-page-heading .page-title { margin-bottom: var(--space-1); }
+.feed-page-heading p { margin: 0; }
+.feed-page-icon { background: var(--color-accent); border-radius: var(--radius-md); color: var(--color-text-primary); flex: 0 0 2.5rem; height: 2.5rem; padding: var(--space-2); width: 2.5rem; }
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -270,6 +274,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .composer-link:hover { border-color: var(--color-accent); color: var(--color-text-primary); }
 .composer-post-link { justify-self: start; }
 .composer-tabs { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.composer-actions { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: space-between; }
 .composer-tabs .btn { min-height: 44px; }
 .composer-tabs .badge { margin-left: var(--space-1); }
 .dashboard-card, .sample-card { margin: 0; min-width: 0; }
@@ -385,13 +390,26 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .report-options .field { margin: 0; min-width: 12rem; }
 .feed-layout { display: grid; gap: var(--space-6); grid-template-columns: 1fr; min-width: 0; }
 .feed-layout > * { min-width: 0; }
+.feed-main-column { display: grid; gap: var(--space-6); min-width: 0; }
+.feed-main-column > .card { margin-bottom: 0; }
 .feed-composer textarea { min-height: 7rem; resize: vertical; }
 .character-count { display: block; margin-top: var(--space-1); }
 .feed-list { display: grid; gap: var(--space-4); list-style: none; margin: 0; padding: 0; }
 .feed-post { margin: 0; min-width: 0; overflow-wrap: normal; word-break: normal; }
 .feed-post-header { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: space-between; min-width: 0; }
 .feed-avatar { flex: 0 0 2.5rem; height: 2.5rem; width: 2.5rem; }
-.feed-post-meta { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.feed-post-meta { display: grid; gap: var(--space-1); min-width: 0; }
+.feed-post-secondary { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.feed-post-menu { align-self: flex-start; display: grid; justify-items: end; }
+.feed-post-menu .icon-button { min-height: 40px; }
+.feed-post-menu .nav-icon { height: 1rem; width: 1rem; }
+.feed-post-image { border-radius: var(--radius-md); display: block; max-height: 28rem; object-fit: cover; width: 100%; }
+.feed-events-panel { min-width: 0; }
+.feed-events-list { display: grid; gap: var(--space-3); list-style: none; margin: 0; padding: 0; }
+.feed-event-row { background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.feed-event-row a { align-items: flex-start; display: flex; gap: var(--space-3); min-height: 44px; padding: var(--space-3); text-decoration: none; }
+.feed-event-date { background: var(--color-accent); border-radius: var(--radius-md); color: var(--color-text-primary); flex: 0 0 3.5rem; padding: var(--space-2); text-align: center; }
+.feed-event-details { display: grid; gap: var(--space-1); min-width: 0; }
 .feed-preview-item { align-content: start; }
 .feed-preview-avatar { flex: 0 0 2rem; font-size: var(--font-size-xs); height: 2rem; width: 2rem; }
 .feed-preview-stats { border-top: 1px solid var(--color-border); padding-top: var(--space-2); }
@@ -536,7 +554,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 @media (min-width: 1280px) {
   .feed-layout {
     align-items: start;
-    grid-template-columns: minmax(18rem, 0.8fr) minmax(0, 1.2fr);
+    grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
   }
   .feed-layout > .card,
   .messages-layout > .card {

@@ -10,6 +10,8 @@
     const feedStatus = document.getElementById('feed-status');
     const feedList = document.getElementById('feed-list');
     const refreshButton = document.getElementById('refresh-feed');
+    const feedEventsStatus = document.getElementById('feed-events-status');
+    const feedEventsList = document.getElementById('feed-events-list');
     let session;
 
     function showStatus(container, message, kind) {
@@ -27,6 +29,60 @@
       element.textContent = text;
       parent.appendChild(element);
       return element;
+    }
+
+    function addIcon(parent, symbol) {
+      const icon = document.createElement('svg');
+      icon.className = 'nav-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      const use = document.createElement('use');
+      use.setAttribute('href', 'img/icons.svg#' + symbol);
+      icon.appendChild(use);
+      parent.appendChild(icon);
+      return icon;
+    }
+
+    function renderEvents(events) {
+      feedEventsList.replaceChildren();
+      events.slice(0, 3).forEach(function (event) {
+        const item = document.createElement('li');
+        item.className = 'feed-event-row';
+        const link = document.createElement('a');
+        link.href = 'events.html?id=' + encodeURIComponent(event.id);
+        const date = new Date(event.starts_at);
+        addText(link, 'strong', new Intl.DateTimeFormat('en', { timeZone: 'Asia/Baku', month: 'short', day: 'numeric' }).format(date), 'feed-event-date');
+        const details = document.createElement('span');
+        details.className = 'feed-event-details';
+        addText(details, 'strong', String(event.title || 'Event'));
+        addText(details, 'span', String(event.organizer_name || 'Campus'), 'muted');
+        addText(details, 'span', formatBakuDateTime(event.starts_at) || 'Time unavailable', 'muted');
+        addText(details, 'span', String(event.rsvp_count || 0) + ' going', 'muted');
+        if (event.is_sample === true) addText(details, 'span', 'Sample', 'badge');
+        link.appendChild(details);
+        item.appendChild(link);
+        feedEventsList.appendChild(item);
+      });
+    }
+
+    async function loadEvents() {
+      feedEventsStatus.textContent = 'Loading upcoming events...';
+      feedEventsStatus.className = 'alert info';
+      try {
+        const response = await fetch('/api/events', { headers: { Authorization: 'Bearer ' + session.access_token } });
+        const body = await response.json().catch(function () { return []; });
+        if (!response.ok) throw new Error(body.error || 'Could not load events.');
+        const events = Array.isArray(body) ? body : [];
+        if (!events.length) {
+          showStatus(feedEventsStatus, 'No upcoming events yet. Check back soon.', '');
+          return;
+        }
+        feedEventsStatus.replaceChildren();
+        feedEventsStatus.className = 'empty-state';
+        renderEvents(events);
+      } catch (error) {
+        feedEventsList.replaceChildren();
+        showStatus(feedEventsStatus, error.message || 'Could not load events.', 'error');
+      }
     }
 
     function renderReportOptions(post, container) {
@@ -93,7 +149,12 @@
         const meta = document.createElement('div');
         meta.className = 'feed-post-meta';
         addText(meta, 'strong', String(post.author_name || 'Student'));
-        addText(meta, 'span', 'Year ' + String(post.author_year || '—'), 'muted');
+        const secondary = document.createElement('span');
+        secondary.className = 'feed-post-secondary muted';
+        if (post.author_university) addText(secondary, 'span', String(post.author_university));
+        addText(secondary, 'span', 'Year ' + String(post.author_year || '—'));
+        addText(secondary, 'span', formatBakuDateTime(post.created_at) || 'Time unavailable');
+        meta.appendChild(secondary);
         if (post.is_sample === true) addText(meta, 'span', 'Sample', 'badge');
         const messageButton = document.createElement('button');
         messageButton.className = 'btn secondary';
@@ -113,9 +174,28 @@
         });
         header.appendChild(avatar);
         header.appendChild(meta);
-        addText(header, 'time', formatBakuDateTime(post.created_at) || 'Time unavailable', 'muted');
+        const menu = document.createElement('div');
+        menu.className = 'feed-post-menu';
+        const reportButton = document.createElement('button');
+        reportButton.className = 'icon-button';
+        reportButton.type = 'button';
+        reportButton.setAttribute('aria-label', 'Report post');
+        addIcon(reportButton, 'settings');
+        reportButton.appendChild(document.createTextNode('Report'));
+        const reportOptions = document.createElement('div');
+        reportButton.addEventListener('click', function () { renderReportOptions(post, reportOptions); });
+        menu.append(reportButton, reportOptions);
+        header.appendChild(menu);
         const message = addText(item, 'p', String(post.body || ''), 'feed-post-body');
         message.setAttribute('aria-label', 'Post text');
+        if (typeof post.image_url === 'string' && /^https?:\/\//i.test(post.image_url)) {
+          const image = document.createElement('img');
+          image.className = 'feed-post-image';
+          image.src = post.image_url;
+          image.alt = 'Post image';
+          image.loading = 'lazy';
+          item.appendChild(image);
+        }
         const actions = document.createElement('div');
         actions.className = 'post-actions';
         const likeButton = document.createElement('button');
@@ -143,14 +223,8 @@
             likeButton.disabled = false;
           }
         });
-        const reportButton = document.createElement('button');
-        reportButton.className = 'btn secondary';
-        reportButton.type = 'button';
-        reportButton.textContent = 'Report';
-        const reportOptions = document.createElement('div');
-        reportButton.addEventListener('click', function () { renderReportOptions(post, reportOptions); });
-        actions.append(messageButton, likeButton, reportButton);
-        item.append(header, message, actions, reportOptions);
+        actions.append(messageButton, likeButton);
+        item.append(header, message, actions);
         feedList.appendChild(item);
       });
     }
@@ -212,7 +286,7 @@
           }
         });
         refreshButton.addEventListener('click', loadPosts);
-        await loadPosts();
+        await Promise.all([loadPosts(), loadEvents()]);
       } catch (error) {
         window.location.replace('login.html');
       }
