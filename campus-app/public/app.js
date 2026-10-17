@@ -59,7 +59,7 @@ function appendCourseTable(container, courses) {
   container.appendChild(table);
 }
 
-function renderClasses(container, classes, personalClasses) {
+function renderClasses(container, classes, personalClasses, courses) {
   container.replaceChildren();
   const list = document.createElement('div');
   list.className = 'class-list';
@@ -74,7 +74,8 @@ function renderClasses(container, classes, personalClasses) {
     bar.setAttribute('aria-hidden', 'true');
     const details = document.createElement('div');
     const course = document.createElement('strong');
-    course.textContent = classItem.personal ? String(classItem.title || 'Personal class') : String(classItem.code || 'Course');
+    const matchingCourse = (courses || []).find(function (candidate) { return String(candidate.code || '') === String(classItem.code || ''); });
+    course.textContent = classItem.personal ? String(classItem.title || 'Personal class') : (matchingCourse && matchingCourse.name ? String(matchingCourse.name) + ' (' + String(classItem.code || '') + ')' : String(classItem.code || 'Course'));
     const schedule = document.createElement('p');
     schedule.className = 'muted';
     schedule.textContent = (weekdays[classItem.weekday] || 'Day') + ' · ' + String(classItem.start_time || '') + '–' + String(classItem.end_time || '') + ' · Room ' + String(classItem.room || '—');
@@ -149,11 +150,24 @@ function renderFeedPreview(container, posts) {
   list.className = 'dashboard-list';
   posts.slice(0, 3).forEach(function (post) {
     const item = document.createElement('li');
+    item.className = 'feed-preview-item';
     const header = document.createElement('div');
     header.className = 'feed-post-meta';
+    const avatar = document.createElement('span');
+    avatar.className = 'avatar-circle feed-preview-avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    const authorName = String(post.author_name || 'Student').trim();
+    avatar.textContent = authorName.split(/\s+/).filter(Boolean).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase() || 'S';
+    header.appendChild(avatar);
     const author = document.createElement('strong');
-    author.textContent = String(post.author_name || 'Student');
+    author.textContent = authorName;
     header.appendChild(author);
+    if (post.author_year !== null && post.author_year !== undefined) {
+      const year = document.createElement('span');
+      year.className = 'muted';
+      year.textContent = 'Year ' + String(post.author_year);
+      header.appendChild(year);
+    }
     if (post.is_sample === true) {
       const sample = document.createElement('span');
       sample.className = 'badge';
@@ -168,6 +182,10 @@ function renderFeedPreview(container, posts) {
     body.className = 'pre-wrap';
     body.textContent = String(post.body || '');
     item.appendChild(body);
+    const stats = document.createElement('div');
+    stats.className = 'feed-preview-stats muted';
+    stats.textContent = String(post.like_count || 0) + ' likes';
+    item.appendChild(stats);
     list.appendChild(item);
   });
   container.appendChild(list);
@@ -202,7 +220,7 @@ function renderTodos(container, todos) {
   container.appendChild(list);
 }
 
-function renderPopularGroups(container, groups) {
+function renderPopularGroups(container, groups, headers) {
   container.replaceChildren();
   const list = document.createElement('ul');
   list.className = 'dashboard-list';
@@ -222,6 +240,27 @@ function renderPopularGroups(container, groups) {
       sample.textContent = 'Sample';
       item.appendChild(sample);
     }
+    const action = document.createElement('button');
+    action.type = 'button';
+    action.className = 'btn secondary dashboard-inline-action';
+    action.textContent = group.is_member ? 'Leave' : 'Join';
+    action.addEventListener('click', async function () {
+      action.disabled = true;
+      try {
+        const response = await fetch('/api/groups', { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: group.is_member ? 'leave' : 'join', group_id: group.id }) });
+        if (!response.ok) throw new Error('Group update failed');
+        const result = await response.json();
+        group.is_member = result.is_member === true;
+        group.member_count = Number(result.member_count || 0);
+        action.textContent = group.is_member ? 'Leave' : 'Join';
+        meta.textContent = String(group.member_count) + ' member' + (group.member_count === 1 ? '' : 's') + ' · ' + String(group.kind || 'group');
+      } catch (error) {
+        action.textContent = 'Could not update';
+      } finally {
+        action.disabled = false;
+      }
+    });
+    item.appendChild(action);
     list.appendChild(item);
   });
   container.appendChild(list);
@@ -277,6 +316,7 @@ async function init() {
   const groupsSection = document.getElementById('popular-groups-list');
   const eventsSection = document.getElementById('events-list');
   const context = await getAuthContext();
+  let loadedCourses = [];
 
   if (context.session) {
     try {
@@ -285,6 +325,11 @@ async function init() {
       const profile = await profileResponse.json();
       const firstName = String(profile.name || '').trim().split(/\s+/)[0] || 'student';
       setWelcome(welcome, 'Welcome back, ' + firstName, profile.university || '');
+      const composerAvatar = document.getElementById('composer-avatar');
+      if (composerAvatar) {
+        const profileName = String(profile.name || '').trim();
+        composerAvatar.textContent = profileName.split(/\s+/).filter(Boolean).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase() || 'S';
+      }
       const university = document.getElementById('dashboard-university');
       if (university) {
         university.textContent = profile.university ? String(profile.university) : 'No university selected yet.';
@@ -318,6 +363,7 @@ async function init() {
     const coursesResponse = await fetch('/api/courses', { headers: context.headers });
     if (!coursesResponse.ok) throw new Error('Courses unavailable');
     const courses = await coursesResponse.json();
+    loadedCourses = Array.isArray(courses) ? courses : [];
     if (!Array.isArray(courses) || courses.length === 0) {
       showMessage(coursesSection, 'No courses yet. Your schedule will appear here once courses are added.');
     } else {
@@ -347,13 +393,13 @@ async function init() {
     if (!Array.isArray(schedule) || schedule.length === 0) {
       showMessage(scheduleSection, 'No classes yet. Your weekly schedule will appear here once courses are added.');
     } else {
-      renderClasses(scheduleSection, schedule, []);
+      renderClasses(scheduleSection, schedule, [], loadedCourses);
       if (context.session) {
         try {
           const personalResponse = await fetch('/api/personal-classes', { headers: context.headers });
           if (!personalResponse.ok) throw new Error('Personal classes unavailable');
           const personalClasses = await personalResponse.json();
-          renderClasses(scheduleSection, schedule, Array.isArray(personalClasses) ? personalClasses : []);
+          renderClasses(scheduleSection, schedule, Array.isArray(personalClasses) ? personalClasses : [], loadedCourses);
         } catch (error) {
           showPersonalHomeMessage(scheduleSection, 'Could not load personal classes.');
         }
@@ -393,7 +439,7 @@ async function init() {
     if (!Array.isArray(groups) || groups.length === 0) {
       showMessage(groupsSection, 'No groups available yet.');
     } else {
-      renderPopularGroups(groupsSection, groups);
+      renderPopularGroups(groupsSection, groups, context.headers);
     }
   } catch (error) {
     showMessage(groupsSection, 'Could not load groups.', true);
