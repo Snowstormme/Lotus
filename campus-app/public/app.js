@@ -298,12 +298,8 @@ function renderNextEvents(container, events) {
   container.appendChild(list);
 }
 
-function setWelcome(container, title, university) {
+function setWelcome(container, university) {
   container.replaceChildren();
-  const heading = document.createElement('h1');
-  heading.className = 'page-title';
-  heading.textContent = title;
-  container.appendChild(heading);
   if (university) {
     const detail = document.createElement('p');
     detail.className = 'muted';
@@ -330,8 +326,7 @@ async function init() {
       const profileResponse = await fetch('/api/profile?id=1', { headers: context.headers });
       if (!profileResponse.ok) throw new Error('Profile unavailable');
       const profile = await profileResponse.json();
-      const firstName = String(profile.name || '').trim().split(/\s+/)[0] || 'student';
-      setWelcome(welcome, 'Welcome back, ' + firstName, profile.university || '');
+      setWelcome(welcome, profile.university || '');
       const composerAvatar = document.getElementById('composer-avatar');
       if (composerAvatar) {
         const profileName = String(profile.name || '').trim();
@@ -347,14 +342,14 @@ async function init() {
         universityBadge.textContent = profile.university ? String(profile.university).trim().charAt(0).toUpperCase() : '·';
       }
     } catch (error) {
-      setWelcome(welcome, 'Welcome to Lotus Campus', '');
+      setWelcome(welcome, '');
       const university = document.getElementById('dashboard-university');
       if (university) university.textContent = 'No university selected yet.';
       const universityBadge = document.getElementById('dashboard-university-badge');
       if (universityBadge) universityBadge.textContent = '·';
     }
   } else {
-    setWelcome(welcome, 'Welcome to Lotus Campus', '');
+    setWelcome(welcome, '');
     const university = document.getElementById('dashboard-university');
     if (university) university.textContent = 'Log in to see your university.';
     const universityBadge = document.getElementById('dashboard-university-badge');
