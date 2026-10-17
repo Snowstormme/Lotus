@@ -465,7 +465,9 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .hero-copy #welcome-content .muted { color: #ffffff; }
   .hero-banner .quick-actions { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: hidden; }
   .action-card { align-items: center; display: flex; gap: var(--space-2); justify-content: center; min-width: 0; padding: var(--space-4); }
-  .action-card .action-icon { align-self: center; flex: 0 0 16px; height: 16px; width: 16px; }
+  .action-card .action-icon { align-items: center; align-self: center; background: linear-gradient(135deg, rgba(139, 115, 255, 0.95), rgba(59, 130, 246, 0.9)); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 12px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 6px 16px rgba(91, 63, 214, 0.35); color: #ffffff; display: inline-flex; flex: 0 0 40px; height: 40px; justify-content: center; overflow: hidden; padding: 9px; position: relative; width: 40px; }
+  .action-card .action-icon::before { background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0)); border-radius: inherit; content: ''; inset: 0 0 50%; pointer-events: none; position: absolute; }
+  .action-card:hover .action-icon { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 8px 20px rgba(91, 63, 214, 0.45); }
   .action-card strong { white-space: nowrap; }
   .app-main.page { padding-left: clamp(var(--space-6), 4vw, var(--space-12)); padding-right: clamp(var(--space-6), 4vw, var(--space-12)); }
   .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
