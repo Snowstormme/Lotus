@@ -412,7 +412,8 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .shell-topbar { position: sticky; top: 0; z-index: 5; }
   .shell-sidebar .shell-nav-link { font-size: 14px; padding-bottom: 8px; padding-top: 8px; }
   .hero-kicker { font-size: clamp(22px, 2vw, 30px); }
-  .hero-copy .page-title, .hero-copy .hero-title { font-size: clamp(16px, 1.4vw, 20px); }
+  .hero-copy .hero-title { font-size: clamp(16px, 1.4vw, 20px); }
+  .hero-copy .page-title { font-size: clamp(16px, 1.4vw, 20px); }
   .action-card { grid-template-columns: 16px minmax(0, 1fr); padding: var(--space-4); }
   .action-card .action-icon { align-self: center; grid-column: 1; grid-row: 1; height: 16px; width: 16px; }
   .action-card strong { grid-column: 2; grid-row: 1; white-space: nowrap; }
