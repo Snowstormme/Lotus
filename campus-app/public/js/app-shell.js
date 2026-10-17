@@ -39,13 +39,11 @@
     { key: 'feed', label: 'Feed', href: 'feed.html' },
     { key: 'messages', label: 'Messages', href: 'messages.html' },
     { key: 'community', label: 'Community', href: 'groups.html' },
-    { key: 'partners', label: 'Partners', href: 'partners.html?id=1' },
     { key: 'plan', label: 'Plan', href: 'plan.html?id=1' },
     { key: 'todos', label: 'To-do', href: 'todos.html' },
     { key: 'events', label: 'Events', href: 'events.html' }
   ];
   const sidebarMoreItems = [
-    { key: 'partners', label: 'Partners', href: 'partners.html?id=1' },
     { key: 'plan', label: 'Plan', href: 'plan.html?id=1' }
   ];
 
@@ -58,7 +56,7 @@
     }
     if (page === 'plan.html') return 'ai';
     if (page === 'assistant.html') return 'ai';
-    if (page === 'partners.html' || page === 'groups.html') return 'community';
+    if (page === 'groups.html') return 'community';
     if (page === 'profile.html') return 'profile';
     if (page === 'schedule.html') return 'schedule';
     if (page === 'courses.html') return 'courses';
@@ -97,7 +95,6 @@
     const page = window.location.pathname.split('/').pop() || 'index.html';
     const currentKey = getCurrentKey();
     const samePage = (page === 'plan.html' && ['ai', 'plan'].includes(item.key)) ||
-      (page === 'partners.html' && ['community', 'partners'].includes(item.key)) ||
       (page === 'groups.html' && item.key === 'community') ||
       (page === 'todos.html' && item.key === 'todos') ||
       (page === 'groups.html' && item.key === 'groups') ||
