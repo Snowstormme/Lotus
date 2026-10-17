@@ -32,11 +32,19 @@ async function generateWorkersAi(env, prompt) {
   const model = env.WORKERS_AI_MODEL || DEFAULT_WORKERS_AI_MODEL;
   let timeoutId;
   const timeout = new Promise((_, reject) => {
-    timeoutId = setTimeout(() => reject(new Error('Workers AI request timed out')), 15000);
+    timeoutId = setTimeout(() => {
+      const error = new Error('Workers AI request timed out');
+      error.provider = 'Workers AI';
+      error.providerCategory = 'timeout';
+      reject(error);
+    }, 15000);
   });
   const request = Promise.resolve(env.AI.run(model, { prompt })).then((result) => {
     if (!result || typeof result.response !== 'string' || !result.response.trim()) {
-      throw new Error('Workers AI returned no text');
+      const error = new Error('Workers AI returned no text');
+      error.provider = 'Workers AI';
+      error.providerCategory = 'bad_response';
+      throw error;
     }
     return result.response;
   });
@@ -45,6 +53,14 @@ async function generateWorkersAi(env, prompt) {
   } finally {
     clearTimeout(timeoutId);
   }
+}
+
+function providerLog(error, provider) {
+  return {
+    provider: error && error.provider ? error.provider : provider,
+    status: error && Number.isInteger(error.providerStatus) ? error.providerStatus : null,
+    category: error && error.providerCategory ? error.providerCategory : 'exception'
+  };
 }
 
 async function getCourses(supabase, userId) {
@@ -108,7 +124,7 @@ export async function onRequestPost(context) {
     await recordAiUsage(supabase);
     return json({ reply, mode: body.mode, course_code: course ? course.code : null });
   } catch (error) {
-    console.error('Could not generate AI chat reply:', error);
+    console.error('Could not generate AI chat reply:', providerLog(error, context.env.AI ? 'Workers AI' : 'Gemini'));
     return json({ error: 'The study assistant could not answer right now. Please try again.' }, 503);
   }
 }

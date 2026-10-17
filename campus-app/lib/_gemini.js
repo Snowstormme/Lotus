@@ -24,12 +24,30 @@ async function generateText(env, prompt, timeoutMs, responseMimeType) {
       signal: controller.signal
     });
 
-    if (!response.ok) throw new Error('Gemini request failed with status ' + response.status);
-    const payload = await response.json();
+    if (!response.ok) {
+      const error = new Error('Gemini request failed');
+      error.provider = 'Gemini';
+      error.providerStatus = response.status;
+      error.providerCategory = 'bad_status';
+      throw error;
+    }
+    let payload;
+    try {
+      payload = await response.json();
+    } catch (error) {
+      error.provider = 'Gemini';
+      error.providerCategory = 'bad_response';
+      throw error;
+    }
     const text = payload.candidates && payload.candidates[0] &&
       payload.candidates[0].content && payload.candidates[0].content.parts &&
       payload.candidates[0].content.parts.map((part) => part.text || '').join('');
-    if (!text) throw new Error('Gemini returned no text');
+    if (!text) {
+      const error = new Error('Gemini returned no text');
+      error.provider = 'Gemini';
+      error.providerCategory = 'bad_response';
+      throw error;
+    }
     return text;
   } finally {
     clearTimeout(timeout);
