@@ -408,6 +408,10 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .mobile-bottom-bar { display: none; }
 }
 @media (min-width: 1024px) {
+  .events-grid { align-items: stretch; }
+  .events-grid > .event-card, #event-detail-view { margin-bottom: var(--space-6); }
+  .event-card { min-height: 10rem; }
+}
   .group-filters, .groups-grid > .group-card, #group-detail-view { margin-bottom: var(--space-6); }
   .groups-grid { align-items: stretch; }
   .groups-grid > .group-card { height: 100%; }
