@@ -173,6 +173,7 @@
   const bellIcon = document.createElement('svg');
   bellIcon.className = 'nav-icon';
   bellIcon.setAttribute('aria-hidden', 'true');
+  bellIcon.setAttribute('aria-hidden', 'true');
   const bellUse = document.createElement('use');
   bellUse.setAttribute('href', 'img/icons.svg#bell');
   bellIcon.appendChild(bellUse);
