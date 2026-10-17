@@ -44,6 +44,10 @@
     { key: 'todos', label: 'To-do', href: 'todos.html' },
     { key: 'events', label: 'Events', href: 'events.html' }
   ];
+  const sidebarMoreItems = [
+    { key: 'partners', label: 'Partners', href: 'partners.html?id=1' },
+    { key: 'plan', label: 'Plan', href: 'plan.html?id=1' }
+  ];
 
   function getCurrentKey() {
     const page = window.location.pathname.split('/').pop() || 'index.html';
@@ -108,7 +112,7 @@
   const sidebarNav = document.createElement('nav');
   sidebarNav.className = 'shell-sidebar-nav';
   sidebarNav.setAttribute('aria-label', 'Primary navigation');
-  navItems.forEach(function (item) { sidebarNav.appendChild(makeNavLink(item)); });
+  navItems.filter(function (item) { return item.key !== 'profile'; }).forEach(function (item) { sidebarNav.appendChild(makeNavLink(item)); });
   sidebar.appendChild(sidebarNav);
   const moreTitle = document.createElement('h2');
   moreTitle.className = 'shell-nav-heading';
@@ -116,7 +120,7 @@
   const moreNav = document.createElement('nav');
   moreNav.className = 'shell-sidebar-nav shell-more-nav';
   moreNav.setAttribute('aria-label', 'More navigation');
-  moreItems.forEach(function (item) { moreNav.appendChild(makeNavLink(item)); });
+  sidebarMoreItems.forEach(function (item) { moreNav.appendChild(makeNavLink(item)); });
   sidebar.append(moreTitle, moreNav);
 
   const userCard = document.createElement('a');
@@ -178,6 +182,17 @@
   reminderBadge.hidden = true;
   reminderBadge.dataset.reminderBadge = 'true';
   notifications.appendChild(reminderBadge);
+  const settings = document.createElement('button');
+  settings.className = 'icon-button settings-button';
+  settings.type = 'button';
+  settings.setAttribute('aria-label', 'Settings, coming soon');
+  const settingsIcon = document.createElement('svg');
+  settingsIcon.className = 'nav-icon';
+  settingsIcon.setAttribute('aria-hidden', 'true');
+  const settingsUse = document.createElement('use');
+  settingsUse.setAttribute('href', 'img/icons.svg#settings');
+  settingsIcon.appendChild(settingsUse);
+  settings.appendChild(settingsIcon);
   const avatar = document.createElement('a');
   avatar.className = 'icon-button topbar-avatar';
   avatar.href = 'profile.html?id=1';
@@ -189,7 +204,7 @@
   avatarUse.setAttribute('href', 'img/icons.svg#profile');
   avatarIcon.appendChild(avatarUse);
   avatar.appendChild(avatarIcon);
-  topActions.append(notifications, avatar);
+  topActions.append(notifications, settings, avatar);
   if (authActions) {
     authActions.classList.add('shell-auth-actions');
     topActions.appendChild(authActions);
