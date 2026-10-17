@@ -36,7 +36,7 @@ async function generateWorkersAi(env, prompt) {
       reject(error);
     }, 15000);
   });
-  const request = Promise.resolve(env.AI.run(model, { prompt })).then((result) => {
+  const request = Promise.resolve(env.AI.run(model, { prompt, max_tokens: 1024 })).then((result) => {
     if (!result || typeof result.response !== 'string' || !result.response.trim()) {
       const error = new Error('Workers AI returned no text');
       error.provider = 'Workers AI';
@@ -75,7 +75,7 @@ async function getPlanDeadlines(supabase, courseIds) {
 
 function buildPrompt(input) {
   return [
-    'System instruction: You are a study assistant for university students in Azerbaijan. Explain clearly, admit uncertainty, do not invent university rules, grades, or deadlines, and do not claim to be a university system. If a question is unrelated to studying, politely steer back to study topics.',
+    'System instruction: You are a study assistant for university students in Azerbaijan. Explain clearly, admit uncertainty, do not invent university rules, grades, or deadlines, and do not claim to be a university system. If a question is unrelated to studying, politely steer back to study topics. Answer clearly and completely in under 300 words unless the student asks for more detail. Always finish your last sentence.',
     'Mode instruction: ' + modeInstructions[input.mode],
     'Course context: ' + (input.course ? JSON.stringify({ code: input.course.code, name: input.course.name }) : 'General study'),
     input.deadlines ? 'Upcoming deadlines: ' + JSON.stringify(input.deadlines) : '',

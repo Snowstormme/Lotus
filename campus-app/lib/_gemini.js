@@ -19,7 +19,7 @@ async function generateText(env, prompt, timeoutMs, responseMimeType) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: responseMimeType ? { responseMimeType } : undefined
+        generationConfig: { maxOutputTokens: 1024, ...(responseMimeType ? { responseMimeType } : {}) }
       }),
       signal: controller.signal
     });
