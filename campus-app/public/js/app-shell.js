@@ -24,16 +24,16 @@
   sidebar.appendChild(sidebarBrand);
 
   const navItems = [
-    { key: 'home', label: 'Home', href: 'index.html' },
-    { key: 'feed', label: 'Feed', href: 'feed.html' },
-    { key: 'messages', label: 'Messages', href: 'messages.html' },
+    { key: 'home', label: 'Home', href: 'index.html', icon: 'home' },
+    { key: 'feed', label: 'Feed', href: 'feed.html', icon: 'feed' },
+    { key: 'messages', label: 'Messages', href: 'messages.html', icon: 'messages' },
     { key: 'community', label: 'Community', href: 'groups.html', icon: 'community' },
-    { key: 'courses', label: 'Courses', href: 'courses.html' },
-    { key: 'schedule', label: 'Schedule', href: 'schedule.html' },
-    { key: 'ai', label: 'AI Assistant', href: 'assistant.html' },
-    { key: 'events', label: 'Events', href: 'events.html' },
-    { key: 'todos', label: 'To-do', href: 'todos.html' },
-    { key: 'profile', label: 'Profile', href: 'profile.html?id=1' }
+    { key: 'courses', label: 'Courses', href: 'courses.html', icon: 'courses' },
+    { key: 'schedule', label: 'Schedule', href: 'schedule.html', icon: 'schedule' },
+    { key: 'ai', label: 'AI Assistant', href: 'assistant.html', icon: 'ai' },
+    { key: 'events', label: 'Events', href: 'events.html', icon: 'events' },
+    { key: 'todos', label: 'To-do', href: 'todos.html', icon: 'todo' },
+    { key: 'profile', label: 'Profile', href: 'profile.html?id=1', icon: 'profile' }
   ];
   const moreItems = [
     { key: 'feed', label: 'Feed', href: 'feed.html' },
