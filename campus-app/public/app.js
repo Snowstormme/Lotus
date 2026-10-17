@@ -1,5 +1,6 @@
 import { getSession } from './js/auth.js';
 import { formatBakuDateTime } from './js/dates.js';
+import { samplePosts, sampleGroups, sampleEvents } from './js/home-samples.js';
 
 const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -226,10 +227,12 @@ function renderPopularGroups(container, groups, headers) {
   list.className = 'dashboard-list';
   groups.slice(0, 3).forEach(function (group) {
     const item = document.createElement('li');
-    const link = document.createElement('a');
-    link.href = 'groups.html?id=' + encodeURIComponent(group.id);
-    link.textContent = String(group.name || 'Group');
-    item.appendChild(link);
+    const title = document.createElement(group.is_sample === true ? 'strong' : 'a');
+    if (group.is_sample !== true) {
+      title.href = 'groups.html?id=' + encodeURIComponent(group.id);
+    }
+    title.textContent = String(group.name || 'Group');
+    item.appendChild(title);
     const meta = document.createElement('span');
     meta.className = 'muted';
     meta.textContent = String(group.member_count || 0) + ' member' + (group.member_count === 1 ? '' : 's') + ' · ' + String(group.kind || 'group');
@@ -240,27 +243,29 @@ function renderPopularGroups(container, groups, headers) {
       sample.textContent = 'Sample';
       item.appendChild(sample);
     }
-    const action = document.createElement('button');
-    action.type = 'button';
-    action.className = 'btn secondary dashboard-inline-action';
-    action.textContent = group.is_member ? 'Leave' : 'Join';
-    action.addEventListener('click', async function () {
-      action.disabled = true;
-      try {
-        const response = await fetch('/api/groups', { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: group.is_member ? 'leave' : 'join', group_id: group.id }) });
-        if (!response.ok) throw new Error('Group update failed');
-        const result = await response.json();
-        group.is_member = result.is_member === true;
-        group.member_count = Number(result.member_count || 0);
-        action.textContent = group.is_member ? 'Leave' : 'Join';
-        meta.textContent = String(group.member_count) + ' member' + (group.member_count === 1 ? '' : 's') + ' · ' + String(group.kind || 'group');
-      } catch (error) {
-        action.textContent = 'Could not update';
-      } finally {
-        action.disabled = false;
-      }
-    });
-    item.appendChild(action);
+    if (group.is_sample !== true) {
+      const action = document.createElement('button');
+      action.type = 'button';
+      action.className = 'btn secondary dashboard-inline-action';
+      action.textContent = group.is_member ? 'Leave' : 'Join';
+      action.addEventListener('click', async function () {
+        action.disabled = true;
+        try {
+          const response = await fetch('/api/groups', { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: group.is_member ? 'leave' : 'join', group_id: group.id }) });
+          if (!response.ok) throw new Error('Group update failed');
+          const result = await response.json();
+          group.is_member = result.is_member === true;
+          group.member_count = Number(result.member_count || 0);
+          action.textContent = group.is_member ? 'Leave' : 'Join';
+          meta.textContent = String(group.member_count) + ' member' + (group.member_count === 1 ? '' : 's') + ' · ' + String(group.kind || 'group');
+        } catch (error) {
+          action.textContent = 'Could not update';
+        } finally {
+          action.disabled = false;
+        }
+      });
+      item.appendChild(action);
+    }
     list.appendChild(item);
   });
   container.appendChild(list);
@@ -272,10 +277,12 @@ function renderNextEvents(container, events) {
   list.className = 'dashboard-list';
   events.slice(0, 3).forEach(function (event) {
     const item = document.createElement('li');
-    const link = document.createElement('a');
-    link.href = 'events.html?id=' + encodeURIComponent(event.id);
-    link.textContent = String(event.title || 'Event');
-    item.appendChild(link);
+    const title = document.createElement(event.is_sample === true ? 'strong' : 'a');
+    if (event.is_sample !== true) {
+      title.href = 'events.html?id=' + encodeURIComponent(event.id);
+    }
+    title.textContent = String(event.title || 'Event');
+    item.appendChild(title);
     const meta = document.createElement('span');
     meta.className = 'muted';
     meta.textContent = (formatBakuDateTime(event.starts_at) || 'Date unavailable') + ' · ' + String(event.location || 'Location unavailable') + ' · ' + String(event.rsvp_count || 0) + ' going';
@@ -414,7 +421,7 @@ async function init() {
     if (!feedResponse.ok) throw new Error('Feed unavailable');
     const posts = await feedResponse.json();
     if (!Array.isArray(posts) || posts.length === 0) {
-      showMessage(feedSection, 'No posts yet. Start the conversation.');
+      renderFeedPreview(feedSection, samplePosts);
     } else {
       renderFeedPreview(feedSection, posts);
     }
@@ -437,7 +444,7 @@ async function init() {
     if (!groupsResponse.ok) throw new Error('Groups unavailable');
     const groups = await groupsResponse.json();
     if (!Array.isArray(groups) || groups.length === 0) {
-      showMessage(groupsSection, 'No groups available yet.');
+      renderPopularGroups(groupsSection, sampleGroups, context.headers);
     } else {
       renderPopularGroups(groupsSection, groups, context.headers);
     }
@@ -450,7 +457,7 @@ async function init() {
     if (!eventsResponse.ok) throw new Error('Events unavailable');
     const events = await eventsResponse.json();
     if (!Array.isArray(events) || events.length === 0) {
-      showMessage(eventsSection, 'No upcoming events yet. Check back soon.');
+      renderNextEvents(eventsSection, sampleEvents);
     } else {
       renderNextEvents(eventsSection, events);
     }
