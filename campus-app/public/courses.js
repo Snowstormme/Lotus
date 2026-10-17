@@ -27,11 +27,12 @@ function render() {
     const card = document.createElement('a'); card.className = 'card course-card'; card.href = 'course.html?id=' + encodeURIComponent(course.id);
     const bar = document.createElement('span'); bar.className = 'course-card-bar course-color-' + (index % 4); bar.setAttribute('aria-hidden', 'true');
     const content = document.createElement('span'); content.className = 'course-card-content';
+    const icon = document.createElement('svg'); icon.className = 'course-card-icon'; icon.setAttribute('aria-hidden', 'true'); const iconUse = document.createElement('use'); iconUse.setAttribute('href', 'img/icons.svg#courses'); icon.appendChild(iconUse);
     const code = document.createElement('strong'); code.textContent = String(course.code || 'Course');
     const name = document.createElement('span'); name.className = 'course-card-name'; name.textContent = String(course.name || '');
     if (course.is_catalog === true) { const catalog = document.createElement('span'); catalog.className = 'badge'; catalog.textContent = 'Catalog'; content.appendChild(catalog); }
     const details = document.createElement('span'); details.className = 'muted'; details.textContent = 'Teacher: ' + String(course.teacher || '—') + ' · Room: ' + String(course.room || '—');
-    content.append(code, name, details); card.append(bar, content); return card;
+    const action = document.createElement('span'); action.className = 'course-card-action'; action.textContent = 'Open course'; content.append(icon, code, name, details, action); card.append(bar, content); return card;
   }));
 }
 function setupSemesterFilter() { const semesters = [...new Set(allCourses.map((course) => course.semester).filter(Boolean))].sort(); if (semesters.length <= 1) { semesterField.hidden = true; return; } semesterField.hidden = false; semesterFilter.replaceChildren(); semesters.forEach((semester) => { const option = document.createElement('option'); option.value = String(semester); option.textContent = String(semester); semesterFilter.appendChild(option); }); }
