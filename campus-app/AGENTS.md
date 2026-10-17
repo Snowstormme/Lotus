@@ -38,7 +38,7 @@ Deploy on Cloudflare Pages. Connect the GitHub repository, leave the build comma
 
 ## Current scope
 
-Phase 2 is complete. The launch-security audit is in `docs/launch-audit.md`. The cost estimate feature was removed.
+Phase 2 is complete. Current pages are Home, Feed, Messages, Groups, Courses, Schedule, Events, AI Assistant, Profile, Login, Signup, and Onboarding. Partners and the plan page were removed; to-dos and the cost estimate feature were removed; Groups was renamed from Community. The launch-security audit is in `docs/launch-audit.md`.
 
 ## Done means
 - The Cloudflare Pages Functions and static frontend deploy from a clean clone with no build step.

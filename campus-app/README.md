@@ -1,6 +1,6 @@
 # Lotus Campus
 
-A campus platform for university students in Azerbaijan: calendar, deadlines, courses, study-partner matching, and a free AI study planner.
+A campus platform for university students in Azerbaijan.
 
 ## Environment
 
@@ -10,7 +10,8 @@ Never put these values in client files or commit them to Git.
 
 ## Scope
 
-Phase 1 (current): calendar, deadlines, courses, partners, AI plan.
+Current pages: Home, Feed, Messages, Groups, Courses, Schedule, Events, AI Assistant, Profile, Login, Signup, and Onboarding.
+Current features include university groups, course schedules, deadlines, events, messaging, course materials, personal classes, and the AI study assistant.
 Not in scope: grades, attendance, online library. See `AGENTS.md`.
 
 ## Supabase setup
@@ -29,7 +30,8 @@ The service role key is used only by server-side functions and bypasses RLS ther
 
 Run the plain Node tests from this directory:
 
-    node scripts/test-matching.js
+    node scripts/test-catalog.js
+    node scripts/test-dates.js
     node scripts/test-plan.js
 
 ## Deployment log
