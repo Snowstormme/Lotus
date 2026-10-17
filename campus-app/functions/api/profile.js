@@ -13,6 +13,19 @@ function getUserId(context) {
   return rawId && Number.isInteger(id) && id > 0 ? id : null;
 }
 
+async function getUniversityLogo(supabase, universityId) {
+  if (!universityId) return null;
+  const { data, error } = await supabase.from('universities').select('logo_url').eq('id', universityId).maybeSingle();
+  if (error) throw new Error('Could not load university logo.');
+  const url = data?.logo_url;
+  if (url == null) return null;
+  if (typeof url !== 'string' || !url.startsWith('/img/universities/') || /\.\.|\/\/|http|[\\%?#\s]/i.test(url)) {
+    console.error('Invalid university logo; university ID:', universityId);
+    return null;
+  }
+  return url;
+}
+
 function validateBody(body) {
   if (!body || Array.isArray(body) || typeof body !== 'object') return null;
   const fields = ['name', 'university_id', 'faculty_id', 'year', 'languages', 'weekly_free_hours', 'share_for_partners', 'allow_messages'];
@@ -43,7 +56,8 @@ export async function onRequestGet(context) {
   if (context.request.headers.get('Authorization')) {
     try {
       const user = await requireOwnProfile(context.request, context.env);
-      return json({ name: user.name, year: user.year, languages: user.languages, weekly_free_hours: user.weekly_free_hours, university_id: user.university_id, faculty_id: user.faculty_id, university: user.university ? user.university.name : null, faculty: user.faculty ? user.faculty.name : null, share_for_partners: user.share_for_partners === true, allow_messages: user.allow_messages !== false });
+      const logo_url = await getUniversityLogo(getSupabase(context.env), user.university_id);
+      return json({ name: user.name, year: user.year, languages: user.languages, weekly_free_hours: user.weekly_free_hours, university_id: user.university_id, faculty_id: user.faculty_id, university: user.university ? user.university.name : null, faculty: user.faculty ? user.faculty.name : null, share_for_partners: user.share_for_partners === true, allow_messages: user.allow_messages !== false, logo_url });
     } catch (err) {
       if (err.status === 401 || err.status === 404) return json({ error: err.publicMessage }, err.status);
       console.error('Could not load profile:', err);
@@ -104,7 +118,8 @@ export async function onRequestPut(context) {
       .eq('id', user.id)
       .maybeSingle();
     if (updatedUserError) throw updatedUserError;
-    return json({ name: updatedUser.name, year: updatedUser.year, languages: updatedUser.languages, weekly_free_hours: updatedUser.weekly_free_hours, university_id: updatedUser.university_id, faculty_id: updatedUser.faculty_id, university: updatedUser.university ? updatedUser.university.name : null, faculty: updatedUser.faculty ? updatedUser.faculty.name : null, share_for_partners: updatedUser.share_for_partners === true, allow_messages: updatedUser.allow_messages !== false, faculty_changed: facultyChanged });
+    const logo_url = await getUniversityLogo(supabase, updatedUser.university_id);
+    return json({ name: updatedUser.name, year: updatedUser.year, languages: updatedUser.languages, weekly_free_hours: updatedUser.weekly_free_hours, university_id: updatedUser.university_id, faculty_id: updatedUser.faculty_id, university: updatedUser.university ? updatedUser.university.name : null, faculty: updatedUser.faculty ? updatedUser.faculty.name : null, share_for_partners: updatedUser.share_for_partners === true, allow_messages: updatedUser.allow_messages !== false, faculty_changed: facultyChanged, logo_url });
   } catch (err) {
     if (err.status === 401 || err.status === 404) return json({ error: err.publicMessage }, err.status);
     console.error('Could not update profile:', err);
