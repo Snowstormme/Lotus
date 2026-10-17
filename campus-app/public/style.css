@@ -206,14 +206,17 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .unread-badge { background: var(--color-danger); border-radius: var(--radius-pill); color: var(--color-background); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); margin-left: auto; min-width: 1.25rem; padding: 0 var(--space-1); text-align: center; }
 .shell-workspace { min-width: 0; }
 .shell-topbar { align-items: center; background: var(--color-shell); border-bottom: 1px solid var(--color-border); display: flex; gap: var(--space-4); justify-content: space-between; min-height: 72px; padding: var(--space-3) var(--space-4); }
-.shell-search-wrap { flex: 1 1 20rem; min-width: 0; }
+.shell-search-wrap { flex: 1 1 20rem; min-width: 0; position: relative; }
 .shell-search { background: var(--color-raised); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-text-primary); min-height: 44px; padding: var(--space-2) var(--space-3); width: 100%; }
 .shell-search::placeholder { color: var(--color-text-secondary); }
+.search-shortcut { display: none; }
 .shell-top-actions { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: flex-end; }
 .shell-auth-actions { margin-left: 0; }
 .shell-auth-actions a { color: var(--color-accent-hover); }
 .icon-button { background: var(--color-raised); border-color: var(--color-border); color: var(--color-text-secondary); min-height: 44px; }
 .icon-button:hover { background: var(--color-accent-surface); color: var(--color-text-primary); }
+.topbar-avatar { border-radius: 50%; padding: var(--space-2); }
+.topbar-avatar.avatar-circle { border: 0; font-size: var(--font-size-sm); }
 .notification-button { gap: var(--space-2); white-space: nowrap; }
 .notification-button .unread-badge { flex: 0 0 auto; margin-left: var(--space-2); }
 .nav-icon { flex: 0 0 1.25rem; height: 1.25rem; width: 1.25rem; }
@@ -386,6 +389,8 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .report-options .field { margin: 0; min-width: 12rem; }
 
 @media (min-width: 768px) {
+  .search-shortcut { align-items: center; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text-secondary); display: inline-flex; font-size: var(--font-size-xs); min-height: 1.5rem; padding: 0 var(--space-2); pointer-events: none; position: absolute; right: var(--space-3); top: 50%; transform: translateY(-50%); }
+  .shell-search { padding-right: 4rem; }
   .shell-topbar { padding-left: var(--space-6); padding-right: var(--space-6); }
   .mobile-bottom-bar { display: none; }
 }

@@ -153,7 +153,11 @@
   search.type = 'search';
   search.placeholder = 'Search courses or pages';
   search.setAttribute('aria-label', 'Search courses and pages');
-  searchWrap.append(searchLabel, search);
+  const searchShortcut = document.createElement('span');
+  searchShortcut.className = 'search-shortcut';
+  searchShortcut.setAttribute('aria-hidden', 'true');
+  searchShortcut.textContent = '⌘K';
+  searchWrap.append(searchLabel, search, searchShortcut);
 
   const topActions = document.createElement('div');
   topActions.className = 'shell-top-actions';
@@ -175,10 +179,16 @@
   reminderBadge.dataset.reminderBadge = 'true';
   notifications.appendChild(reminderBadge);
   const avatar = document.createElement('a');
-  avatar.className = 'icon-button';
+  avatar.className = 'icon-button topbar-avatar';
   avatar.href = 'profile.html?id=1';
   avatar.setAttribute('aria-label', 'Open profile');
-  avatar.textContent = 'You';
+  const avatarIcon = document.createElement('svg');
+  avatarIcon.className = 'nav-icon';
+  avatarIcon.setAttribute('aria-hidden', 'true');
+  const avatarUse = document.createElement('use');
+  avatarUse.setAttribute('href', 'img/icons.svg#profile');
+  avatarIcon.appendChild(avatarUse);
+  avatar.appendChild(avatarIcon);
   topActions.append(notifications, avatar);
   if (authActions) {
     authActions.classList.add('shell-auth-actions');
@@ -254,8 +264,11 @@
     }).then(function (profile) {
       if (!profile) return;
       const name = String(profile.name || 'Student').trim() || 'Student';
-      const initials = name.split(/\s+/).map(function (part) { return part[0]; }).join('').slice(0, 2).toUpperCase();
+      const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase();
       userAvatar.textContent = initials || 'S';
+      avatar.replaceChildren();
+      avatar.classList.add('avatar-circle');
+      avatar.textContent = initials || 'S';
       userName.textContent = name;
       userUniversity.textContent = String(profile.university || 'University not set');
       userCard.href = 'profile.html?id=1';
