@@ -29,20 +29,34 @@
     <div class="feed-layout">
       <section class="card feed-composer" aria-labelledby="composer-title">
         <h2 id="composer-title" class="card-title">Share with your university</h2>
+        <div class="composer-prompt">
+          <span class="avatar-circle composer-avatar" aria-hidden="true">
+            <svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#profile"></use></svg>
+          </span>
+          <span class="muted">What's on your mind?</span>
+        </div>
         <form id="post-form">
           <div class="field">
             <label for="post-body">Post</label>
-            <textarea id="post-body" maxlength="500" aria-describedby="post-counter" required></textarea>
+            <textarea id="post-body" maxlength="500" aria-describedby="post-counter" placeholder="What's on your mind?" required></textarea>
             <span id="post-counter" class="muted character-count">0/500</span>
           </div>
           <button id="post-submit" class="btn primary" type="submit">Post</button>
           <p id="post-status" class="alert" role="status" aria-live="polite"></p>
         </form>
+        <div class="composer-tools" aria-label="Coming soon post types">
+          <button class="btn secondary" type="button" disabled><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#feed"></use></svg>Photo <span class="badge">Soon</span></button>
+          <button class="btn secondary" type="button" disabled><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#events"></use></svg>Event <span class="badge">Soon</span></button>
+          <button class="btn secondary" type="button" disabled><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#messages"></use></svg>Question <span class="badge">Soon</span></button>
+        </div>
       </section>
       <section class="card" aria-labelledby="feed-list-title">
         <div class="section-heading">
           <h2 id="feed-list-title" class="card-title">University feed</h2>
           <button id="refresh-feed" class="btn secondary" type="button">Refresh</button>
+        </div>
+        <div class="feed-filter" role="group" aria-label="Feed filter">
+          <button class="btn secondary" type="button" aria-pressed="true">All</button>
         </div>
         <p id="feed-status" class="empty-state" role="status" aria-live="polite">Loading posts...</p>
         <ul id="feed-list" class="feed-list"></ul>
