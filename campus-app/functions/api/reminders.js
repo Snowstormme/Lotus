@@ -25,11 +25,7 @@ export async function onRequestGet(context) {
     const windowEnd = new Date(now + WINDOW_MS).toISOString();
     const nowIso = new Date(now).toISOString();
 
-    const [{ data: todos, error: todosError }, { data: enrollments, error: enrollmentsError }] = await Promise.all([
-      supabase.from('todo_items').select('id, title, done, due_at').eq('user_id', profile.id).eq('done', false).not('due_at', 'is', null).lte('due_at', windowEnd),
-      supabase.from('enrollments').select('course_id').eq('user_id', profile.id)
-    ]);
-    if (todosError) throw todosError;
+    const { data: enrollments, error: enrollmentsError } = await supabase.from('enrollments').select('course_id').eq('user_id', profile.id);
     if (enrollmentsError) throw enrollmentsError;
 
     const courseIds = Array.from(new Set((enrollments || []).map((enrollment) => enrollment.course_id)));
@@ -40,15 +36,6 @@ export async function onRequestGet(context) {
       deadlines = data || [];
     }
 
-    const todoReminders = (todos || []).filter((todo) => Number.isFinite(Date.parse(todo.due_at))).map((todo) => ({
-      id: todo.id,
-      source: 'todo',
-      title: todo.title,
-      course_code: null,
-      due_at: todo.due_at,
-      days_left: daysLeft(todo.due_at, now),
-      is_overdue: Date.parse(todo.due_at) < now
-    }));
     const deadlineReminders = deadlines.map((deadline) => ({
       id: deadline.id,
       source: 'deadline',
@@ -58,7 +45,7 @@ export async function onRequestGet(context) {
       days_left: daysLeft(deadline.due_at, now),
       is_overdue: false
     }));
-    return json(todoReminders.concat(deadlineReminders).sort(sortReminders));
+    return json(deadlineReminders.sort(sortReminders));
   } catch (error) {
     if (error.status === 401 || error.status === 404) return json({ error: error.publicMessage }, error.status);
     console.error('Could not load reminders:', error);
