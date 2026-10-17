@@ -32,11 +32,17 @@
     { key: 'schedule', label: 'Schedule', href: 'schedule.html' },
     { key: 'ai', label: 'AI Assistant', href: 'assistant.html' },
     { key: 'events', label: 'Events', href: 'events.html' },
-    { key: 'todos', label: 'To-do', href: 'todos.html' }
+    { key: 'todos', label: 'To-do', href: 'todos.html' },
+    { key: 'profile', label: 'Profile', href: 'profile.html?id=1' }
   ];
   const moreItems = [
+    { key: 'feed', label: 'Feed', href: 'feed.html' },
+    { key: 'messages', label: 'Messages', href: 'messages.html' },
+    { key: 'community', label: 'Community', href: 'groups.html' },
     { key: 'partners', label: 'Partners', href: 'partners.html?id=1' },
-    { key: 'plan', label: 'Plan', href: 'plan.html?id=1' }
+    { key: 'plan', label: 'Plan', href: 'plan.html?id=1' },
+    { key: 'todos', label: 'To-do', href: 'todos.html' },
+    { key: 'events', label: 'Events', href: 'events.html' }
   ];
 
   function getCurrentKey() {
@@ -189,7 +195,7 @@
   const mobileBar = document.createElement('nav');
   mobileBar.className = 'mobile-bottom-bar';
   mobileBar.setAttribute('aria-label', 'Mobile navigation');
-  navItems.filter(function (item) { return ['home', 'courses', 'schedule', 'ai', 'feed', 'messages', 'profile'].includes(item.key); }).forEach(function (item) {
+  navItems.filter(function (item) { return ['home', 'courses', 'schedule', 'ai', 'profile'].includes(item.key); }).forEach(function (item) {
   mobileBar.appendChild(makeNavLink(item, 'mobile-nav-link'));
   });
   const addButton = document.createElement('button');
