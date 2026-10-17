@@ -338,19 +338,27 @@ async function init() {
         composerAvatar.textContent = profileName.split(/\s+/).filter(Boolean).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase() || 'S';
       }
       const university = document.getElementById('dashboard-university');
+      const universityBadge = document.getElementById('dashboard-university-badge');
       if (university) {
         university.textContent = profile.university ? String(profile.university) : 'No university selected yet.';
         university.className = profile.university ? 'university-name' : 'empty-state';
+      }
+      if (universityBadge) {
+        universityBadge.textContent = profile.university ? String(profile.university).trim().charAt(0).toUpperCase() : '·';
       }
     } catch (error) {
       setWelcome(welcome, 'Welcome to Lotus Campus', '');
       const university = document.getElementById('dashboard-university');
       if (university) university.textContent = 'No university selected yet.';
+      const universityBadge = document.getElementById('dashboard-university-badge');
+      if (universityBadge) universityBadge.textContent = '·';
     }
   } else {
     setWelcome(welcome, 'Welcome to Lotus Campus', '');
     const university = document.getElementById('dashboard-university');
     if (university) university.textContent = 'Log in to see your university.';
+    const universityBadge = document.getElementById('dashboard-university-badge');
+    if (universityBadge) universityBadge.textContent = '·';
   }
 
   try {
