@@ -177,12 +177,12 @@
   navItems.filter(function (item) { return ['courses', 'schedule', 'ai', 'profile'].includes(item.key); }).forEach(function (item) {
   mobileBar.appendChild(makeNavLink(item, 'mobile-nav-link'));
   });
-  const addButton = document.createElement('button');
-  addButton.className = 'mobile-add-button';
-  addButton.type = 'button';
-  addButton.setAttribute('aria-label', 'Add placeholder');
-  addButton.textContent = '+';
-  mobileBar.appendChild(addButton);
+  const addLink = document.createElement('a');
+  addLink.className = 'mobile-add-button';
+  addLink.href = 'feed.html';
+  addLink.setAttribute('aria-label', 'New post');
+  addLink.textContent = '+';
+  mobileBar.appendChild(addLink);
   document.body.appendChild(mobileBar);
 
   search.addEventListener('input', function () {
