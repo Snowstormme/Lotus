@@ -408,6 +408,10 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .mobile-bottom-bar { display: none; }
 }
 @media (min-width: 1024px) {
+  #profile-form { display: grid; gap: var(--space-6); }
+  #profile-form > .card-title, #profile-form > .field, #profile-form > .alert { margin-bottom: 0; }
+  .profile-section { border-top: 1px solid var(--color-border); padding-top: var(--space-6); }
+}
   #plan-content { min-height: 18rem; }
   #plan-content .empty-state { padding-top: var(--space-6); }
 }
