@@ -289,15 +289,6 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .dashboard-list li { background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: grid; gap: var(--space-1); min-width: 0; padding: var(--space-3); }
 .dashboard-list li > a { min-height: 44px; }
 .dashboard-inline-action { justify-self: start; }
-.todo-list { display: grid; gap: var(--space-3); list-style: none; margin: 0; padding: 0; }
-.todo-item { align-items: flex-start; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: space-between; min-width: 0; padding: var(--space-3); }
-.todo-item-main { display: grid; flex: 1 1 12rem; gap: var(--space-1); min-width: 0; }
-.todo-item-title { overflow-wrap: normal; word-break: normal; }
-.todo-item-meta { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.todo-item-actions { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.todo-item-actions .btn { flex: 0 0 auto; }
-.todo-checkbox-label { align-items: center; display: flex; gap: var(--space-3); min-height: 44px; min-width: 0; }
-.todo-checkbox-label input { accent-color: var(--color-accent); flex: 0 0 44px; height: 44px; width: 44px; }
 .sample-card { border-style: dashed; }
 .course-filters { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
 .course-cards { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }
@@ -441,9 +432,6 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .event-card { min-height: 10rem; }
   .partner-card { min-height: 11rem; }
   .partner-card .btn { align-self: start; }
-  .todo-list { align-content: start; }
-  .todo-item { min-height: 4.25rem; }
-  .todo-item-actions { align-self: center; }
   #plan-content { min-height: 18rem; }
   #plan-content .empty-state { padding-top: var(--space-6); }
   #profile-form { display: grid; gap: var(--space-6); }
@@ -523,7 +511,6 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 }
 
 @media (max-width: 420px) {
-  .todo-item { display: grid; }
   .personal-class-row { display: grid; }
   .upload-row { display: grid; }
   .upload-actions { align-items: stretch; width: 100%; }
@@ -675,12 +662,6 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .partner-card {
     min-height: 12rem;
     padding: var(--space-6);
-  }
-  .todo-list { gap: var(--space-4); }
-  .todo-item {
-    background: var(--color-raised);
-    border-color: var(--color-border);
-    border-radius: var(--radius-md);
   }
   #profile-form,
   #plan-content,
