@@ -13,6 +13,7 @@
   const sidebarBrand = document.createElement('a');
   sidebarBrand.className = 'shell-brand';
   sidebarBrand.href = 'index.html';
+  sidebarBrand.setAttribute('aria-label', 'Lotus Campus, home');
   const logo = document.createElement('img');
   logo.src = 'img/lotus-logo.svg';
   logo.alt = '';
@@ -24,7 +25,6 @@
   sidebar.appendChild(sidebarBrand);
 
   const navItems = [
-    { key: 'home', label: 'Home', href: 'index.html', icon: 'home' },
     { key: 'feed', label: 'Feed', href: 'feed.html', icon: 'feed' },
     { key: 'messages', label: 'Messages', href: 'messages.html', icon: 'messages' },
     { key: 'community', label: 'Community', href: 'groups.html', icon: 'community' },
@@ -199,7 +199,7 @@
   const mobileBar = document.createElement('nav');
   mobileBar.className = 'mobile-bottom-bar';
   mobileBar.setAttribute('aria-label', 'Mobile navigation');
-  navItems.filter(function (item) { return ['home', 'courses', 'schedule', 'ai', 'profile'].includes(item.key); }).forEach(function (item) {
+  navItems.filter(function (item) { return ['courses', 'schedule', 'ai', 'profile'].includes(item.key); }).forEach(function (item) {
   mobileBar.appendChild(makeNavLink(item, 'mobile-nav-link'));
   });
   const addButton = document.createElement('button');
