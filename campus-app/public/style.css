@@ -199,7 +199,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .shell-brand { align-items: center; color: var(--color-text-primary); display: inline-flex; font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); gap: var(--space-2); text-decoration: none; }
 .shell-logo { height: 2rem; width: 2.5rem; }
 .shell-sidebar-nav { display: grid; gap: var(--space-1); }
-.shell-nav-heading { color: var(--color-text-secondary); font-size: var(--font-size-sm); margin: 0; }
+.shell-nav-heading { color: var(--color-text-secondary); font-size: var(--font-size-sm); margin: 0; padding-left: var(--space-3); }
 .shell-more-nav { margin-top: calc(var(--space-2) * -1); }
 .shell-nav-link, .mobile-nav-link { align-items: center; border-radius: var(--radius-md); color: var(--color-text-secondary); display: flex; gap: var(--space-3); min-height: 44px; padding: var(--space-2) var(--space-3); text-decoration: none; }
 .shell-nav-link:hover, .shell-nav-link.active, .mobile-nav-link:hover, .mobile-nav-link.active { background: var(--color-accent-surface); color: var(--color-text-primary); }
@@ -414,10 +414,10 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .hero-kicker { font-size: clamp(22px, 2vw, 30px); }
   .hero-copy .hero-title { font-size: clamp(16px, 1.4vw, 20px); }
   .hero-copy .page-title { font-size: clamp(16px, 1.4vw, 20px); }
-  .action-card { grid-template-columns: 16px minmax(0, 1fr); padding: var(--space-4); }
-  .action-card .action-icon { align-self: center; grid-column: 1; grid-row: 1; height: 16px; width: 16px; }
-  .action-card strong { grid-column: 2; grid-row: 1; white-space: nowrap; }
-  .action-card .action-card-description { font-size: 13px; grid-column: 2; grid-row: 2; white-space: nowrap; }
+  .hero-banner .quick-actions { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: hidden; }
+  .action-card { align-items: center; display: flex; gap: var(--space-2); justify-content: center; min-width: 0; padding: var(--space-4); }
+  .action-card .action-icon { align-self: center; flex: 0 0 16px; height: 16px; width: 16px; }
+  .action-card strong { white-space: nowrap; }
   .app-main.page { padding-left: clamp(var(--space-6), 4vw, var(--space-12)); padding-right: clamp(var(--space-6), 4vw, var(--space-12)); }
   .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dashboard-layout { grid-template-columns: minmax(15rem, 0.95fr) minmax(18rem, 1.2fr) minmax(15rem, 0.95fr); }
