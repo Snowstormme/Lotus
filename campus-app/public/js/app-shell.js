@@ -165,35 +165,14 @@
 
   const topActions = document.createElement('div');
   topActions.className = 'shell-top-actions';
-  const notifications = document.createElement('a');
-  notifications.className = 'icon-button';
-  notifications.href = 'index.html#reminders';
-  notifications.setAttribute('aria-label', 'Notifications');
-  notifications.classList.add('notification-button');
-  const bellIcon = document.createElement('svg');
-  bellIcon.className = 'nav-icon';
-  bellIcon.setAttribute('aria-hidden', 'true');
-  bellIcon.setAttribute('aria-hidden', 'true');
-  const bellUse = document.createElement('use');
-  bellUse.setAttribute('href', 'img/icons.svg#bell');
-  bellIcon.appendChild(bellUse);
-  notifications.appendChild(bellIcon);
-  const reminderBadge = document.createElement('span');
-  reminderBadge.className = 'unread-badge';
-  reminderBadge.hidden = true;
-  reminderBadge.dataset.reminderBadge = 'true';
-  notifications.appendChild(reminderBadge);
-  const settings = document.createElement('button');
-  settings.className = 'icon-button settings-button';
-  settings.type = 'button';
-  settings.setAttribute('aria-label', 'Settings, coming soon');
-  const settingsIcon = document.createElement('svg');
-  settingsIcon.className = 'nav-icon';
-  settingsIcon.setAttribute('aria-hidden', 'true');
-  const settingsUse = document.createElement('use');
-  settingsUse.setAttribute('href', 'img/icons.svg#settings');
-  settingsIcon.appendChild(settingsUse);
-  settings.appendChild(settingsIcon);
+  const universityButton = document.createElement('a');
+  universityButton.className = 'icon-button topbar-university';
+  universityButton.href = 'profile.html?id=1';
+  universityButton.hidden = true;
+  const universityBadge = document.createElement('span');
+  universityBadge.className = 'university-topbar-badge';
+  universityBadge.setAttribute('aria-hidden', 'true');
+  universityButton.appendChild(universityBadge);
   const avatar = document.createElement('a');
   avatar.className = 'icon-button topbar-avatar';
   avatar.href = 'profile.html?id=1';
@@ -205,7 +184,7 @@
   avatarUse.setAttribute('href', 'img/icons.svg#profile');
   avatarIcon.appendChild(avatarUse);
   avatar.appendChild(avatarIcon);
-  topActions.append(notifications, settings, avatar);
+  topActions.append(universityButton, avatar);
   if (authActions) {
     authActions.classList.add('shell-auth-actions');
     topActions.appendChild(authActions);
@@ -286,8 +265,16 @@
       avatar.classList.add('avatar-circle');
       avatar.textContent = initials || 'S';
       userName.textContent = name;
-      userUniversity.textContent = String(profile.university || 'University not set');
+      const universityName = String(profile.university || '').trim();
+      userUniversity.textContent = universityName || 'University not set';
       userCard.href = 'profile.html?id=1';
+      if (universityName) {
+        const universityWord = universityName.split(/\s+/).filter(Boolean)[0] || '';
+        universityBadge.textContent = universityWord.slice(0, 3).toUpperCase();
+        universityButton.title = universityName;
+        universityButton.setAttribute('aria-label', universityName);
+        universityButton.hidden = false;
+      }
     }).catch(function () {});
     return fetch('/api/conversations', { headers: { Authorization: 'Bearer ' + session.access_token } });
   }).then(function (response) {
@@ -305,23 +292,4 @@
     // Unread counts are optional and must not block navigation.
   });
 
-  import('./auth.js').then(function (auth) {
-    return auth.getSession();
-  }).then(function (session) {
-    if (!session) return null;
-    return fetch('/api/reminders', { headers: { Authorization: 'Bearer ' + session.access_token } });
-  }).then(function (response) {
-    if (!response || !response.ok) return null;
-    return response.json();
-  }).then(function (reminders) {
-    if (!Array.isArray(reminders) || reminders.length === 0) return;
-    const count = Math.min(reminders.length, 9);
-    document.querySelectorAll('[data-reminder-badge]').forEach(function (badge) {
-      badge.hidden = false;
-      badge.textContent = reminders.length > 9 ? '9+' : String(count);
-    });
-    notifications.setAttribute('aria-label', 'Notifications, ' + (reminders.length > 9 ? '9+' : String(reminders.length)) + ' reminders.');
-  }).catch(function () {
-    // Reminder counts are optional and must not block navigation.
-  });
 }());
