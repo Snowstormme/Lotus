@@ -408,6 +408,16 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .mobile-bottom-bar { display: none; }
 }
 @media (min-width: 1024px) {
+  .course-filters, .course-heading, .course-panel, .sample-card { margin-bottom: var(--space-6); }
+  .course-cards { align-items: stretch; }
+  .course-cards > .course-card { margin-bottom: 0; }
+  .course-tabs { align-items: center; }
+}
+  .course-filters, .course-heading, .course-panel, .sample-card { margin-bottom: var(--space-6); }
+  .course-cards { align-items: stretch; }
+  .course-cards > .course-card { margin-bottom: 0; }
+  .course-tabs { align-items: center; }
+}
   .messages-layout { align-items: start; }
   .messages-layout > .card { margin-bottom: 0; }
   .messages-list-panel, .messages-thread { min-height: 32rem; }
