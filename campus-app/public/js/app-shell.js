@@ -27,7 +27,7 @@
   const navItems = [
     { key: 'feed', label: 'Feed', href: 'feed.html', icon: 'feed' },
     { key: 'messages', label: 'Messages', href: 'messages.html', icon: 'messages' },
-    { key: 'community', label: 'Community', href: 'groups.html', icon: 'community' },
+    { key: 'community', label: 'Groups', href: 'groups.html', icon: 'community' },
     { key: 'courses', label: 'Courses', href: 'courses.html', icon: 'courses' },
     { key: 'schedule', label: 'Schedule', href: 'schedule.html', icon: 'schedule' },
     { key: 'ai', label: 'AI Assistant', href: 'assistant.html', icon: 'ai' },
