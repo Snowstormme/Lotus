@@ -408,6 +408,10 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .mobile-bottom-bar { display: none; }
 }
 @media (min-width: 1024px) {
+  .group-filters, .groups-grid > .group-card, #group-detail-view { margin-bottom: var(--space-6); }
+  .groups-grid { align-items: stretch; }
+  .groups-grid > .group-card { height: 100%; }
+}
   .schedule-page-header { align-items: center; }
   .personal-classes-panel, .schedule-view-grid > .card, .schedule-view > .card { margin-bottom: var(--space-6); }
   .schedule-view-grid > .card { min-width: 0; }
