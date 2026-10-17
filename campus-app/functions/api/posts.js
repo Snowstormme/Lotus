@@ -1,19 +1,10 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
 import { createContactToken } from '../../lib/_contact.js';
+import { readJsonLimited } from '../../lib/_body.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
-}
-
-async function parseBody(request) {
-  try {
-    const body = await request.json();
-    if (typeof body === 'string') return JSON.parse(body);
-    return body;
-  } catch (error) {
-    return null;
-  }
 }
 
 async function mapPosts(posts, authors, likes, profileId, env) {
@@ -77,7 +68,9 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
-    const body = await parseBody(context.request);
+    const parsed = await readJsonLimited(context.request, 2 * 1024);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.value;
     const postBody = body && typeof body.body === 'string' ? body.body.trim() : '';
     if (!postBody || postBody.length > 500) return json({ error: 'Post text must be between 1 and 500 characters.' }, 400);
 

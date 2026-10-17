@@ -1,19 +1,10 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
 import { areUsersBlocked, findConversation, otherUserId } from '../../lib/_messaging.js';
+import { readJsonLimited } from '../../lib/_body.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
-}
-
-async function parseBody(request) {
-  try {
-    const body = await request.json();
-    if (typeof body === 'string') return JSON.parse(body);
-    return body;
-  } catch (error) {
-    return null;
-  }
 }
 
 function getConversationId(request) {
@@ -67,7 +58,9 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
-    const body = await parseBody(context.request);
+    const parsed = await readJsonLimited(context.request, 4 * 1024);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.value;
     const messageBody = body && typeof body.body === 'string' ? body.body.trim() : '';
     const conversationId = body && body.conversation_id;
     if (!Number.isInteger(conversationId) || conversationId < 1 || !messageBody || messageBody.length > 1000) return json({ error: 'Message text must be between 1 and 1000 characters.' }, 400);
@@ -98,7 +91,9 @@ export async function onRequestPost(context) {
 export async function onRequestDelete(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
-    const body = await parseBody(context.request);
+    const parsed = await readJsonLimited(context.request, 4 * 1024);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.value;
     const messageId = body && body.message_id;
     if (!Number.isInteger(messageId) || messageId < 1) return json({ error: 'A valid message id is required.' }, 400);
     const supabase = getSupabase(context.env);

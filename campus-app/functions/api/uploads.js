@@ -1,5 +1,6 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
+import { readJsonLimited } from '../../lib/_body.js';
 
 const BUCKET = 'course-files';
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -27,7 +28,6 @@ async function readUploadToken(token, env) {
     return payload.expires_at > Date.now() ? payload : null;
   } catch (error) { return null; }
 }
-async function parseBody(request) { try { const body = await request.json(); return typeof body === 'string' ? JSON.parse(body) : body; } catch (error) { return null; } }
 function publicUpload(row, users, profileId) { return { id: row.id, title: row.title, kind: row.kind, mime_type: row.mime_type, file_size: row.file_size, created_at: row.created_at, uploader_name: users.get(row.uploader_id) || 'Student', is_mine: row.uploader_id === profileId }; }
 async function requireEnrollment(supabase, profileId, courseId) { const { data, error } = await supabase.from('enrollments').select('course_id').eq('user_id', profileId).eq('course_id', courseId).maybeSingle(); if (error) throw error; return Boolean(data); }
 async function removeObject(storage, path) { const { error } = await storage.remove([path]); if (error) throw error; }
@@ -44,7 +44,7 @@ export async function onRequestGet(context) {
 
 export async function onRequestPost(context) {
   try {
-    const profile = await requireOwnProfile(context.request, context.env); const body = await parseBody(context.request); if (!body || Array.isArray(body)) return json({ error: 'Upload request is invalid.' }, 400); const supabase = getSupabase(context.env); const storage = supabase.storage.from(BUCKET);
+    const profile = await requireOwnProfile(context.request, context.env); const parsed = await readJsonLimited(context.request, 2 * 1024); if (!parsed.ok) return parsed.response; const body = parsed.value; if (!body || Array.isArray(body)) return json({ error: 'Upload request is invalid.' }, 400); const supabase = getSupabase(context.env); const storage = supabase.storage.from(BUCKET);
     if (body.action === 'start') {
       const courseId = body.course_id; if (!validId(courseId) || !(await requireEnrollment(supabase, profile.id, courseId))) return json({ error: 'Course not found.' }, 404);
       if (!validText(body.title, 120)) return json({ error: 'Upload title must be between 1 and 120 characters.' }, 400); if (!KINDS.includes(body.kind)) return json({ error: 'Upload kind is invalid.' }, 400); if (!Object.prototype.hasOwnProperty.call(MIME_EXTENSIONS, body.mime_type)) return json({ error: 'File type is not allowed.' }, 400); if (!Number.isInteger(body.file_size) || body.file_size < 1 || body.file_size > MAX_FILE_SIZE) return json({ error: 'File size is not allowed.' }, 400);
@@ -66,5 +66,5 @@ export async function onRequestPost(context) {
 }
 
 export async function onRequestDelete(context) {
-  try { const profile = await requireOwnProfile(context.request, context.env); const body = await parseBody(context.request); if (!body || !validId(body.id)) return json({ error: 'A valid upload id is required.' }, 400); const supabase = getSupabase(context.env); const existing = await supabase.from('course_uploads').select('id, storage_path').eq('id', body.id).eq('uploader_id', profile.id).maybeSingle(); if (existing.error) throw existing.error; if (!existing.data) return json({ error: 'Upload not found.' }, 404); const storage = supabase.storage.from(BUCKET); await removeObject(storage, existing.data.storage_path); const deleted = await supabase.from('course_uploads').delete().eq('id', body.id).eq('uploader_id', profile.id); if (deleted.error) throw deleted.error; return json({ message: 'Upload deleted.' }); } catch (error) { if (error.status === 401 || error.status === 404) return json({ error: error.publicMessage }, error.status); console.error('Could not delete course upload:', error); return json({ error: 'Could not delete the course upload.' }, 500); }
+  try { const profile = await requireOwnProfile(context.request, context.env); const parsed = await readJsonLimited(context.request, 2 * 1024); if (!parsed.ok) return parsed.response; const body = parsed.value; if (!body || !validId(body.id)) return json({ error: 'A valid upload id is required.' }, 400); const supabase = getSupabase(context.env); const existing = await supabase.from('course_uploads').select('id, storage_path').eq('id', body.id).eq('uploader_id', profile.id).maybeSingle(); if (existing.error) throw existing.error; if (!existing.data) return json({ error: 'Upload not found.' }, 404); const storage = supabase.storage.from(BUCKET); await removeObject(storage, existing.data.storage_path); const deleted = await supabase.from('course_uploads').delete().eq('id', body.id).eq('uploader_id', profile.id); if (deleted.error) throw deleted.error; return json({ message: 'Upload deleted.' }); } catch (error) { if (error.status === 401 || error.status === 404) return json({ error: error.publicMessage }, error.status); console.error('Could not delete course upload:', error); return json({ error: 'Could not delete the course upload.' }, 500); }
 }

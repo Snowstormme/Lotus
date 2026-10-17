@@ -1,20 +1,11 @@
 import { getSupabase } from '../../lib/_supabase.js';
+import { readJsonLimited } from '../../lib/_body.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { 'Content-Type': 'application/json' }
   });
-}
-
-async function parseBody(request) {
-  try {
-    const body = await request.json();
-    if (typeof body === 'string') return JSON.parse(body);
-    return body;
-  } catch (error) {
-    return null;
-  }
 }
 
 function getBearerToken(request) {
@@ -92,7 +83,9 @@ export async function onRequestPost(context) {
     const user = await getAuthUser(supabase, getBearerToken(context.request));
     if (!user) return json({ error: 'You must be logged in to save your profile.' }, 401);
 
-    const body = validateProfile(await parseBody(context.request));
+    const parsed = await readJsonLimited(context.request, 4 * 1024);
+    if (!parsed.ok) return parsed.response;
+    const body = validateProfile(parsed.value);
     if (!body) return json({ error: 'Please check your profile details.' }, 400);
 
     const { data: university, error: universityError } = await supabase

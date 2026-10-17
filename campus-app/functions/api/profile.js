@@ -1,6 +1,7 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
 import { CURRENT_SEMESTER } from '../../lib/_enrollments.js';
+import { readJsonLimited } from '../../lib/_body.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -10,16 +11,6 @@ function getUserId(context) {
   const rawId = new URL(context.request.url).searchParams.get('id');
   const id = Number(rawId);
   return rawId && Number.isInteger(id) && id > 0 ? id : null;
-}
-
-async function parseBody(request) {
-  try {
-    const body = await request.json();
-    if (typeof body === 'string') return JSON.parse(body);
-    return body;
-  } catch (err) {
-    return null;
-  }
 }
 
 function validateBody(body) {
@@ -74,7 +65,9 @@ export async function onRequestGet(context) {
 export async function onRequestPut(context) {
   const hasAuth = Boolean(context.request.headers.get('Authorization'));
   if (!hasAuth) return json({ error: 'Login is required.' }, 401);
-  const body = validateBody(await parseBody(context.request));
+  const parsed = await readJsonLimited(context.request, 4 * 1024);
+  if (!parsed.ok) return parsed.response;
+  const body = validateBody(parsed.value);
   if (!body) return json({ error: 'Profile fields are invalid.' }, 400);
   try {
     const supabase = getSupabase(context.env);

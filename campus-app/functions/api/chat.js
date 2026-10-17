@@ -2,13 +2,10 @@ import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
 import { generateChat } from '../../lib/_gemini.js';
 import { checkAiLimit, recordAiUsage } from '../../lib/_ai_limits.js';
+import { readJsonLimited } from '../../lib/_body.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
-}
-
-async function parseBody(request) {
-  try { return await request.json(); } catch (error) { return null; }
 }
 
 function validateBody(body) {
@@ -97,7 +94,9 @@ export async function onRequestPost(context) {
   }
   if (context.env.AI_CHAT_ENABLED !== 'true') return json({ error: 'The study assistant is paused right now. Please try again later.' }, 503);
 
-  const body = validateBody(await parseBody(context.request));
+  const parsed = await readJsonLimited(context.request, 4 * 1024);
+  if (!parsed.ok) return parsed.response;
+  const body = validateBody(parsed.value);
   if (!body) return json({ error: 'Message, mode, or course selection is invalid.' }, 400);
   try {
     const supabase = getSupabase(context.env);

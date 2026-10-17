@@ -1,9 +1,9 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
+import { readJsonLimited } from '../../lib/_body.js';
 
 function json(body, status = 200) { return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } }); }
 function validId(value) { return Number.isInteger(value) && value > 0; }
-async function parseBody(request) { try { const body = await request.json(); return typeof body === 'string' ? JSON.parse(body) : body; } catch (error) { return null; } }
 
 async function loadEvents(supabase, profile, id) {
   let query = supabase.from('events').select('id, title, description, starts_at, location, organizer_name, university_id, group_id').eq('university_id', profile.university_id).gt('starts_at', new Date().toISOString()).order('starts_at', { ascending: true });
@@ -62,7 +62,9 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
-    const body = await parseBody(context.request);
+    const parsed = await readJsonLimited(context.request, 4 * 1024);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.value;
     const eventId = body && Number(body.event_id);
     if (!body || !['rsvp', 'cancel'].includes(body.action) || !validId(eventId)) return json({ error: 'Event request is invalid.' }, 400);
     const supabase = getSupabase(context.env);

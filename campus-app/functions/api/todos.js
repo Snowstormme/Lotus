@@ -1,21 +1,12 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
 import { CURRENT_SEMESTER } from '../../lib/_enrollments.js';
+import { readJsonLimited } from '../../lib/_body.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
-}
-
-async function parseBody(request) {
-  try {
-    const body = await request.json();
-    if (typeof body === 'string') return JSON.parse(body);
-    return body;
-  } catch (error) {
-    return null;
-  }
 }
 
 function validDate(value) {
@@ -127,7 +118,9 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
-    const body = await parseBody(context.request);
+    const parsed = await readJsonLimited(context.request, 16 * 1024);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.value;
     if (!body || Array.isArray(body) || !validateTitle(body.title)) return json({ error: 'Task title must be between 1 and 200 characters.' }, 400);
     const dueAt = validateDueDateField(body);
     if (dueAt === false) return json({ error: 'Due date is invalid.' }, 400);
@@ -151,7 +144,9 @@ export async function onRequestPost(context) {
 export async function onRequestPut(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
-    const body = await parseBody(context.request);
+    const parsed = await readJsonLimited(context.request, 16 * 1024);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.value;
     if (!body || Array.isArray(body) || typeof body !== 'object') return json({ error: 'To-do item is invalid.' }, 400);
     const id = getId(body.id);
     if (!id) return json({ error: 'A valid to-do item id is required.' }, 400);
@@ -191,7 +186,9 @@ export async function onRequestPut(context) {
 export async function onRequestDelete(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
-    const body = await parseBody(context.request);
+    const parsed = await readJsonLimited(context.request, 16 * 1024);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.value;
     const id = body && getId(body.id);
     if (!id) return json({ error: 'A valid to-do item id is required.' }, 400);
     const supabase = getSupabase(context.env);

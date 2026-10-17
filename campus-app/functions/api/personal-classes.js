@@ -1,21 +1,12 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
+import { readJsonLimited } from '../../lib/_body.js';
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const TIME_PATTERN = '(?:[01]\\d|2[0-3]):[0-5]\\d';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
-}
-
-async function parseBody(request) {
-  try {
-    const body = await request.json();
-    if (typeof body === 'string') return JSON.parse(body);
-    return body;
-  } catch (error) {
-    return null;
-  }
 }
 
 function validTitle(value) {
@@ -93,7 +84,9 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
-    const body = await parseBody(context.request);
+    const parsed = await readJsonLimited(context.request, 16 * 1024);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.value;
     if (!body || Array.isArray(body) || typeof body !== 'object') return json({ error: 'Class details are invalid.' }, 400);
     let items;
     if (Object.prototype.hasOwnProperty.call(body, 'import_text')) {
@@ -120,7 +113,9 @@ export async function onRequestPost(context) {
 export async function onRequestDelete(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
-    const body = await parseBody(context.request);
+    const parsed = await readJsonLimited(context.request, 16 * 1024);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.value;
     const id = body && Number.isInteger(body.id) && body.id > 0 ? body.id : null;
     if (!id) return json({ error: 'A valid class id is required.' }, 400);
     const { data, error } = await getSupabase(context.env).from('personal_classes').delete().eq('id', id).eq('user_id', profile.id).select('id').maybeSingle();

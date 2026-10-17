@@ -1,5 +1,6 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
+import { readJsonLimited } from '../../lib/_body.js';
 
 const REPORT_REASONS = new Set(['spam', 'harassment', 'misinformation', 'other']);
 
@@ -7,20 +8,12 @@ function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 }
 
-async function parseBody(request) {
-  try {
-    const body = await request.json();
-    if (typeof body === 'string') return JSON.parse(body);
-    return body;
-  } catch (error) {
-    return null;
-  }
-}
-
 export async function onRequestPost(context) {
   try {
     const profile = await requireOwnProfile(context.request, context.env);
-    const body = await parseBody(context.request);
+    const parsed = await readJsonLimited(context.request, 4 * 1024);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.value;
     const postId = body && body.post_id;
     const reason = body && body.reason;
     if (!Number.isInteger(postId) || postId < 1 || typeof reason !== 'string' || !REPORT_REASONS.has(reason)) {

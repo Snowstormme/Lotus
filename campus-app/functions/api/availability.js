@@ -1,5 +1,6 @@
 import { getSupabase } from '../../lib/_supabase.js';
 import { requireOwnProfile } from '../../lib/_auth.js';
+import { readJsonLimited } from '../../lib/_body.js';
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -18,21 +19,17 @@ function timeToMinutes(value) {
 }
 
 async function parseSlots(request) {
-  let slots;
-  try {
-    slots = await request.json();
-    if (typeof slots === 'string') slots = JSON.parse(slots);
-  } catch (err) {
-    return null;
-  }
-  if (!Array.isArray(slots) || slots.length > 14) return null;
+  const parsed = await readJsonLimited(request, 4 * 1024);
+  if (!parsed.ok) return parsed;
+  const slots = parsed.value;
+  if (!Array.isArray(slots) || slots.length > 14) return { ok: true, value: null };
   for (const slot of slots) {
-    if (!slot || typeof slot !== 'object' || Array.isArray(slot) || !Number.isInteger(slot.weekday) || slot.weekday < 0 || slot.weekday > 6) return null;
+    if (!slot || typeof slot !== 'object' || Array.isArray(slot) || !Number.isInteger(slot.weekday) || slot.weekday < 0 || slot.weekday > 6) return { ok: true, value: null };
     const start = timeToMinutes(slot.start_time);
     const end = timeToMinutes(slot.end_time);
-    if (start === null || end === null || end <= start) return null;
+    if (start === null || end === null || end <= start) return { ok: true, value: null };
   }
-  return slots;
+  return { ok: true, value: slots };
 }
 
 async function requireDemoUser(supabase, id) {
@@ -62,8 +59,10 @@ export async function onRequestGet(context) {
 export async function onRequestPut(context) {
   const hasAuth = Boolean(context.request.headers.get('Authorization'));
   if (!hasAuth) return json({ error: 'Login is required.' }, 401);
-  const slots = await parseSlots(context.request);
-  if (!slots) return json({ error: 'Availability slots are invalid.' }, 400);
+  const parsed = await parseSlots(context.request);
+  if (!parsed.ok) return parsed.response;
+  if (!parsed.value) return json({ error: 'Availability slots are invalid.' }, 400);
+  const slots = parsed.value;
   try {
     const supabase = getSupabase(context.env);
     const user = await requireOwnProfile(context.request, context.env);
