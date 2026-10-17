@@ -243,6 +243,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .quick-actions { display: grid; gap: var(--space-3); grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .hero-banner .quick-actions { margin: 0; }
 .action-card { color: var(--color-text-primary); display: grid; gap: var(--space-1); grid-template-columns: 1fr; margin: 0; overflow-wrap: normal; text-decoration: none; word-break: normal; }
+.action-card .action-icon { color: var(--color-accent-text); height: 1.5rem; width: 1.5rem; }
 .action-card strong, .action-card .action-card-description { display: block; }
 .action-card:hover { border-color: var(--color-accent); color: var(--color-text-primary); transform: translateY(-1px); }
 .dashboard-grid { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }
