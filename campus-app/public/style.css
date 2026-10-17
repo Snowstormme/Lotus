@@ -409,6 +409,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 @media (min-width: 1024px) {
   .app-shell { display: grid; grid-template-columns: 15rem minmax(0, 1fr); }
   .shell-sidebar { display: flex; height: 100vh; overflow-y: auto; position: sticky; top: 0; }
+  .shell-topbar { position: sticky; top: 0; z-index: 5; }
   .app-main.page { padding-left: clamp(var(--space-6), 4vw, var(--space-12)); padding-right: clamp(var(--space-6), 4vw, var(--space-12)); }
   .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dashboard-layout { grid-template-columns: minmax(15rem, 0.95fr) minmax(18rem, 1.2fr) minmax(15rem, 0.95fr); }
