@@ -408,53 +408,41 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .mobile-bottom-bar { display: none; }
 }
 @media (min-width: 1024px) {
-  .assistant-layout > .card { margin-bottom: 0; }
-  .assistant-toolbar { border-top: 3px solid var(--color-accent); }
-  .assistant-layout .message-list { background: var(--color-raised); border-radius: var(--radius-md); padding: var(--space-3); }
-}
-  #profile-form { display: grid; gap: var(--space-6); }
-  #profile-form > .card-title, #profile-form > .field, #profile-form > .alert { margin-bottom: 0; }
-  .profile-section { border-top: 1px solid var(--color-border); padding-top: var(--space-6); }
-}
-  #plan-content { min-height: 18rem; }
-  #plan-content .empty-state { padding-top: var(--space-6); }
-}
-  .todo-list { align-content: start; }
-  .todo-item { min-height: 4.25rem; }
-  .todo-item-actions { align-self: center; }
-}
-  .partner-card { min-height: 11rem; }
-  .partner-card .btn { align-self: start; }
-}
-  .events-grid { align-items: stretch; }
-  .events-grid > .event-card, #event-detail-view { margin-bottom: var(--space-6); }
-  .event-card { min-height: 10rem; }
-}
-  .group-filters, .groups-grid > .group-card, #group-detail-view { margin-bottom: var(--space-6); }
-  .groups-grid { align-items: stretch; }
-  .groups-grid > .group-card { height: 100%; }
-}
-  .schedule-page-header { align-items: center; }
-  .personal-classes-panel, .schedule-view-grid > .card, .schedule-view > .card { margin-bottom: var(--space-6); }
-  .schedule-view-grid > .card { min-width: 0; }
-  .schedule-week { border-radius: var(--radius-lg); }
-}
-  .course-filters, .course-heading, .course-panel, .sample-card { margin-bottom: var(--space-6); }
-  .course-cards { align-items: stretch; }
-  .course-cards > .course-card { margin-bottom: 0; }
-  .course-tabs { align-items: center; }
-}
-  .course-filters, .course-heading, .course-panel, .sample-card { margin-bottom: var(--space-6); }
-  .course-cards { align-items: stretch; }
-  .course-cards > .course-card { margin-bottom: 0; }
-  .course-tabs { align-items: center; }
-}
+  .feed-layout { align-items: start; }
+  .feed-layout > .card { margin-bottom: 0; }
+  .feed-composer { align-self: start; }
   .messages-layout { align-items: start; }
   .messages-layout > .card { margin-bottom: 0; }
   .messages-list-panel, .messages-thread { min-height: 32rem; }
   .messages-list-panel { align-self: start; }
-}
-  .app-shell { display: grid; grid-template-columns: 15rem minmax(0, 1fr); }
+  .course-filters, .course-heading, .course-panel, .sample-card { margin-bottom: var(--space-6); }
+  .course-cards { align-items: stretch; }
+  .course-cards > .course-card { margin-bottom: 0; }
+  .course-tabs { align-items: center; }
+  .schedule-page-header { align-items: center; }
+  .personal-classes-panel, .schedule-view-grid > .card, .schedule-view > .card { margin-bottom: var(--space-6); }
+  .schedule-view-grid > .card { min-width: 0; }
+  .schedule-week { border-radius: var(--radius-lg); }
+  .group-filters, .groups-grid > .group-card, #group-detail-view { margin-bottom: var(--space-6); }
+  .groups-grid { align-items: stretch; }
+  .groups-grid > .group-card { height: 100%; }
+  .events-grid { align-items: stretch; }
+  .events-grid > .event-card, #event-detail-view { margin-bottom: var(--space-6); }
+  .event-card { min-height: 10rem; }
+  .partner-card { min-height: 11rem; }
+  .partner-card .btn { align-self: start; }
+  .todo-list { align-content: start; }
+  .todo-item { min-height: 4.25rem; }
+  .todo-item-actions { align-self: center; }
+  #plan-content { min-height: 18rem; }
+  #plan-content .empty-state { padding-top: var(--space-6); }
+  #profile-form { display: grid; gap: var(--space-6); }
+  #profile-form > .card-title, #profile-form > .field, #profile-form > .alert { margin-bottom: 0; }
+  .profile-section { border-top: 1px solid var(--color-border); padding-top: var(--space-6); }
+  .assistant-layout > .card { margin-bottom: 0; }
+  .assistant-toolbar { border-top: 3px solid var(--color-accent); }
+  .assistant-layout .message-list { background: var(--color-raised); border-radius: var(--radius-md); padding: var(--space-3); }
+  .app-shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); }
   .shell-sidebar { display: flex; height: 100vh; overflow-y: auto; position: sticky; top: 0; }
   .shell-topbar { position: sticky; top: 0; z-index: 5; }
   .shell-sidebar .shell-nav-link { font-size: 14px; padding-bottom: 8px; padding-top: 8px; }
