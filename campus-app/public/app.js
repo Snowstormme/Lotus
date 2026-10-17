@@ -192,35 +192,6 @@ function renderFeedPreview(container, posts) {
   container.appendChild(list);
 }
 
-function renderTodos(container, todos) {
-  container.replaceChildren();
-  const openTodos = todos.filter(function (todo) { return todo.done !== true; }).slice(0, 3);
-  if (openTodos.length === 0) {
-    showMessage(container, 'Nothing to do yet. Add a task or link one to a deadline.');
-    return;
-  }
-  const list = document.createElement('ul');
-  list.className = 'dashboard-list';
-  openTodos.forEach(function (todo) {
-    const item = document.createElement('li');
-    const title = document.createElement('strong');
-    title.textContent = String(todo.title || 'Untitled task');
-    item.appendChild(title);
-    const meta = document.createElement('span');
-    meta.className = 'muted';
-    meta.textContent = todo.due_at ? 'Due ' + (formatBakuDateTime(todo.due_at) || 'date unavailable') : 'No due date';
-    item.appendChild(meta);
-    if (todo.is_due_soon) {
-      const badge = document.createElement('span');
-      badge.className = 'badge';
-      badge.textContent = 'Due soon';
-      item.appendChild(badge);
-    }
-    list.appendChild(item);
-  });
-  container.appendChild(list);
-}
-
 function renderPopularGroups(container, groups, headers) {
   container.replaceChildren();
   const list = document.createElement('ul');
@@ -315,7 +286,6 @@ async function init() {
   const remindersSection = document.getElementById('reminders-list');
   const scheduleSection = document.getElementById('schedule-list');
   const feedSection = document.getElementById('feed-preview-list');
-  const todosSection = document.getElementById('todos-list');
   const groupsSection = document.getElementById('popular-groups-list');
   const eventsSection = document.getElementById('events-list');
   const context = await getAuthContext();
@@ -413,16 +383,6 @@ async function init() {
     }
   } catch (error) {
     showMessage(feedSection, 'Could not load the feed preview.', true);
-  }
-
-  try {
-    const todosResponse = await fetch('/api/todos', { headers: context.headers });
-    if (!todosResponse.ok) throw new Error('To-do items unavailable');
-    const todos = await todosResponse.json();
-    if (!Array.isArray(todos)) throw new Error('To-do items unavailable');
-    renderTodos(todosSection, todos);
-  } catch (error) {
-    showMessage(todosSection, 'Could not load to-do items.', true);
   }
 
   try {

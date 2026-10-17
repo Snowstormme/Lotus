@@ -32,7 +32,6 @@
     { key: 'schedule', label: 'Schedule', href: 'schedule.html', icon: 'schedule' },
     { key: 'ai', label: 'AI Assistant', href: 'assistant.html', icon: 'ai' },
     { key: 'events', label: 'Events', href: 'events.html', icon: 'events' },
-    { key: 'todos', label: 'To-do', href: 'todos.html', icon: 'todo' },
     { key: 'profile', label: 'Profile', href: 'profile.html?id=1', icon: 'profile' }
   ];
   function getCurrentKey() {
@@ -50,7 +49,6 @@
     if (page === 'course.html') return 'courses';
     if (page === 'feed.html') return 'feed';
     if (page === 'messages.html') return 'messages';
-    if (page === 'todos.html') return 'todos';
     if (page === 'events.html') return 'events';
     return '';
   }
@@ -82,7 +80,6 @@
     const page = window.location.pathname.split('/').pop() || 'index.html';
     const currentKey = getCurrentKey();
     const samePage = (page === 'groups.html' && item.key === 'community') ||
-      (page === 'todos.html' && item.key === 'todos') ||
       (page === 'groups.html' && item.key === 'groups') ||
       (page === 'events.html' && item.key === 'events');
     if (item.key === currentKey || samePage) {
