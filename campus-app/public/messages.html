@@ -37,6 +37,16 @@
       <section class="card messages-thread" id="messages-thread" aria-labelledby="thread-title">
         <header class="messages-thread-header">
           <button id="back-to-conversations" class="btn secondary" type="button">Back</button>
+          <div class="messages-thread-title">
+            <h2 id="thread-title" class="card-title">Choose a conversation</h2>
+            <p id="thread-person" class="muted"></p>
+          </div>
+          <div class="messages-thread-actions">
+            <button id="block-button" class="btn danger" type="button" disabled>Block</button>
+            <button id="report-button" class="btn secondary" type="button" disabled>Report</button>
+          </div>
+          <div id="report-options" hidden></div>
+          <p id="thread-action-status" class="alert" role="status" aria-live="polite"></p>
         </header>
         <p id="thread-status" class="empty-state" role="status" aria-live="polite">Choose a conversation to view messages.</p>
         <ul id="thread-messages" class="thread-messages"></ul>
@@ -50,18 +60,6 @@
           <p id="message-status" class="alert" role="status" aria-live="polite"></p>
         </form>
       </section>
-      <aside class="card messages-details" aria-labelledby="thread-title">
-        <div class="messages-thread-title">
-          <h2 id="thread-title" class="card-title">Choose a conversation</h2>
-          <p id="thread-person" class="muted"></p>
-        </div>
-        <div class="messages-thread-actions">
-          <button id="block-button" class="btn danger" type="button" disabled>Block</button>
-          <button id="report-button" class="btn secondary" type="button" disabled>Report</button>
-        </div>
-        <div id="report-options" hidden></div>
-        <p id="thread-action-status" class="alert" role="status" aria-live="polite"></p>
-      </aside>
     </div>
   </main>
   <script src="js/app-shell.js"></script>
