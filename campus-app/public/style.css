@@ -252,8 +252,9 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .action-card:hover { border-color: var(--color-accent); color: var(--color-text-primary); transform: translateY(-1px); }
 .dashboard-grid { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }
 .dashboard-layout { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }
-.dashboard-column { display: grid; align-content: start; gap: var(--space-6); min-width: 0; }
+.dashboard-column { display: flex; flex-direction: column; gap: var(--space-6); min-width: 0; }
 .dashboard-column > .card { margin: 0; }
+.dashboard-column > .card:last-child { flex: 1 1 auto; min-height: 0; }
 .quick-links { display: grid; gap: var(--space-2); }
 .quick-links a { align-items: center; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; min-height: 44px; padding: var(--space-3); text-decoration: none; }
 .quick-links a:hover { background: var(--color-accent-surface); }
@@ -421,7 +422,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .action-card strong { white-space: nowrap; }
   .app-main.page { padding-left: clamp(var(--space-6), 4vw, var(--space-12)); padding-right: clamp(var(--space-6), 4vw, var(--space-12)); }
   .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .dashboard-layout { grid-template-columns: minmax(15rem, 0.95fr) minmax(18rem, 1.2fr) minmax(15rem, 0.95fr); }
+  .dashboard-layout { align-items: stretch; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1fr); }
   .quick-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .schedule-view-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .course-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
