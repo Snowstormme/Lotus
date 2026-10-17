@@ -37,6 +37,7 @@ The shared helper is `lib/_auth.js:44-52`. Onboarding has equivalent local token
 | `availability.js:44-83` | Helper when token exists | No-token `user_id` selects only `is_demo`; read/write demo fallback |
 | `profile.js:41-87` | Helper when token exists | No-token `id` selects only `is_demo`; read/write demo fallback |
 | `cost-estimate.js:9-31` | Optional helper when token exists | Pure estimate is public; optional ID is checked as demo |
+Note: the cost estimate feature was removed after this audit.
 | `plan.js:74-114` | Helper when token exists | No-token `user_id` selects only `is_demo`; demo fallback |
 | `partners.js:14-47` | Helper when token exists | No-token `user_id` selects demo-compatible requester; demo fallback |
 | `reminders.js:20-66` | Always helper | No fallback; pass |
@@ -139,6 +140,7 @@ The synced schema declares the 27 named tables from the supplied results at `sup
 ## 11. Demo exposure
 
 **Status: warning.** Logged-out read-only demo exposure exists in `users.js:7-12`, `courses.js:8-27`, `calendar.js:8-43`, `deadlines.js:8-30`, `course.js:7-28`, `profile.js:52-60`, `availability.js:44-59`, `partners.js:14-47`, `plan.js:82-95`, and the public estimate path in `cost-estimate.js:9-31`. Public non-student routes also include `health.js`, `config.js`, and onboarding catalog GET.
+Note: the cost estimate feature was removed after this audit.
 
 **File and line:** logged-out write-capable demo fallbacks are `profile.js:64-81`, `availability.js:62-78`, and `plan.js:78-107`; these currently allow a request without a bearer token to target an `is_demo` row.
 
