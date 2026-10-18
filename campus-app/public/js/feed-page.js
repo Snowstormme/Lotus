@@ -146,20 +146,26 @@
         const authorName = String(post.author_name || 'Student');
         avatar.textContent = authorName.split(/\s+/).map(function (part) { return part[0]; }).join('').slice(0, 2).toUpperCase() || 'S';
         avatar.setAttribute('aria-hidden', 'true');
+        const author = document.createElement('div');
+        author.className = 'feed-post-author';
         const meta = document.createElement('div');
         meta.className = 'feed-post-meta';
         addText(meta, 'strong', String(post.author_name || 'Student'));
         const secondary = document.createElement('span');
         secondary.className = 'feed-post-secondary muted';
-        if (post.author_university) addText(secondary, 'span', String(post.author_university));
-        addText(secondary, 'span', 'Year ' + String(post.author_year || '—'));
+        if (post.author_university) {
+          addText(secondary, 'span', String(post.author_university));
+        } else if (post.author_year) {
+          addText(secondary, 'span', 'Year ' + String(post.author_year));
+        }
         addText(secondary, 'span', formatBakuDateTime(post.created_at) || 'Time unavailable');
         meta.appendChild(secondary);
         if (post.is_sample === true) addText(meta, 'span', 'Sample', 'badge');
         const messageButton = document.createElement('button');
-        messageButton.className = 'btn secondary';
+        messageButton.className = 'btn secondary feed-message-button';
         messageButton.type = 'button';
-        messageButton.textContent = 'Message';
+        addIcon(messageButton, 'messages');
+        messageButton.appendChild(document.createTextNode('Message'));
         messageButton.addEventListener('click', async function () {
           messageButton.disabled = true;
           try {
@@ -172,16 +178,16 @@
             messageButton.disabled = false;
           }
         });
-        header.appendChild(avatar);
-        header.appendChild(meta);
+        author.append(avatar, meta, messageButton);
+        header.appendChild(author);
         const menu = document.createElement('div');
         menu.className = 'feed-post-menu';
         const reportButton = document.createElement('button');
         reportButton.className = 'icon-button';
         reportButton.type = 'button';
         reportButton.setAttribute('aria-label', 'Report post');
+        reportButton.title = 'Report post';
         addIcon(reportButton, 'settings');
-        reportButton.appendChild(document.createTextNode('Report'));
         const reportOptions = document.createElement('div');
         reportButton.addEventListener('click', function () { renderReportOptions(post, reportOptions); });
         menu.append(reportButton, reportOptions);
@@ -199,9 +205,11 @@
         const actions = document.createElement('div');
         actions.className = 'post-actions';
         const likeButton = document.createElement('button');
-        likeButton.className = 'btn secondary';
+        likeButton.className = 'btn secondary feed-action-button';
         likeButton.type = 'button';
-        likeButton.textContent = (post.liked_by_me ? 'Unlike' : 'Like') + ' (' + String(post.like_count || 0) + ')';
+        const likeIcon = addText(likeButton, 'span', '♥', 'feed-action-glyph');
+        likeIcon.setAttribute('aria-hidden', 'true');
+        const likeCount = addText(likeButton, 'span', String(post.like_count || 0));
         likeButton.setAttribute('aria-label', (post.liked_by_me ? 'Unlike' : 'Like') + ' post, ' + String(post.like_count || 0) + ' likes');
         likeButton.addEventListener('click', async function () {
           likeButton.disabled = true;
@@ -215,7 +223,7 @@
             if (!response.ok) throw new Error(body.error || 'Could not update the like.');
             post.liked_by_me = body.liked_by_me === true;
             post.like_count = Number(body.like_count) || 0;
-            likeButton.textContent = (post.liked_by_me ? 'Unlike' : 'Like') + ' (' + String(post.like_count) + ')';
+            likeCount.textContent = String(post.like_count);
             likeButton.setAttribute('aria-label', (post.liked_by_me ? 'Unlike' : 'Like') + ' post, ' + String(post.like_count) + ' likes');
           } catch (error) {
             showStatus(postStatus, error.message || 'Could not update the like.', 'error');
@@ -223,7 +231,25 @@
             likeButton.disabled = false;
           }
         });
-        actions.append(messageButton, likeButton);
+        const commentButton = document.createElement('button');
+        commentButton.className = 'btn secondary feed-action-button feed-action-disabled';
+        commentButton.type = 'button';
+        commentButton.disabled = true;
+        commentButton.setAttribute('aria-disabled', 'true');
+        const commentCount = Number.isFinite(Number(post.comment_count)) ? Math.max(0, Number(post.comment_count)) : 0;
+        addIcon(commentButton, 'messages');
+        addText(commentButton, 'span', String(commentCount));
+        commentButton.setAttribute('aria-label', 'Comments, ' + String(commentCount) + ', unavailable');
+        const shareButton = document.createElement('button');
+        shareButton.className = 'btn secondary feed-action-button feed-action-disabled';
+        shareButton.type = 'button';
+        shareButton.disabled = true;
+        shareButton.setAttribute('aria-disabled', 'true');
+        const shareIcon = addText(shareButton, 'span', '↗', 'feed-action-glyph');
+        shareIcon.setAttribute('aria-hidden', 'true');
+        addText(shareButton, 'span', 'Share');
+        shareButton.setAttribute('aria-label', 'Share post, unavailable');
+        actions.append(likeButton, commentButton, shareButton);
         item.append(header, message, actions);
         feedList.appendChild(item);
       });
