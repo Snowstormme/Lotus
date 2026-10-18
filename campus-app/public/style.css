@@ -392,7 +392,12 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .feed-layout > * { min-width: 0; }
 .feed-main-column { display: grid; gap: var(--space-6); min-width: 0; }
 .feed-main-column > .card { margin-bottom: 0; }
-.feed-composer textarea { min-height: 7rem; resize: vertical; }
+.feed-compose-row { align-items: flex-start; display: flex; gap: var(--space-3); }
+.composer-avatar { flex: 0 0 2.75rem; height: 2.75rem; width: 2.75rem; }
+.feed-compose-field { flex: 1 1 auto; margin-bottom: 0; min-width: 0; }
+.feed-composer textarea { min-height: 3rem; resize: vertical; }
+.feed-stream-heading { margin-bottom: var(--space-4); }
+.feed-stream-heading .card-title { margin-bottom: 0; }
 .character-count { display: block; margin-top: var(--space-1); }
 .feed-list { display: grid; gap: var(--space-4); list-style: none; margin: 0; padding: 0; }
 .feed-post { margin: 0; min-width: 0; overflow-wrap: normal; word-break: normal; }
@@ -552,6 +557,8 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 }
 
 @media (min-width: 1280px) {
+  .feed-composer { padding: var(--space-4); }
+  .feed-composer textarea { height: 3rem; min-height: 3rem; resize: none; }
   .feed-layout {
     align-items: start;
     grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);

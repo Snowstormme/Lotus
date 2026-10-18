@@ -35,15 +35,15 @@
     <div class="feed-layout">
       <div class="feed-main-column">
         <section class="card feed-composer" aria-labelledby="composer-title">
-          <div class="composer-head">
-            <span class="avatar-circle composer-avatar" aria-hidden="true"><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#profile"></use></svg></span>
-            <h2 id="composer-title" class="card-title">What's on your mind?</h2>
-          </div>
+          <h2 id="composer-title" class="sr-only">Share with your university</h2>
           <form id="post-form">
-            <div class="field">
-              <label for="post-body">Post</label>
-              <textarea id="post-body" maxlength="500" aria-describedby="post-counter" placeholder="What's on your mind?" required></textarea>
-              <span id="post-counter" class="muted character-count">0/500</span>
+            <div class="feed-compose-row">
+              <span class="avatar-circle composer-avatar" aria-hidden="true"><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#profile"></use></svg></span>
+              <div class="field feed-compose-field">
+                <label class="sr-only" for="post-body">Post</label>
+                <textarea id="post-body" maxlength="500" rows="1" aria-describedby="post-counter" placeholder="What's on your mind?" required></textarea>
+                <span id="post-counter" class="muted character-count">0/500</span>
+              </div>
             </div>
             <div class="composer-actions">
               <div class="composer-tabs" aria-label="Post types">
@@ -56,12 +56,11 @@
             <p id="post-status" class="alert" role="status" aria-live="polite"></p>
           </form>
         </section>
-        <section class="card" aria-labelledby="feed-list-title">
-          <div class="section-heading">
+        <section class="feed-stream" aria-labelledby="feed-list-title">
+          <div class="section-heading feed-stream-heading">
             <h2 id="feed-list-title" class="card-title">University feed</h2>
             <button id="refresh-feed" class="btn secondary" type="button">Refresh</button>
           </div>
-          <div class="feed-filter" role="group" aria-label="Feed filter"><button class="btn secondary" type="button" aria-pressed="true">All</button></div>
           <p id="feed-status" class="empty-state" role="status" aria-live="polite">Loading posts...</p>
           <ul id="feed-list" class="feed-list"></ul>
         </section>
