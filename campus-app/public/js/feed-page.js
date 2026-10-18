@@ -34,7 +34,7 @@
     function addIcon(parent, symbol) {
       const svgNamespace = 'http://www.w3.org/2000/svg';
       const icon = document.createElementNS(svgNamespace, 'svg');
-      icon.className = 'nav-icon';
+      icon.setAttribute('class', 'nav-icon');
       icon.setAttribute('aria-hidden', 'true');
       const use = document.createElementNS(svgNamespace, 'use');
       use.setAttribute('href', 'img/icons.svg#' + symbol);
