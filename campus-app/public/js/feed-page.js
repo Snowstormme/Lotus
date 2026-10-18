@@ -32,10 +32,11 @@
     }
 
     function addIcon(parent, symbol) {
-      const icon = document.createElement('svg');
+      const svgNamespace = 'http://www.w3.org/2000/svg';
+      const icon = document.createElementNS(svgNamespace, 'svg');
       icon.className = 'nav-icon';
       icon.setAttribute('aria-hidden', 'true');
-      const use = document.createElement('use');
+      const use = document.createElementNS(svgNamespace, 'use');
       use.setAttribute('href', 'img/icons.svg#' + symbol);
       icon.appendChild(use);
       parent.appendChild(icon);
