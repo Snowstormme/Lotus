@@ -187,7 +187,7 @@
         reportButton.type = 'button';
         reportButton.setAttribute('aria-label', 'Report post');
         reportButton.title = 'Report post';
-        addIcon(reportButton, 'settings');
+        addIcon(reportButton, 'more-options');
         const reportOptions = document.createElement('div');
         reportButton.addEventListener('click', function () { renderReportOptions(post, reportOptions); });
         menu.append(reportButton, reportOptions);
