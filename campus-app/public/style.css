@@ -201,7 +201,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .app-shell { min-height: 100vh; }
 .shell-sidebar { background: var(--color-shell); border-right: 1px solid var(--color-border); display: none; flex-direction: column; gap: var(--space-5); padding: var(--space-6) var(--space-4); }
 .shell-brand { align-items: center; color: var(--color-text-primary); display: inline-flex; font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); gap: var(--space-2); text-decoration: none; }
-.shell-logo { height: 2rem; width: 2.5rem; }
+.shell-logo { height: 28px; width: 28px; }
 .shell-sidebar-nav { display: grid; gap: var(--space-1); }
 .shell-nav-link, .mobile-nav-link { align-items: center; border-radius: var(--radius-md); color: var(--color-text-secondary); display: flex; gap: var(--space-3); min-height: 44px; padding: var(--space-2) var(--space-3); text-decoration: none; }
 .shell-nav-link:hover, .shell-nav-link.active, .mobile-nav-link:hover, .mobile-nav-link.active { background: var(--color-accent-surface); color: var(--color-text-primary); }
