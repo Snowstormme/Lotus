@@ -131,6 +131,7 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .auth-actions { display: flex; gap: var(--space-1); margin-left: auto; }
 
 .page { margin: 0 auto; max-width: 1120px; padding: var(--space-6) var(--space-4) var(--space-12); }
+.auth-logo { display: block; height: 56px; margin: 0 auto var(--space-3); width: 56px; }
 .page-title { font-size: var(--font-size-2xl); line-height: 1.2; margin: 0 0 var(--space-6); }
 .feed-page-heading { align-items: center; display: flex; gap: var(--space-3); margin-bottom: var(--space-6); }
 .feed-page-heading .page-title { margin-bottom: var(--space-1); }
