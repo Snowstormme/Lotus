@@ -118,5 +118,14 @@ function main() {
   console.log('Wrote ' + path.relative(process.cwd(), outputPath));
 }
 
-if (require.main === module) main();
+if (require.main === module) {
+  if (process.argv[2] === '--batch1') {
+    require('./build-batch1-sql').main().catch((error) => {
+      console.error(error.message);
+      process.exitCode = 1;
+    });
+  } else {
+    main();
+  }
+}
 module.exports = { parseCatalog, buildSql };
