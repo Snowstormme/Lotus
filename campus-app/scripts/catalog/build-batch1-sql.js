@@ -10,7 +10,7 @@ const headers = {
   faculties: 'university_name,faculty_name,source_page,verified,notes',
   courses: 'university_name,faculty_name,course_code,course_name,teacher,source_url,level,verified,notes'
 };
-const expectedCounts = { universities: 5, faculties: 28, courses: 30 };
+const expectedCounts = { universities: 5, faculties: 27, courses: 30 };
 
 // RFC 4180-style fields, including escaped quotes and physical line numbers.
 function readCsv(text, file, columns) {

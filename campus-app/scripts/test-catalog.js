@@ -29,13 +29,20 @@ const identities = [
 ];
 const batch = validateBatch(input, identities);
 assert.deepStrictEqual(batch.rejected, []);
-for (const [name, count] of [['universities', 5], ['faculties', 28], ['courses', 30]]) {
+for (const [name, count] of [['universities', 5], ['faculties', 27], ['courses', 30]]) {
   assert.strictEqual(input[name].read, count);
   assert.strictEqual(batch.rows[name].length, count);
 }
 assert.strictEqual(batch.matched.get(aztuName), 25);
 assert.strictEqual(batch.rows.courses.filter((row) => row.university_name === aztuName).length, 0);
-console.log('Batch 1 counts passed: 5 universities, 28 faculties, 30 courses; AzTU id 25; zero AzTU courses.');
+const adpuName = 'Azərbaycan Dövlət Pedaqoji Universiteti';
+const adpuCourses = batch.rows.courses.filter((row) => row.university_name === adpuName);
+assert.strictEqual(adpuCourses.length, 6);
+assert(adpuCourses.every((row) => row.faculty_name === 'Filologiya'));
+assert(batch.rows.faculties.some((row) => row.university_name === adpuName && row.faculty_name === 'Filologiya'));
+assert(!batch.rows.faculties.some((row) => row.university_name === adpuName && /Tarix və [Cc]oğrafiya/.test(row.faculty_name)));
+console.log('Batch 1 counts passed: 5 universities, 27 faculties, 30 courses; AzTU id 25; zero AzTU courses.');
+console.log('ADPU tests passed: duplicate history/geography faculty excluded; six courses remain in Filologiya.');
 
 const preservedNames = ['Analityc journalism', 'Медиаграмотность', 'Економика медиа', 'Практическая работа в газете'];
 for (const name of preservedNames) assert(batch.rows.courses.some((row) => row.course_name === name));
@@ -48,9 +55,10 @@ assert(!/\b(update|delete|alter|drop)\b/i.test(sql));
 assert(!/\b(users|enrollments|study_plans)\b/i.test(sql));
 assert(sql.startsWith('begin;\n'));
 assert(sql.endsWith('commit;\n'));
-assert.strictEqual((sql.match(/insert into faculties/g) || []).length, 28);
+assert.strictEqual((sql.match(/insert into faculties/g) || []).length, 27);
 assert.strictEqual((sql.match(/insert into courses/g) || []).length, 30);
-assert.strictEqual((sql.match(/where not exists|and not exists/g) || []).length, 58);
+assert.strictEqual((sql.match(/where not exists|and not exists/g) || []).length, batch.rows.faculties.length + batch.rows.courses.length);
+assert(!/Tarix və [Cc]oğrafiya/.test(sql));
 assert(sql.includes('c.source_url ='));
 assert(sql.includes('where university_id = 25'));
 assert(sql.includes('select 25,'));

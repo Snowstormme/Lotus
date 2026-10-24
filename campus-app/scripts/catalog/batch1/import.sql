@@ -69,9 +69,6 @@ begin
   if (select count(*) from faculties where university_id = 14 and name = 'Filologiya') > 1 then
     raise exception 'Batch 1 faculty lookup is ambiguous; review existing records.';
   end if;
-  if (select count(*) from faculties where university_id = 14 and name = 'Tarix və coğrafiya') > 1 then
-    raise exception 'Batch 1 faculty lookup is ambiguous; review existing records.';
-  end if;
   if (select count(*) from faculties where university_id = 14 and name = 'Riyaziyyat') > 1 then
     raise exception 'Batch 1 faculty lookup is ambiguous; review existing records.';
   end if;
@@ -170,10 +167,6 @@ where not exists (select 1 from faculties where university_id = 4 and name = 'İ
 insert into faculties (university_id, name)
 select 14, 'Filologiya'
 where not exists (select 1 from faculties where university_id = 14 and name = 'Filologiya');
-
-insert into faculties (university_id, name)
-select 14, 'Tarix və coğrafiya'
-where not exists (select 1 from faculties where university_id = 14 and name = 'Tarix və coğrafiya');
 
 insert into faculties (university_id, name)
 select 14, 'Riyaziyyat'

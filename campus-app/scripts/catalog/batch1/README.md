@@ -1,8 +1,12 @@
 # Batch 1: review-only catalog import
 
-The three UTF-8 CSV files are the owner-approved input: 5 universities, 28 named
+The three UTF-8 CSV files are the owner-approved input: 5 universities, 27 named
 faculties, and 30 bachelor courses. AzTU has six faculty rows and no courses.
 Names, course codes, notes, and source URLs are kept exactly as supplied.
+
+The owner-approved revision excludes ADPU's `Tarix və coğrafiya` faculty row
+because `Tarix və Coğrafiya Fakültəsi` already exists in the database. All six
+ADPU course rows remain unchanged under `Filologiya`.
 
 From the `campus-app` directory:
 
