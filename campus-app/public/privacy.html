@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lotus Campus — Privacy notice</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="img/lotus-badge.svg" type="image/svg+xml">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page header-inner">
+      <a class="brand" href="index.html">Lotus Campus</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Campus</a>
+        <span class="auth-actions" id="auth-actions">
+          <a id="login-link" href="login.html">Log in</a>
+          <a id="signup-link" href="signup.html">Sign up</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+  <main class="page">
+    <p class="alert warning" role="note">Draft for legal review</p>
+    <h1 class="page-title">Privacy notice</h1>
+    <section class="card" aria-labelledby="privacy-summary">
+      <h2 id="privacy-summary" class="card-title">Summary</h2>
+      <p>Lotus Campus uses the details you provide to show your courses, schedule, study plans, groups, events, posts and conversations. Posts and shared course files can show your name to other students who can access them. AI features send the information described below to an AI provider when you use those features.</p>
+      <p>This notice is a draft. Some production settings and provider practices have not been verified; they are listed under Not verified.</p>
+    </section>
+    <section class="card" aria-labelledby="privacy-stored">
+      <h2 id="privacy-stored" class="card-title">What we store</h2>
+      <ul>
+        <li>Account details supplied to Supabase Auth: email, password and the full name entered at signup. The app links your authentication account to your student profile.</li>
+        <li>Profile details: name, selected university and faculty, year, languages, weekly free hours, existing account preferences and account creation time.</li>
+        <li>Course selections and semester, weekly availability, and personal class titles, days, times and rooms.</li>
+        <li>Conversation participants, message text and timestamps, read timestamps, deleted-message markers, blocks and conversation reports.</li>
+        <li>Post text, author and university associations, timestamps, likes, reports and hidden status.</li>
+        <li>Groups you create, group details, memberships, joining times and event RSVPs. Event information can include an organizer name.</li>
+        <li>Uploaded course files and their course, uploader, title, kind, file type, size, storage location, timestamp, reports and hidden status.</li>
+        <li>Saved study plans, their source and creation time. The app also records aggregate daily AI-use counts.</li>
+      </ul>
+    </section>
+    <section class="card" aria-labelledby="privacy-audience">
+      <h2 id="privacy-audience" class="card-title">Who can see it</h2>
+      <p>The signed-in profile endpoint returns your own profile details. The university feed shows non-hidden posts from the university selected in your profile, including the author's name and year.</p>
+      <p>Signed-in conversation participants can read the conversation's messages. Blocking affects the conversation list and new messages as described below; it does not remove history.</p>
+      <p>University groups are restricted by the selected university, and course groups by course enrollment. Club groups can be shown across universities. Group and event views show counts and your own membership or RSVP status.</p>
+      <p>Enrolled students can request the list of non-hidden student uploads for their course, including the uploader's name. Separately, the course-detail page can return catalog material links without login. Those catalog links are different from student-upload download links.</p>
+    </section>
+    <section class="card" aria-labelledby="privacy-ai">
+      <h2 id="privacy-ai" class="card-title">AI providers</h2>
+      <p>When enabled, assistant chat can use Cloudflare Workers AI or Gemini, depending on the app's configuration. A chat request includes the text you type or paste, the selected mode and, if selected, the course code and name. Plan my study chat requests also include upcoming deadline titles and dates.</p>
+      <p>Saved study-plan generation uses Gemini. It sends course codes and names, upcoming deadline titles, types and dates, weekly free hours, and availability days and times. The generated plan is saved for your account.</p>
+      <p>The app does not automatically fetch student-to-student conversations for these AI requests. The assistant can receive text a student pastes into it, including copied messages or personal information. Avoid including information you do not want sent to the AI provider.</p>
+    </section>
+    <section class="card" aria-labelledby="privacy-uploads">
+      <h2 id="privacy-uploads" class="card-title">Uploads</h2>
+      <p>Student uploads are stored in Supabase Storage in the course-files bucket. The app checks login, course enrollment and whether the upload is hidden before creating a download link.</p>
+      <p>A download link lasts 300 seconds after it is created. The live bucket's privacy setting has not been verified, so these app checks are not a promise that every other route to a file is blocked.</p>
+      <p>Uploaders can delete their own files. That action removes the stored file and its upload record. Three distinct student reports hide a file from the app's upload list and prevent the app from creating new download links for it. Hiding is not deletion.</p>
+    </section>
+    <section class="card" aria-labelledby="privacy-messages-reports">
+      <h2 id="privacy-messages-reports" class="card-title">Messages and reports</h2>
+      <p>Turning off Allow messages from other students stops other students from starting a conversation with you or sending you new messages in an existing conversation.</p>
+      <p>Blocking stops new messages in both directions and hides the conversation from the list. It does not remove message history. A participant who already has the conversation identifier can still request its history.</p>
+      <p>Deleting your own message removes its text and keeps a deleted-message placeholder. It does not remove the entire conversation.</p>
+      <p>Reports store the reporting account, the reported item, the selected reason and the time. Three post reports hide a post; three distinct upload reports hide a file. Conversation reports are recorded without automatically hiding the conversation or closing an account. No particular review outcome or response time is promised by this draft.</p>
+    </section>
+    <section class="card" aria-labelledby="privacy-controls">
+      <h2 id="privacy-controls" class="card-title">Controls that exist</h2>
+      <ul>
+        <li>Edit your name, selected university and faculty, year, languages, weekly free hours and availability. Changing faculty clears your course selection for the current semester.</li>
+        <li>Choose your courses, add or delete your personal classes, join or leave groups, and add or cancel an event RSVP.</li>
+        <li>Change Allow messages from other students, block or unblock another student, and delete your own message text.</li>
+        <li>Report posts, conversations and course uploads, and delete your own uploaded files.</li>
+        <li>Log out. Logging out does not delete your account or its data.</li>
+      </ul>
+    </section>
+    <section class="card" aria-labelledby="privacy-retention">
+      <h2 id="privacy-retention" class="card-title">Retention</h2>
+      <p>No age-based data-deletion job is configured in the app's repository. Records can be changed or removed by actions such as replacing course selections or availability, changing faculty, deleting a personal class or upload, leaving a group, or cancelling an RSVP. Failed upload completion can also remove a file that could not be verified or recorded.</p>
+      <p>Hiding a post or file is not deletion. Deleting a message removes its text but keeps its record. This draft specifies no fixed retention period and does not confirm deletion from platform backups or provider systems.</p>
+    </section>
+    <section class="card" aria-labelledby="privacy-unverified">
+      <h2 id="privacy-unverified" class="card-title">Not verified</h2>
+      <ul>
+        <li>Whether email confirmation is currently enabled in the live authentication settings. The signup page's confirmation instruction does not verify that setting.</li>
+        <li>Whether the live file-storage bucket is private. The app's enrollment checks alone do not establish the bucket's privacy setting.</li>
+        <li>How AI providers retain or use submitted data, including whether it is used for training, how long it is kept, or where it is processed.</li>
+        <li>Retention or deletion jobs configured outside the app, and how platform backups or logs are retained and deleted.</li>
+      </ul>
+    </section>
+    <section class="card" aria-labelledby="privacy-contact">
+      <h2 id="privacy-contact" class="card-title">Contact</h2>
+      <p>For privacy questions or to request account closure or deletion, contact [CONTACT EMAIL]. There is no in-app account-deletion action. This draft does not promise a completion time.</p>
+    </section>
+  </main>
+  <script src="js/app-shell.js"></script>
+  <script src="js/header-auth.js"></script>
+</body>
+</html>
