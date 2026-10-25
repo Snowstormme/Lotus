@@ -128,7 +128,6 @@
         update.name = document.getElementById('name').value;
         update.university_id = Number(document.getElementById('university').value);
         update.faculty_id = Number(document.getElementById('faculty').value);
-        update.share_for_partners = document.getElementById('share-for-partners').checked;
         update.allow_messages = document.getElementById('allow-messages').checked;
       }
       return update;
@@ -296,8 +295,6 @@
         document.getElementById('weekly-free-hours').value = profile.weekly_free_hours;
         if (session) {
           document.getElementById('course-university-title').textContent = profile.university ? 'Courses at ' + String(profile.university) : '';
-          document.getElementById('share-for-partners').checked = profile.share_for_partners === true;
-          document.getElementById('visibility-setting').hidden = false;
           document.getElementById('allow-messages').checked = profile.allow_messages !== false;
           document.getElementById('messaging-setting').hidden = false;
           await loadCoursesForProfile(session);
@@ -371,10 +368,6 @@
       } catch (err) {
         showMessage(saveStatus, 'Could not save profile.', true);
       }
-    });
-
-    document.getElementById('share-for-partners').addEventListener('change', function () {
-      if (activeSession) saveSettingsSetting('Partner visibility setting saved.');
     });
 
     document.getElementById('allow-messages').addEventListener('change', function () {
