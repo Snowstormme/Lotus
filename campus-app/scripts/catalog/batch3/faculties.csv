@@ -1,0 +1,13 @@
+university_name,faculty_name,source_page,verified,notes
+Azərbaycan Texnologiya Universiteti,Nəqliyyat və sənaye texnologiyaları fakültəsi,https://www.atu.edu.az/fakulte/neqliyyat-ve-senaye-texnologiyalari,yes,Faculty page explicitly lists Mexanika və nəqliyyat texnologiyaları kafedrası.
+Azərbaycan Texnologiya Universiteti,Qida mühəndisliyi fakültəsi,https://atu.edu.az/fakulte/qida-muhendisliyi,yes,Faculty verified; no food-engineering course rows included in this pass.
+Bakı Avrasiya Universiteti,Regionşünaslıq və iqtisadiyyat fakültəsi,https://baau.edu.az/az,yes,Exact faculty label in the main website navigation.
+Bakı Avrasiya Universiteti,Filologiya fakültəsi,https://baau.edu.az/az,yes,Exact faculty label in the main website navigation.
+Azərbaycan Kooperasiya Universiteti,İqtisadiyyat,https://aku.edu.az/,yes,Listed in the homepage HTML under Fakültələrimiz; standalone faculty directory was empty.
+Azərbaycan Kooperasiya Universiteti,İdarəetmə,https://aku.edu.az/,yes,Listed in the homepage HTML under Fakültələrimiz; standalone faculty directory was empty.
+Azərbaycan Əmək və Sosial Münasibətlər Akademiyası,Maliyyə-İqtisad,https://aesma.edu.az/az?lang=az,yes,Exact faculty name quoted in the homepage description.
+Azərbaycan Əmək və Sosial Münasibətlər Akademiyası,Sosial iş,https://aesma.edu.az/az?lang=az,yes,Exact faculty name quoted in the homepage description.
+Azərbaycan Milli Konservatoriyası,İfaçılıq,https://conservatory.edu.az/tedris/fakulteler/,yes,Exact name in the official faculty directory.
+Azərbaycan Milli Konservatoriyası,Musiqi tarixi və nəzəriyyəsi,https://conservatory.edu.az/tedris/fakulteler/,yes,Exact name in the official faculty directory; department-level courses were not automatically assigned to it.
+Azərbaycan Əmək və Sosial Münasibətlər Akademiyası,Faculty not specified,https://aesma.edu.az/az/Post/Details/5866,yes,Owner-approved course-grouping placeholder for verified bachelor subjects; not an official faculty name.
+Azərbaycan Milli Konservatoriyası,Faculty not specified,https://conservatory.edu.az/kafedralar/,yes,Owner-approved course-grouping placeholder for verified bachelor subjects; not an official faculty name.

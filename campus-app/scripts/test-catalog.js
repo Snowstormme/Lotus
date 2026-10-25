@@ -207,3 +207,96 @@ const batch1Digest = '8cba3492ad7774f59588910120bb5703672e7ffc7464df95f38a408890
 assert.strictEqual(crypto.createHash('sha256').update(sql).digest('hex'), batch1Digest);
 assert.strictEqual(crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname, 'catalog/batch1/import.sql'))).digest('hex'), batch1Digest);
 console.log('Batch 1 regression passed: regenerated and committed SQL are byte-identical to the pre-change SHA-256 baseline.');
+
+// Frozen SHA-256 of Batch 2 before adding Batch 3 support.
+const batch2Digest = 'f95455d8bda004201aaffc7ba05e27d83d35f410c8ec4b34beccac6429d03561';
+assert.strictEqual(crypto.createHash('sha256').update(sql2).digest('hex'), batch2Digest);
+assert.strictEqual(crypto.createHash('sha256').update(fs.readFileSync(path.join(batch2Dir, 'import.sql'))).digest('hex'), batch2Digest);
+console.log('Batch 2 regression passed: regenerated and committed SQL are byte-identical to the pre-change SHA-256 baseline.');
+
+const { batch3Names } = require('./catalog/build-batch1-sql');
+const batch3Dir = path.join(__dirname, 'catalog/batch3');
+const batch3Input = loadBatch(batch3Dir);
+const batch3 = validateBatch(batch3Input, undefined, 'batch3');
+assert.deepStrictEqual(batch3.rejected, []);
+for (const [name, count] of [['universities', 5], ['faculties', 12], ['courses', 30], ['logos', 5]]) {
+  assert.strictEqual(batch3Input[name].read, count);
+  assert.strictEqual(batch3.rows[name].length, count);
+}
+assert.deepStrictEqual(batch3.rows.universities.map((row) => row.university_name), batch3Names);
+assert.strictEqual(batch3.rows.courses.filter((row) => row.university_name === batch3Names[1]).length, 0);
+assert.strictEqual(batch3.rows.courses.filter((row) => row.university_name === batch3Names[2]).length, 0);
+assert.strictEqual(batch3.rows.universities.find((row) => row.university_name === batch3Names[0]).city, 'Gəncə');
+assert.strictEqual(batch3.rows.universities.find((row) => row.university_name === batch3Names[2]).city, '');
+for (const university of batch3Names.slice(3)) {
+  assert(batch3.rows.faculties.some((row) => row.university_name === university && row.faculty_name === 'Faculty not specified'));
+  const courses = batch3.rows.courses.filter((row) => row.university_name === university);
+  assert.strictEqual(courses.length, 10);
+  assert(courses.every((row) => row.faculty_name === 'Faculty not specified'));
+}
+assert.strictEqual(batch3.rows.faculties.filter((row) => row.faculty_name !== 'Faculty not specified').length, 10);
+console.log('Batch 3 counts passed: 5 universities, 12 faculties (10 named + 2 owner-approved placeholders), 30 courses, 5 metadata logos; zero BAAU/AKU courses; cities preserved.');
+
+const batch3Spellings = ['Muasir musiqi', 'İKT.', 'IKT-baza kompüter bilikləri', 'SƏTƏMM', 'Musiqi əsərlərin təhlili', 'Nəqliyyatın yükləmə - boşaltma vasitələri'];
+for (const name of batch3Spellings) assert(batch3.rows.courses.some((row) => row.course_name === name));
+assert(batch3.rows.courses.every((row) => row.teacher === '' && typeof row.course_code === 'string'));
+const sql3 = buildBatchSql(batch3);
+for (const name of batch3Spellings) assert(sql3.includes(name));
+assert(sql3.startsWith('begin;\n'));
+assert(sql3.endsWith('commit;\n'));
+assert(!/logo_url|\/img\/|insert\s+into\s+universities|\b(update|delete|alter|drop)\b|\b(users|enrollments|study_plans)\b/i.test(sql3));
+assert(!/\b(id|university_id)\s*=\s*\d+/.test(sql3));
+assert(!/\b(teacher|room|schedule_text)\b/.test(sql3));
+assert.strictEqual((sql3.match(/insert into faculties/g) || []).length, 12);
+assert.strictEqual((sql3.match(/insert into courses/g) || []).length, 30);
+assert.strictEqual((sql3.match(/and not exists/g) || []).length, 42);
+assert.strictEqual((sql3.match(/from universities where name = .*\) <> 1 then/g) || []).length, 5);
+assert.strictEqual((sql3.match(/faculty lookup is ambiguous/g) || []).length, 12);
+assert(sql3.includes('c.faculty_id = f.id and c.name ='));
+assert(sql3.includes('c.source_url ='));
+assert.strictEqual(sql3, buildBatchSql(validateBatch(loadBatch(batch3Dir), undefined, 'batch3')));
+assert(Buffer.from(sql3).equals(fs.readFileSync(path.join(batch3Dir, 'import.sql'))));
+const batch3Identities = batch3Names.map((name, index) => ({ name, id: 10001 + index }));
+assert.strictEqual(sql3, buildBatchSql(validateBatch(batch3Input, batch3Identities, 'batch3')));
+assert.strictEqual(sql3, buildBatchSql(validateBatch(batch3Input, batch3Identities.map((row) => ({ ...row, id: row.id + 1000 })), 'batch3')));
+const batch3Metadata = structuredClone(batch3Input);
+batch3Metadata.logos.rows[0].logo_image_url = '';
+batch3Metadata.logos.rows[0].notes = 'Metadata does not affect SQL';
+assert.strictEqual(sql3, buildBatchSql(validateBatch(batch3Metadata, undefined, 'batch3')));
+console.log('Batch 3 SQL passed: exact-name prechecks, 12 guarded faculty inserts, 30 guarded course inserts, spellings preserved, one transaction, no IDs/logos/university inserts, byte-identical regeneration.');
+
+function expectBatch3Rejected(change, pattern, live) {
+  const altered = structuredClone(batch3Input);
+  change(altered);
+  const result = validateBatch(altered, live, 'batch3');
+  assert(result.rejected.some((item) => pattern.test(item.reason)));
+  assert(result.rejected.every((item) => item.file.endsWith('.csv') && Number.isInteger(item.line)));
+  assert.throws(() => buildBatchSql(result), /rejected rows/);
+}
+expectBatch3Rejected((data) => { data.courses.rows[0].faculty_name = 'Unlisted faculty'; }, /faculty must match/);
+expectBatch3Rejected((data) => { data.courses.rows[0].source_url = ''; }, /missing source_url/);
+expectBatch3Rejected((data) => { data.courses.rows[0].teacher = 'Not allowed'; }, /teacher must be blank/);
+expectBatch3Rejected((data) => { data.courses.rows[0].level = 'master'; }, /level must be bachelor/);
+expectBatch3Rejected((data) => { data.courses.rows[0].verified = 'no'; }, /verified must be yes/);
+expectBatch3Rejected((data) => { data.courses.rows[0].university_name = batch3Names[1]; }, /BAAU courses are excluded/);
+expectBatch3Rejected((data) => { data.universities.rows[0].city = 'Bakı'; }, /ATU city must remain/);
+expectBatch3Rejected((data) => { data.universities.rows[2].city = 'Bakı'; }, /Kooperasiya city must remain blank/);
+expectBatch3Rejected((data) => { data.universities.rows[0].university_name = 'Unknown'; }, /approved Batch 3 exact name/);
+expectBatch3Rejected((data) => { data.faculties.rows = data.faculties.rows.filter((row) => row.faculty_name !== 'Faculty not specified'); }, /faculty must match/);
+expectBatch3Rejected(() => {}, /found 0/, batch3Identities.slice(1));
+expectBatch3Rejected(() => {}, /found 2/, [...batch3Identities, batch3Identities[0]]);
+const batch3Duplicates = structuredClone(batch3Input);
+batch3Duplicates.faculties.rows.push({ ...batch3Duplicates.faculties.rows[0], line: 14 });
+batch3Duplicates.courses.rows.push({ ...batch3Duplicates.courses.rows[0], line: 32 });
+const deduped3 = validateBatch(batch3Duplicates, undefined, 'batch3');
+assert.deepStrictEqual(deduped3.rejected, []);
+assert.strictEqual(deduped3.duplicates.faculties, 1);
+assert.strictEqual(deduped3.duplicates.courses, 1);
+assert.strictEqual(sql3, buildBatchSql(deduped3));
+const batch3Code = structuredClone(batch3Input);
+batch3Code.courses.rows[0].course_code = '001-A';
+assert(buildBatchSql(validateBatch(batch3Code, undefined, 'batch3')).includes("'001-A'"));
+const batch3Quote = structuredClone(batch3Input);
+batch3Quote.courses.rows[0].notes = "Owner's source note";
+assert(buildBatchSql(validateBatch(batch3Quote, undefined, 'batch3')).includes("Owner''s source note"));
+console.log('Batch 3 rejection/deduplication passed: unlisted/missing placeholder faculty, missing source, teacher, level, verification, excluded BAAU courses, changed cities, wrong/missing/duplicate university names, exact duplicates, text codes and SQL quoting.');

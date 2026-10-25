@@ -18,18 +18,28 @@ const batch2Names = [
   'Türkiyə-Azərbaycan Universiteti',
   'Azərbaycan Turizm və Menecment Universiteti'
 ];
+const batch3Names = [
+  'Azərbaycan Texnologiya Universiteti',
+  'Bakı Avrasiya Universiteti',
+  'Azərbaycan Kooperasiya Universiteti',
+  'Azərbaycan Əmək və Sosial Münasibətlər Akademiyası',
+  'Azərbaycan Milli Konservatoriyası'
+];
 
 function getBatchConfig(directory = batchDir) {
   const name = path.basename(path.resolve(directory));
-  if (!['batch1', 'batch2'].includes(name)) throw new Error('Expected a batch1 or batch2 directory.');
+  if (!['batch1', 'batch2', 'batch3'].includes(name)) throw new Error('Expected a batch1, batch2, or batch3 directory.');
   return {
     name,
-    label: name === 'batch1' ? 'Batch 1' : 'Batch 2',
+    label: 'Batch ' + name.slice(-1),
+    approvedNames: name === 'batch2' ? batch2Names : name === 'batch3' ? batch3Names : undefined,
     headers: name === 'batch1' ? headers : {
       ...headers,
       logos: 'university_name,logo_source_page,logo_image_url,file_type,transparent_background,verified_on_page,notes'
     },
-    counts: name === 'batch1' ? expectedCounts : { universities: 5, faculties: 8, courses: 17, logos: 5 }
+    counts: name === 'batch1' ? expectedCounts : name === 'batch2'
+      ? { universities: 5, faculties: 8, courses: 17, logos: 5 }
+      : { universities: 5, faculties: 12, courses: 30, logos: 5 }
   };
 }
 
@@ -89,7 +99,7 @@ function keyOf(row, keys) { return JSON.stringify(keys.map((key) => row[key])); 
 
 function validateBatch(input, liveUniversities, batchName = 'batch1') {
   const config = getBatchConfig(batchName);
-  // Batch 2 can be prepared offline; its SQL precheck enforces live identities.
+  // Batches 2 and 3 can be prepared offline; their SQL prechecks enforce live identities.
   // If a live list is supplied, missing or ambiguous exact matches also reject it here.
   if ((batchName === 'batch1' || liveUniversities !== undefined) && !Array.isArray(liveUniversities)) {
     throw new Error('University lookup did not return a university list.');
@@ -104,7 +114,8 @@ function validateBatch(input, liveUniversities, batchName = 'batch1') {
       const reasons = [];
       if (Object.values(row).some((value) => typeof value === 'string' && value.includes('\u0000'))) reasons.push('NUL characters are not allowed');
       const required = name === 'logos' ? ['university_name', 'logo_source_page']
-        : name === 'universities' ? ['university_name', 'city', 'official_website', 'source_page']
+        : name === 'universities' ? ['university_name',
+          ...(batchName === 'batch3' && row.university_name === batch3Names[2] ? [] : ['city']), 'official_website', 'source_page']
         : name === 'faculties' ? ['university_name', 'faculty_name', 'source_page']
           : ['university_name', 'course_name', 'source_url'];
       for (const field of required) if (!row[field].trim()) reasons.push('missing ' + field);
@@ -119,7 +130,11 @@ function validateBatch(input, liveUniversities, batchName = 'batch1') {
         }
       }
       if (name === 'universities') {
-        if (batchName === 'batch2' && !batch2Names.includes(row.university_name)) reasons.push('university is not an approved Batch 2 exact name');
+        if (config.approvedNames && !config.approvedNames.includes(row.university_name)) reasons.push('university is not an approved ' + config.label + ' exact name');
+        if (batchName === 'batch3') {
+          if (row.university_name === batch3Names[0] && row.city !== 'Gəncə') reasons.push('ATU city must remain Gəncə');
+          if (row.university_name === batch3Names[2] && row.city !== '') reasons.push('Kooperasiya city must remain blank');
+        }
         if (liveUniversities) {
           const matches = liveUniversities.filter((item) => item.name === row.university_name);
           if (matches.length !== 1) reasons.push('expected exactly one existing university; found ' + matches.length);
@@ -137,6 +152,7 @@ function validateBatch(input, liveUniversities, batchName = 'batch1') {
         if (row.level !== 'bachelor') reasons.push('level must be bachelor');
         if (row.teacher !== '') reasons.push('teacher must be blank');
         if (batchName === 'batch1' && row.university_name === aztuName) reasons.push('AzTU courses are excluded from Batch 1');
+        if (batchName === 'batch3' && row.university_name === batch3Names[1]) reasons.push('BAAU courses are excluded from Batch 3');
         if (!rows.faculties.some((item) => item.university_name === row.university_name && item.faculty_name === row.faculty_name)) {
           reasons.push('faculty must match faculties.csv at the same university');
         }
@@ -166,7 +182,7 @@ function validateBatch(input, liveUniversities, batchName = 'batch1') {
 function quote(value) { return "'" + value.replace(/'/g, "''") + "'"; }
 
 function buildBatchSql(batch) {
-  if (batch.batchName === 'batch2') return buildBatch2Sql(batch);
+  if (['batch2', 'batch3'].includes(batch.batchName)) return buildNamedBatchSql(batch);
   if (batch.rejected.length) throw new Error('Batch 1 has rejected rows; no SQL generated.');
   const lines = ['begin;', '', '-- Batch 1 only. Existing universities are required; no university rows are created.',
     '-- Review before running. Guards are rechecked against the database inside this transaction.', 'do $batch1_check$', 'begin'];
@@ -198,21 +214,22 @@ function buildBatchSql(batch) {
   return lines.join('\n');
 }
 
-function buildBatch2Sql(batch) {
-  if (batch.rejected.length) throw new Error('Batch 2 has rejected rows; no SQL generated.');
-  const lines = ['begin;', '', '-- Batch 2 only. Exact-name lookups; existing rows are never changed.',
+function buildNamedBatchSql(batch) {
+  const config = getBatchConfig(batch.batchName);
+  if (batch.rejected.length) throw new Error(config.label + ' has rejected rows; no SQL generated.');
+  const lines = ['begin;', '', '-- ' + config.label + ' only. Exact-name lookups; existing rows are never changed.',
     '-- All five universities must already exist exactly once before this file is run.',
-    'do $batch2_check$', 'begin'];
-  for (const name of batch2Names) {
+    'do $' + config.name + '_check$', 'begin'];
+  for (const name of config.approvedNames) {
     lines.push('  if (select count(*) from universities where name = ' + quote(name) + ') <> 1 then',
-      "    raise exception 'Batch 2 requires exactly one university named %.', " + quote(name) + ';', '  end if;');
+      "    raise exception '" + config.label + " requires exactly one university named %.', " + quote(name) + ';', '  end if;');
   }
   for (const row of batch.rows.faculties) {
     lines.push('  if (select count(*) from faculties f join universities u on u.id = f.university_id',
       '      where u.name = ' + quote(row.university_name) + ' and f.name = ' + quote(row.faculty_name) + ') > 1 then',
-      "    raise exception 'Batch 2 faculty lookup is ambiguous; review existing records.';", '  end if;');
+      "    raise exception '" + config.label + " faculty lookup is ambiguous; review existing records.';", '  end if;');
   }
-  lines.push('end;', '$batch2_check$;', '');
+  lines.push('end;', '$' + config.name + '_check$;', '');
   for (const row of batch.rows.faculties) {
     lines.push('insert into faculties (university_id, name)',
       'select u.id, ' + quote(row.faculty_name),
@@ -255,6 +272,10 @@ async function main(directory = batchDir) {
     console.log('Live university existence: deferred to the SQL precheck; not checked by offline generation.');
     console.log('Logo rows: metadata only; not imported.');
   }
+  if (config.name === 'batch3') {
+    console.log('BAAU course rows: ' + batch.rows.courses.filter((row) => row.university_name === batch3Names[1]).length);
+    console.log('Explicit placeholder faculties: ' + batch.rows.faculties.filter((row) => row.faculty_name === 'Faculty not specified').length);
+  }
   console.log('Faculties to insert if absent: ' + batch.rows.faculties.length);
   console.log('Courses to insert if absent: ' + batch.rows.courses.length);
   const sql = buildBatchSql(batch);
@@ -263,4 +284,4 @@ async function main(directory = batchDir) {
 }
 
 if (require.main === module) main(process.argv[2]).catch((error) => { console.error(error.message); process.exitCode = 1; });
-module.exports = { aztuName, aztuId, headers, batch2Names, readCsv, loadBatch, validateBatch, buildBatchSql, main };
+module.exports = { aztuName, aztuId, headers, batch2Names, batch3Names, readCsv, loadBatch, validateBatch, buildBatchSql, main };

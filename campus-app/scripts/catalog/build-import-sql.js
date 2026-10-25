@@ -119,8 +119,9 @@ function main() {
 }
 
 if (require.main === module) {
-  if (process.argv[2] === '--batch1') {
-    require('./build-batch1-sql').main().catch((error) => {
+  if (process.argv[2]) {
+    const directory = process.argv[2] === '--batch1' ? path.join(catalogDir, 'batch1') : process.argv[2];
+    require('./build-batch1-sql').main(directory).catch((error) => {
       console.error(error.message);
       process.exitCode = 1;
     });
