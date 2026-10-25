@@ -33,11 +33,11 @@
         <input id="name" name="name" type="text" minlength="2" maxlength="80" autocomplete="name" required>
       </div>
       <div class="field">
-        <label for="university">University</label>
+        <label for="university">University <span class="self-reported-label">Self-reported, not verified</span></label>
         <select id="university" name="university_id" required></select>
       </div>
       <div class="field">
-        <label for="faculty">Faculty</label>
+        <label for="faculty">Faculty <span class="self-reported-label">Self-reported, not verified</span></label>
         <select id="faculty" name="faculty_id" required></select>
       </div>
       <section id="course-picker" hidden>
@@ -60,6 +60,12 @@
       <p id="save-status" class="alert" role="status" aria-live="polite"></p>
       <p class="muted">Your profile is visible only to you for now. Sharing settings come later.</p>
     </form>
+    <footer class="legal-footer">
+      <nav aria-label="Legal information">
+        <a href="privacy.html">Privacy notice</a>
+        <a href="terms.html">Terms of use</a>
+      </nav>
+    </footer>
   </main>
   <script src="js/app-shell.js"></script>
   <script src="js/header-auth.js"></script>

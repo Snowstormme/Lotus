@@ -32,8 +32,8 @@
       <section>
         <h2 class="card-title">Profile details</h2>
         <div class="field"><label for="name">Full name</label><input id="name" type="text" maxlength="80" required></div>
-        <div class="field"><label for="university">University</label><div class="university-field-control"><span id="profile-university-logo" class="university-topbar-badge profile-university-logo" hidden></span><select id="university" required></select></div></div>
-        <div class="field"><label for="faculty">Faculty</label><select id="faculty" required></select></div>
+        <div class="field"><label for="university">University <span class="self-reported-label">Self-reported, not verified</span></label><div class="university-field-control"><span id="profile-university-logo" class="university-topbar-badge profile-university-logo" hidden></span><select id="university" required></select></div></div>
+        <div class="field"><label for="faculty">Faculty <span class="self-reported-label">Self-reported, not verified</span></label><select id="faculty" required></select></div>
         <div class="field"><label for="year">Year (1 to 6)</label><input id="year" type="number" min="1" max="6" step="1" required></div>
         <div class="field"><label for="languages">Languages (maximum 50 characters)</label><input id="languages" type="text" maxlength="50" required></div>
         <div class="field"><label for="weekly-free-hours">Weekly free hours (0 to 60)</label><input id="weekly-free-hours" type="number" min="0" max="60" step="1" required></div>
@@ -64,6 +64,12 @@
       <button id="profile-logout" class="btn secondary" type="button">Log out</button>
       <p id="logout-status" class="alert" role="status" aria-live="polite"></p>
     </section>
+    <footer class="legal-footer">
+      <nav aria-label="Legal information">
+        <a href="privacy.html">Privacy notice</a>
+        <a href="terms.html">Terms of use</a>
+      </nav>
+    </footer>
   </main>
   <script src="js/app-shell.js"></script>
   <script type="module" src="js/profile-page.js" defer></script>
