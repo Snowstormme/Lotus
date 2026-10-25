@@ -15,8 +15,10 @@
   sidebarBrand.href = 'index.html';
   sidebarBrand.setAttribute('aria-label', 'Lotus Campus, home');
   const logo = document.createElement('img');
-  logo.src = 'img/lotus-badge.svg';
-  logo.alt = '';
+  logo.src = '/img/lotus-badge.svg';
+  logo.alt = 'Lotus Campus';
+  logo.width = 32;
+  logo.height = 32;
   logo.className = 'shell-logo';
   sidebarBrand.appendChild(logo);
   const brandText = document.createElement('span');
