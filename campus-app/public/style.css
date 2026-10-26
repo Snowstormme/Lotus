@@ -267,6 +267,9 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .dashboard-column { display: flex; flex-direction: column; gap: var(--space-6); min-width: 0; }
 .dashboard-column > .card { margin: 0; }
 .dashboard-column > .card:last-child { flex: 1 1 auto; min-height: 0; }
+@media (min-width: 1280px) {
+  .dashboard-column > .card:last-child:has(> div > .empty-state) { flex-grow: 0; }
+}
 .quick-links { display: grid; gap: var(--space-2); }
 .quick-links a { align-items: center; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; min-height: 44px; padding: var(--space-3); text-decoration: none; }
 .quick-links a:hover { background: var(--color-accent-surface); }
