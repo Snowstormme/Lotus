@@ -28,6 +28,7 @@ const batch3Names = [
 
 function getBatchConfig(directory = batchDir) {
   const name = path.basename(path.resolve(directory));
+  if (name === 'batch4') return require('./build-batch4-sql').config;
   if (!['batch1', 'batch2', 'batch3'].includes(name)) throw new Error('Expected a batch1, batch2, or batch3 directory.');
   return {
     name,
@@ -98,6 +99,7 @@ function loadBatch(directory = batchDir) {
 function keyOf(row, keys) { return JSON.stringify(keys.map((key) => row[key])); }
 
 function validateBatch(input, liveUniversities, batchName = 'batch1') {
+  if (batchName === 'batch4') return require('./build-batch4-sql').validate(input, liveUniversities);
   const config = getBatchConfig(batchName);
   // Batches 2 and 3 can be prepared offline; their SQL prechecks enforce live identities.
   // If a live list is supplied, missing or ambiguous exact matches also reject it here.
@@ -182,6 +184,7 @@ function validateBatch(input, liveUniversities, batchName = 'batch1') {
 function quote(value) { return "'" + value.replace(/'/g, "''") + "'"; }
 
 function buildBatchSql(batch) {
+  if (batch.batchName === 'batch4') return require('./build-batch4-sql').build(batch);
   if (['batch2', 'batch3'].includes(batch.batchName)) return buildNamedBatchSql(batch);
   if (batch.rejected.length) throw new Error('Batch 1 has rejected rows; no SQL generated.');
   const lines = ['begin;', '', '-- Batch 1 only. Existing universities are required; no university rows are created.',
@@ -266,7 +269,7 @@ async function main(directory = batchDir) {
   batch.rejected.forEach((item) => console.log(item.file + ':' + item.line + ': ' + item.reason));
   if (batch.rejected.length) throw new Error(config.label + ' validation failed; no SQL generated.');
   batch.matched.forEach((id, name) => console.log('Existing university: ' + name + ' = ' + id));
-  console.log('Universities to create: 0');
+  console.log('Universities to create: ' + (config.name === 'batch4' ? batch.rows.universities.length : 0));
   if (config.name === 'batch1') console.log('AzTU course rows: 0');
   else {
     console.log('Live university existence: deferred to the SQL precheck; not checked by offline generation.');

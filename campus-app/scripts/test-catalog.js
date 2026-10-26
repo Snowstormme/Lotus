@@ -300,3 +300,88 @@ const batch3Quote = structuredClone(batch3Input);
 batch3Quote.courses.rows[0].notes = "Owner's source note";
 assert(buildBatchSql(validateBatch(batch3Quote, undefined, 'batch3')).includes("Owner''s source note"));
 console.log('Batch 3 rejection/deduplication passed: unlisted/missing placeholder faculty, missing source, teacher, level, verification, excluded BAAU courses, changed cities, wrong/missing/duplicate university names, exact duplicates, text codes and SQL quoting.');
+
+const batch3Digest = '5a9a36d2ed62722489dbce7becc4681027f0e7f07d564c000081409a53ab2866';
+assert.strictEqual(crypto.createHash('sha256').update(sql3).digest('hex'), batch3Digest);
+assert.strictEqual(crypto.createHash('sha256').update(fs.readFileSync(path.join(batch3Dir, 'import.sql'))).digest('hex'), batch3Digest);
+console.log('Batch 3 regression passed: regenerated and committed SQL match the pre-Batch-4 SHA-256 baseline.');
+
+const { names: batch4Names, droppedTitles } = require('./catalog/build-batch4-sql');
+const batch4Dir = path.join(__dirname, 'catalog/batch4');
+const batch4Input = loadBatch(batch4Dir);
+const batch4 = validateBatch(batch4Input, undefined, 'batch4');
+assert.deepStrictEqual(batch4.rejected, []);
+for (const [file, count] of [['universities', 2], ['existing-universities', 1], ['faculties', 5], ['courses', 37], ['logos', 3]]) {
+  assert.strictEqual(batch4Input[file].read, count);
+  assert.strictEqual(batch4.rows[file].length, count);
+}
+assert.deepStrictEqual(batch4.rows.universities.map((u) => u.university_name), [batch4Names[0], batch4Names[2]]);
+assert.strictEqual(batch4.rows['existing-universities'][0].university_name, 'Xəzər Universiteti');
+assert.strictEqual(batch4.rows['existing-universities'][0].status, 'existing');
+for (const [index, count] of [[0, 10], [1, 20], [2, 7]]) {
+  assert.strictEqual(batch4.rows.courses.filter((c) => c.university_name === batch4Names[index]).length, count);
+}
+assert(batch4.rows.universities[0].notes.includes('Azərbaycan Respublikası Dövlət Gömrük Komitəsinin Akademiyası'));
+assert(batch4.rows.universities[1].notes.includes('Üzeyir Hacıbəyli adına Bakı Musiqi Akademiyası'));
+for (const excluded of ['Qafqaz Universiteti', 'Azərbaycan Beynəlxalq Universiteti']) {
+  assert(Object.values(batch4.rows).every((rows) => rows.every((row) => row.university_name !== excluded)));
+}
+assert(batch4.rows.courses.every((c) => !droppedTitles.includes(c.course_name)));
+assert.deepStrictEqual(batch4.rows.courses.filter((c) => c.university_name === batch4Names[2]).map((c) => c.course_name),
+  ['Ихтисас', 'İxtisasa giriş', 'Nəzəri musiqişünaslıq', 'Полифонийа', 'Pedaqoji təcrübə', 'Щармонийа', 'Солфежио']);
+assert(batch4.rows.courses.some((c) => c.course_name === 'Fundamentals of Computer programming'));
+assert(batch4.rows.courses.some((c) => c.course_name === 'English Foundations-1'));
+assert(batch4.rows.courses.some((c) => c.course_name === 'English Foundations 1'));
+const sql4 = buildBatchSql(batch4);
+assert(sql4.startsWith('begin;\n') && sql4.endsWith('commit;\n'));
+assert(!/logo_url|\/img\/|\b(update|delete|alter|drop)\b|\b(users|enrollments|study_plans|teacher|room|schedule_text)\b/i.test(sql4));
+assert(!/\b(id|university_id)\s*=\s*\d+/.test(sql4));
+assert.strictEqual((sql4.match(/insert into universities/g) || []).length, 2);
+assert.strictEqual((sql4.match(/insert into faculties/g) || []).length, 5);
+assert.strictEqual((sql4.match(/insert into courses/g) || []).length, 37);
+assert.strictEqual((sql4.match(/where not exists|and not exists/g) || []).length, 44);
+for (const [index, count] of [[0, 0], [1, 1], [2, 0]]) {
+  assert(sql4.includes("from universities where name = '" + batch4Names[index] + "') <> " + count + ' then'));
+}
+assert(sql4.includes('c.faculty_id = f.id and c.name =') && sql4.includes('c.source_url ='));
+assert.strictEqual(sql4, buildBatchSql(validateBatch(loadBatch(batch4Dir), undefined, 'batch4')));
+assert(Buffer.from(sql4).equals(fs.readFileSync(path.join(batch4Dir, 'import.sql'))));
+const live4 = [{ id: 9, name: batch4Names[1] }];
+assert.strictEqual(sql4, buildBatchSql(validateBatch(batch4Input, live4, 'batch4')));
+const metadata4 = structuredClone(batch4Input);
+metadata4.logos.rows[0].logo_image_url = '';
+metadata4.logos.rows[0].notes = 'Held metadata';
+assert.strictEqual(sql4, buildBatchSql(validateBatch(metadata4, undefined, 'batch4')));
+console.log('Batch 4 passed: 2 new universities, 1 existing reference, 5 faculties, 37 courses (10/20/7), 3 metadata logos; exclusions and exact source spellings/official notes preserved.');
+console.log('Batch 4 SQL passed: zero/one/zero existence prechecks, 44 guarded inserts, exact-name lookups, one transaction, no logos or existing-row changes, byte-identical generation.');
+
+function expectBatch4Rejected(change, pattern, live) {
+  const data = structuredClone(batch4Input);
+  change(data);
+  const result = validateBatch(data, live, 'batch4');
+  assert(result.rejected.some((r) => pattern.test(r.reason)));
+  assert(result.rejected.every((r) => r.file.endsWith('.csv') && Number.isInteger(r.line)));
+  assert.throws(() => buildBatchSql(result), /rejected rows/);
+}
+expectBatch4Rejected((d) => { d.courses.rows[0].faculty_name = 'Unknown'; }, /faculty must match/);
+expectBatch4Rejected((d) => { d.courses.rows[0].source_url = ''; }, /missing source_url/);
+expectBatch4Rejected((d) => { d.courses.rows[0].teacher = 'Not allowed'; }, /teacher must be blank/);
+expectBatch4Rejected((d) => { d.courses.rows[0].level = 'master'; }, /level must be bachelor/);
+expectBatch4Rejected((d) => { d.courses.rows[0].verified = 'no'; }, /verified must be yes/);
+expectBatch4Rejected((d) => { d.courses.rows[0].university_name = 'Qafqaz Universiteti'; }, /not an approved/);
+expectBatch4Rejected((d) => { d.courses.rows[0].university_name = 'Azərbaycan Beynəlxalq Universiteti'; }, /not an approved/);
+for (const title of droppedTitles) expectBatch4Rejected((d) => { d.courses.rows[30].course_name = title; }, /corrupted Music/);
+expectBatch4Rejected((d) => { d.universities.rows[0].notes = ''; }, /official name/);
+expectBatch4Rejected((d) => { d['existing-universities'].rows[0].status = 'new'; }, /marked existing/);
+expectBatch4Rejected((d) => { d.courses.rows[10].notes = 'Missing required suffix'; }, /note suffix/);
+expectBatch4Rejected(() => {}, /expected 1 live matches; found 0/, []);
+expectBatch4Rejected(() => {}, /expected 1 live matches; found 2/, [...live4, ...live4]);
+for (const name of [batch4Names[0], batch4Names[2]]) expectBatch4Rejected(() => {}, /expected 0 live matches; found 1/, [...live4, { name, id: 100 }]);
+const duplicate4 = structuredClone(batch4Input);
+duplicate4.faculties.rows.push({ ...duplicate4.faculties.rows[0], line: 7 });
+duplicate4.courses.rows.push({ ...duplicate4.courses.rows[0], line: 39 });
+assert.strictEqual(sql4, buildBatchSql(validateBatch(duplicate4, undefined, 'batch4')));
+const quote4 = structuredClone(batch4Input);
+quote4.courses.rows[0].notes = "Owner's source note";
+assert(buildBatchSql(validateBatch(quote4, undefined, 'batch4')).includes("Owner''s source note"));
+console.log('Batch 4 rejection tests passed: unlisted faculty, source/teacher/level/verification, excluded universities/titles, missing official notes, existing reference, curriculum suffix, missing/duplicate/unexpected live universities; deduplication and SQL quoting passed.');
