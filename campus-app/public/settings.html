@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings · Lotus Campus</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="/img/lotus-badge.svg">
+</head>
+<body>
+  <main class="page settings-page">
+    <header class="page-intro">
+      <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+      <h1 class="page-title">Settings</h1>
+      <p class="muted">A little more you. Choose how your campus looks.</p>
+    </header>
+    <section class="card appearance-card" aria-labelledby="appearance-title">
+      <div class="section-heading">
+        <div><h2 id="appearance-title" class="card-title">Appearance</h2><p class="muted">One theme, across your whole campus.</p></div>
+        <span class="badge">On this browser</span>
+      </div>
+      <fieldset class="theme-options">
+        <legend class="sr-only">Choose a theme</legend>
+        <label class="theme-choice">
+          <input type="radio" name="appearance" value="light">
+          <span class="theme-preview theme-preview-light" aria-hidden="true"><span class="preview-sidebar"></span><span class="preview-workspace"><span class="preview-header"></span><span class="preview-banner"></span><span class="preview-cards"><span></span><span></span></span></span></span>
+          <span class="theme-choice-label"><span><strong>Light</strong><small>Warm white. A fresh perspective.</small></span><span class="theme-check" aria-hidden="true">✓</span></span>
+        </label>
+        <label class="theme-choice">
+          <input type="radio" name="appearance" value="dark">
+          <span class="theme-preview theme-preview-dark" aria-hidden="true"><span class="preview-sidebar"></span><span class="preview-workspace"><span class="preview-header"></span><span class="preview-banner"></span><span class="preview-cards"><span></span><span></span></span></span></span>
+          <span class="theme-choice-label"><span><strong>Dark</strong><small>Soft black. Room to focus.</small></span><span class="theme-check" aria-hidden="true">✓</span></span>
+        </label>
+      </fieldset>
+      <p id="appearance-status" class="muted settings-note" role="status" aria-live="polite">Your choice is saved on this browser. You can change it anytime.</p>
+    </section>
+    <section class="card settings-account">
+      <div><h2 class="card-title">Your campus, your details</h2><p class="muted">Manage your profile, university and course selections.</p></div>
+      <a class="btn secondary" href="profile.html?id=1">Edit profile <span aria-hidden="true">↗</span></a>
+    </section>
+    <footer class="legal-footer"><nav aria-label="Legal information"><a href="privacy.html">Privacy notice</a><a href="terms.html">Terms of use</a></nav></footer>
+  </main>
+  <script src="js/app-shell.js"></script>
+</body>
+</html>

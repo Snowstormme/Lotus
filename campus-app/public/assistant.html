@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lotus Campus — AI Assistant</title>
+  <script src="js/theme.js"></script>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/svg+xml" href="/img/lotus-badge.svg">
 </head>
@@ -25,8 +26,8 @@
         <p id="study-plan-summary" class="empty-state">Loading summary...</p>
         <div id="study-plan-weeks"><p class="empty-state">Loading weeks...</p></div>
       </section>
-      <section class="card" aria-labelledby="messages-title"><div class="section-heading"><h2 id="messages-title" class="card-title">Messages</h2><span id="message-count" class="muted">0 messages</span></div><ol id="message-list" class="message-list" aria-live="polite"><li class="empty-state" id="message-empty">Start with a suggested prompt or ask a question below.</li></ol></section>
-      <section class="card"><form id="chat-form" class="chat-form"><div class="field"><label for="message-input">Your message</label><textarea id="message-input" maxlength="2000" placeholder="Ask a study question..."></textarea></div><div class="form-actions"><button id="send-button" class="btn primary" type="submit">Send</button><span id="chat-status" class="muted chat-status" role="status"></span></div></form><p class="muted assistant-note">The assistant can make mistakes. Check important information with your course materials.</p></section>
+      <section class="card assistant-conversation" aria-labelledby="messages-title"><div class="section-heading"><h2 id="messages-title" class="card-title">Messages</h2><span id="message-count" class="muted">0 messages</span></div><ol id="message-list" class="message-list" aria-live="polite"><li class="empty-state" id="message-empty">Start with a suggested prompt or ask a question below.</li></ol></section>
+      <section class="card assistant-compose"><form id="chat-form" class="chat-form"><div class="field"><label for="message-input">Your message</label><textarea id="message-input" maxlength="2000" placeholder="Ask a study question..."></textarea></div><div class="form-actions"><button id="send-button" class="btn primary" type="submit">Send</button><span id="chat-status" class="muted chat-status" role="status"></span></div></form><p class="muted assistant-note">The assistant can make mistakes. Check important information with your course materials.</p></section>
     </div>
     <footer class="legal-footer">
       <nav aria-label="Legal information">

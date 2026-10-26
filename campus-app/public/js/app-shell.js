@@ -34,15 +34,17 @@
     { key: 'schedule', label: 'Schedule', href: 'schedule.html', icon: 'schedule' },
     { key: 'ai', label: 'AI Assistant', href: 'assistant.html', icon: 'ai' },
     { key: 'events', label: 'Events', href: 'events.html', icon: 'events' },
-    { key: 'profile', label: 'Profile', href: 'profile.html?id=1', icon: 'profile' }
+    { key: 'profile', label: 'Profile', href: 'profile.html?id=1', icon: 'profile' },
+    { key: 'settings', label: 'Settings', href: 'settings.html', icon: 'settings' }
   ];
   function getCurrentKey() {
-    const page = window.location.pathname.split('/').pop() || 'index.html';
+    const page = (window.location.pathname.split('/').pop() || 'index').replace(/\.html$/, '') + '.html';
     if (page === 'index.html' || page === '') {
       if (window.location.hash === '#courses') return 'courses';
       if (window.location.hash === '#calendar') return 'schedule';
       return 'home';
     }
+    if (page === 'settings.html') return 'settings';
     if (page === 'assistant.html') return 'ai';
     if (page === 'groups.html') return 'community';
     if (page === 'profile.html') return 'profile';
@@ -61,10 +63,10 @@
     link.href = item.href;
     link.dataset.pageName = item.label;
     if (item.icon || item.key) {
-      const icon = document.createElement('svg');
-      icon.className = 'nav-icon';
+      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      icon.setAttribute('class', 'nav-icon');
       icon.setAttribute('aria-hidden', 'true');
-      const use = document.createElement('use');
+      const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
       use.setAttribute('href', 'img/icons.svg#' + (item.icon || item.key));
       icon.appendChild(use);
       link.appendChild(icon);
@@ -79,7 +81,7 @@
       badge.dataset.unreadBadge = 'true';
       link.appendChild(badge);
     }
-    const page = window.location.pathname.split('/').pop() || 'index.html';
+    const page = (window.location.pathname.split('/').pop() || 'index').replace(/\.html$/, '') + '.html';
     const currentKey = getCurrentKey();
     const samePage = (page === 'groups.html' && item.key === 'community') ||
       (page === 'groups.html' && item.key === 'groups') ||
@@ -135,7 +137,13 @@
   searchShortcut.className = 'search-shortcut';
   searchShortcut.setAttribute('aria-hidden', 'true');
   searchShortcut.textContent = '⌘K';
-  searchWrap.append(searchLabel, search, searchShortcut);
+  const searchIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  searchIcon.setAttribute('class', 'nav-icon shell-search-icon');
+  searchIcon.setAttribute('aria-hidden', 'true');
+  const searchUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  searchUse.setAttribute('href', 'img/icons.svg#search');
+  searchIcon.appendChild(searchUse);
+  searchWrap.append(searchLabel, searchIcon, search, searchShortcut);
 
   const topActions = document.createElement('div');
   topActions.className = 'shell-top-actions';
@@ -150,19 +158,33 @@
   avatar.className = 'icon-button topbar-avatar';
   avatar.href = 'profile.html?id=1';
   avatar.setAttribute('aria-label', 'Open profile');
-  const avatarIcon = document.createElement('svg');
-  avatarIcon.className = 'nav-icon';
+  const avatarIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  avatarIcon.setAttribute('class', 'nav-icon');
   avatarIcon.setAttribute('aria-hidden', 'true');
-  const avatarUse = document.createElement('use');
+  const avatarUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
   avatarUse.setAttribute('href', 'img/icons.svg#profile');
   avatarIcon.appendChild(avatarUse);
   avatar.appendChild(avatarIcon);
-  topActions.append(universityButton, avatar);
+  const settingsLink = document.createElement('a');
+  settingsLink.className = 'icon-button topbar-settings';
+  settingsLink.href = 'settings.html';
+  settingsLink.setAttribute('aria-label', 'Settings');
+  settingsLink.title = 'Settings';
+  const settingsIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  settingsIcon.setAttribute('class', 'nav-icon');
+  settingsIcon.setAttribute('aria-hidden', 'true');
+  const settingsUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  settingsUse.setAttribute('href', 'img/icons.svg#settings');
+  settingsIcon.appendChild(settingsUse);
+  settingsLink.appendChild(settingsIcon);
+  topActions.append(universityButton, settingsLink, avatar);
   if (authActions) {
     authActions.classList.add('shell-auth-actions');
     topActions.appendChild(authActions);
   }
-  topbar.append(searchWrap, topActions);
+  const mobileBrand = sidebarBrand.cloneNode(true);
+  mobileBrand.className = 'shell-mobile-brand';
+  topbar.append(mobileBrand, searchWrap, topActions);
 
   main.classList.add('app-main');
   workspace.append(topbar, main);

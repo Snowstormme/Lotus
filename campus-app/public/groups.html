@@ -4,18 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Groups · Lotus Campus</title>
+  <script src="js/theme.js"></script>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/svg+xml" href="/img/lotus-badge.svg">
 </head>
 <body>
   <header class="site-header"><div class="page header-inner"><a class="brand" href="index.html">Lotus Campus</a><nav class="site-nav" aria-label="Main navigation"><a href="index.html">Campus</a><a href="courses.html">Courses</a><a href="schedule.html">Schedule</a><a class="active" aria-current="page" href="groups.html">Groups</a><span class="auth-actions" id="auth-actions"><a id="login-link" href="login.html">Log in</a><a id="signup-link" href="signup.html">Sign up</a></span></nav></div></header>
   <main class="page">
-    <h1 class="page-title">Groups</h1>
+    <header class="page-intro">
+      <p class="eyebrow">CAMPUS CONNECTIONS</p>
+      <h1 class="page-title">Groups</h1>
+      <p class="muted">Find a group, share an interest, make yourself at home.</p>
+    </header>
     <p id="groups-status" class="alert info">Loading groups...</p>
     <section id="groups-list-view">
       <div class="card group-filters"><div class="field"><label for="group-search">Search groups</label><input id="group-search" type="search" placeholder="Search by name or description"></div><div class="field"><label for="group-kind">Kind</label><select id="group-kind"><option value="all">All</option><option value="university">University</option><option value="course">Course</option><option value="club">Clubs</option></select></div></div>
-      <section class="card" aria-labelledby="create-group-title"><h2 id="create-group-title" class="card-title">Create a club group</h2><p class="muted">You can create up to 3 club groups.</p><form id="create-group-form"><div class="field"><label for="create-group-name">Name</label><input id="create-group-name" maxlength="60" required></div><div class="field"><label for="create-group-description">Description</label><textarea id="create-group-description" maxlength="300" rows="3"></textarea></div><button id="create-group-button" class="btn primary" type="submit">Create group</button></form><p id="create-group-status" class="alert" role="status"></p></section>
       <div id="groups-list"><p class="empty-state">Loading groups...</p></div>
+      <section class="card" aria-labelledby="create-group-title"><h2 id="create-group-title" class="card-title">Create a club group</h2><p class="muted">You can create up to 3 club groups.</p><form id="create-group-form"><div class="field"><label for="create-group-name">Name</label><input id="create-group-name" maxlength="60" required></div><div class="field"><label for="create-group-description">Description</label><textarea id="create-group-description" maxlength="300" rows="3"></textarea></div><button id="create-group-button" class="btn primary" type="submit">Create group</button></form><p id="create-group-status" class="alert" role="status"></p></section>
     </section>
     <section id="group-detail-view" class="card" hidden><a class="btn secondary" href="groups.html">Back to groups</a><div id="group-detail-content"><p class="empty-state">Loading group...</p></div></section>
     <footer class="legal-footer">
