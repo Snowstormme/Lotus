@@ -1071,7 +1071,6 @@ h2, h3, strong { font-weight: 650; }
 .card { box-shadow: none; }
 .card-title, .card h2 { font-size: 16px; font-weight: 600; }
 .card-title-link { gap: 12px; }
-.card-title-link::after { color: var(--color-text-secondary); content: '↗'; font-size: 14px; margin-left: 8px; }
 .app-shell .card-title-link { min-height: 30px; }
 .empty-state { border-radius: 10px; font-size: 13px; line-height: 1.8; padding: 24px 0; }
 .alert.success { background: transparent; border-color: transparent; color: var(--color-text-secondary); padding: 0; }
@@ -1198,7 +1197,6 @@ h2, h3, strong { font-weight: 650; }
 .assistant-layout .message-list { background: transparent; padding: 16px 0; }
 .assistant-layout .message-list > .empty-state { align-content: center; color: var(--color-text-secondary); font-family: var(--font-display); font-size: 24px; line-height: 1.6; min-height: 250px; padding: 28px; text-align: center; }
 .suggestions .btn { border: 0; border-bottom: 1px solid var(--color-border); border-radius: 0; gap: 12px; padding: 12px 0; }
-.suggestions .btn::after { content: '↗'; margin-left: auto; }
 .assistant-compose { border-radius: 16px; }
 .chat-form textarea { border: 0; font-size: 14px; padding: 12px 0; }
 .assistant-note { border-top: 1px solid var(--color-border); font-size: 11px; padding-top: 12px; }
