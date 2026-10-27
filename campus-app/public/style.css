@@ -823,17 +823,17 @@ h2, h3, strong { font-weight: 650; }
 .university-logo-image { background: var(--color-logo-backdrop); }
 .app-main.page { max-width: 1600px; padding: 32px 24px 110px; }
 .hero-banner {
-  align-items: center; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 20px;
-  color: var(--color-text-primary); display: grid; grid-template-columns: 1.1fr 1fr; min-height: 300px;
+  align-items: center; background: linear-gradient(90deg, var(--color-hero-overlay-start), var(--color-hero-overlay-end)), url('img/campus.jpg') center / cover no-repeat; border: 0; border-radius: 20px;
+  color: var(--color-hero-text); display: flex; min-height: 300px;
   padding: 40px; margin-bottom: 20px; overflow: hidden; position: relative;
 }
 .hero-banner::before { content: none; }
-.hero-banner::after { background: url('img/campus.jpg') center / cover; border-radius: 12px; content: ''; inset: 14px 14px 14px 55%; position: absolute; }
-.hero-copy { max-width: 600px; padding-right: 32px; }
-.hero-copy .eyebrow { color: var(--color-accent-text); }
+.hero-banner::after { content: none; }
+.hero-copy { max-width: 600px; padding-right: 0; }
+.hero-copy .eyebrow { color: var(--color-hero-muted); }
 .hero-kicker { font-family: var(--font-display); font-size: clamp(38px, 4vw, 60px); font-weight: 400; letter-spacing: -2px; line-height: 1.04; margin-bottom: 20px; }
-.hero-tagline { color: var(--color-text-secondary); font-size: 15px; max-width: 260px; line-height: 1.7; margin: 0; }
-.hero-copy #welcome-content .muted { color: var(--color-accent-text); font-size: 11px; margin: 22px 0 0; }
+.hero-tagline { color: var(--color-hero-text); font-size: 15px; max-width: 600px; line-height: 1.7; margin: 0; }
+.hero-copy #welcome-content .muted { color: var(--color-hero-muted); font-size: 11px; margin: 22px 0 0; }
 .home-shortcuts { gap: 10px; margin-bottom: 32px; }
 .home-shortcuts .action-card {
   align-items: center; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; box-shadow: none; display: flex; gap: 12px; justify-content: flex-start; min-height: 84px; overflow: visible; padding: 16px; position: relative; transform: none;
@@ -1275,8 +1275,7 @@ body[data-page="login"] .shell-search-wrap, body[data-page="signup"] .shell-sear
   #groups-list-view .groups-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 767px) {
-  .hero-banner { grid-template-columns: 1fr; min-height: 380px; padding: 28px 26px 200px; }
-  .hero-banner::after { inset: auto 12px 12px; height: 170px; }
+  .hero-banner { min-height: 260px; padding: 28px 26px; }
   .hero-copy { padding: 0; }
   .hero-kicker { font-size: 40px; }
   .hero-copy .eyebrow { font-size: 9px; }

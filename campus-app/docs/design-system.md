@@ -2,7 +2,7 @@
 
 The interface uses a campus editorial style: warm paper or charcoal, Georgia
 display headings with system-font body text, restrained violet accents, fine
-borders and compact navigation. The home banner has a split text/photo composition.
+borders and compact navigation. The city photo fills the entire home banner.
 No external fonts, packages or image assets are needed.
 
 The primary identity is `public/img/lotus-mark.svg`: a three-petal lotus above an
@@ -13,8 +13,8 @@ mobile home link and auth pages. The previous SVG assets remain as unused fallba
 
 `public/style.css` defines the light palette in `:root`, and overrides its semantic
 tokens in `:root[data-theme="dark"]`. Components use those tokens for text,
-surfaces, borders, accents, feedback and controls. The authentication photo panels
-have independent white-text and overlay tokens. Home text uses normal theme tokens.
+surfaces, borders, accents, feedback and controls. The home banner and authentication
+photo panels have independent white-text and overlay tokens for both themes.
 
 Every HTML page loads `js/theme.js` before CSS, so the stored theme is applied
 before painting. A first visit follows the operating system's preference. Settings
@@ -54,7 +54,7 @@ server-side authorization have been retested.
 
 ## Page compositions
 
-- Home: split photo masthead, five shortcuts, compact course list and dashboard.
+- Home: full-width city photo masthead, five shortcuts, compact course list and dashboard.
 - Feed: writing surface, clear author hierarchy, post action row and events aside.
 - Messages: divided conversation workspace, initials previews and a bottom composer.
 - Courses: tinted book covers, text course-code badges and a consistent open action.
