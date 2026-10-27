@@ -149,7 +149,8 @@ function renderPopularGroups(container, groups, headers) {
     const action = document.createElement('button');
     action.type = 'button';
     action.className = 'btn secondary dashboard-inline-action';
-    action.textContent = group.is_member ? 'Leave' : 'Join';
+    action.textContent = !group.is_member && group.can_join === false ? 'Members of this university only' : group.is_member ? 'Leave' : 'Join';
+    action.disabled = !group.is_member && group.can_join === false;
     action.addEventListener('click', async function () {
       action.disabled = true;
       try {
@@ -163,7 +164,7 @@ function renderPopularGroups(container, groups, headers) {
       } catch (error) {
         action.textContent = 'Could not update';
       } finally {
-        action.disabled = false;
+        action.disabled = !group.is_member && group.can_join === false;
       }
     });
     item.appendChild(action);
