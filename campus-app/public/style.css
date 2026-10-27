@@ -958,7 +958,8 @@ h2, h3, strong { font-weight: 650; }
   .app-main.page { padding: 36px 32px 100px; }
   .shell-topbar { padding-left: 32px; padding-right: 32px; }
   .home-shortcuts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .dashboard-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-layout { align-items: start; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-column { align-self: start; height: max-content; }
   .dashboard-column:last-child { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .course-filters, .group-filters { grid-template-columns: 2fr 1fr; }
   .settings-page { padding-top: 48px !important; }
