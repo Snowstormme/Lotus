@@ -1209,7 +1209,8 @@ h2, h3, strong { font-weight: 650; }
 .form-section-heading { align-items: start; display: flex; gap: 16px; margin-bottom: 28px; }
 .form-section-heading .card-title { margin: 0 0 4px; }
 .form-section-heading p { font-size: 12px; margin: 0; }
-.section-step { align-items: center; border: 1px solid var(--color-border); border-radius: 8px; color: var(--color-text-secondary); display: inline-flex; flex: 0 0 36px; font-size: 11px; height: 36px; justify-content: center; }
+.profile-save-actions { align-items: end; display: flex; flex-direction: column; gap: 4px; margin-left: auto; }
+.profile-save-actions .alert { min-height: 0; white-space: nowrap; }
 #availability-editor { display: grid; gap: 0 24px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .availability-day { margin-top: 0; padding: 20px 0; }
 .availability-slot { align-items: end; }
