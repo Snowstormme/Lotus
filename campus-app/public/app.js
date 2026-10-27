@@ -1,6 +1,5 @@
 import { getSession } from './js/auth.js';
 import { formatBakuDateTime } from './js/dates.js';
-import { renderUniversityLogo } from './js/university-logo.js';
 
 const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -225,13 +224,7 @@ function renderNextEvents(container, events) {
   container.appendChild(list);
 }
 
-function setWelcome(container, university, logoUrl) {
-  const logo = document.getElementById('hero-university-logo');
-  if (logo) renderUniversityLogo(logo, university, logoUrl, 52);
-}
-
 async function init() {
-  const welcome = document.getElementById('welcome-content');
   const coursesSection = document.getElementById('courses-list');
   const deadlinesSection = document.getElementById('deadlines-list');
   const remindersSection = document.getElementById('reminders-list');
@@ -247,17 +240,13 @@ async function init() {
       const profileResponse = await fetch('/api/profile?id=1', { headers: context.headers });
       if (!profileResponse.ok) throw new Error('Profile unavailable');
       const profile = await profileResponse.json();
-      setWelcome(welcome, profile.university || '', profile.logo_url);
       const composerAvatar = document.getElementById('composer-avatar');
       if (composerAvatar) {
         const profileName = String(profile.name || '').trim();
         composerAvatar.textContent = profileName.split(/\s+/).filter(Boolean).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase() || 'S';
       }
     } catch (error) {
-      setWelcome(welcome, '', null);
     }
-  } else {
-    setWelcome(welcome, '', null);
   }
 
   try {
