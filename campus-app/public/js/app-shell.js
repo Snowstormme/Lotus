@@ -3,7 +3,6 @@
   const legacyHeader = document.querySelector('.site-header');
   if (!main || document.querySelector('.app-shell')) return;
 
-  const authActions = document.getElementById('auth-actions');
   const shell = document.createElement('div');
   shell.className = 'app-shell';
 
@@ -123,81 +122,9 @@
 
   const workspace = document.createElement('div');
   workspace.className = 'shell-workspace';
-  const topbar = document.createElement('div');
-  topbar.className = 'shell-topbar';
-
-  const searchWrap = document.createElement('div');
-  searchWrap.className = 'shell-search-wrap';
-  const searchLabel = document.createElement('label');
-  searchLabel.className = 'sr-only';
-  searchLabel.htmlFor = 'shell-search';
-  searchLabel.textContent = 'Search courses and pages';
-  const search = document.createElement('input');
-  search.id = 'shell-search';
-  search.className = 'shell-search';
-  search.type = 'search';
-  search.placeholder = 'Search courses or pages';
-  search.setAttribute('aria-label', 'Search courses and pages');
-  const searchShortcut = document.createElement('span');
-  searchShortcut.className = 'search-shortcut';
-  searchShortcut.setAttribute('aria-hidden', 'true');
-  searchShortcut.textContent = '⌘K';
-  const searchIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  searchIcon.setAttribute('class', 'nav-icon shell-search-icon');
-  searchIcon.setAttribute('aria-hidden', 'true');
-  const searchUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-  searchUse.setAttribute('href', 'img/icons.svg#search');
-  searchIcon.appendChild(searchUse);
-  searchWrap.append(searchLabel, searchIcon, search, searchShortcut);
-
-  const topActions = document.createElement('div');
-  topActions.className = 'shell-top-actions';
-  const universityButton = document.createElement('a');
-  universityButton.className = 'icon-button topbar-university';
-  universityButton.href = 'profile.html?id=1';
-  universityButton.hidden = true;
-  const universityBadge = document.createElement('span');
-  universityBadge.className = 'university-topbar-badge';
-  universityButton.appendChild(universityBadge);
-  const avatar = document.createElement('a');
-  avatar.className = 'icon-button topbar-avatar';
-  avatar.href = 'profile.html?id=1';
-  avatar.setAttribute('aria-label', 'Open profile');
-  const avatarIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  avatarIcon.setAttribute('class', 'nav-icon');
-  avatarIcon.setAttribute('aria-hidden', 'true');
-  const avatarUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-  avatarUse.setAttribute('href', 'img/icons.svg#profile');
-  avatarIcon.appendChild(avatarUse);
-  avatar.appendChild(avatarIcon);
-  const settingsLink = document.createElement('a');
-  settingsLink.className = 'icon-button topbar-settings';
-  settingsLink.href = 'settings.html';
-  settingsLink.setAttribute('aria-label', 'Settings');
-  settingsLink.title = 'Settings';
-  const settingsIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  settingsIcon.setAttribute('class', 'nav-icon');
-  settingsIcon.setAttribute('aria-hidden', 'true');
-  const settingsUse = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-  settingsUse.setAttribute('href', 'img/icons.svg#settings');
-  settingsIcon.appendChild(settingsUse);
-  settingsLink.appendChild(settingsIcon);
-  topActions.append(universityButton, settingsLink, avatar);
-  if (authActions) {
-    authActions.classList.add('shell-auth-actions');
-    topActions.appendChild(authActions);
-  }
-  const mobileBrand = sidebarBrand.cloneNode(true);
-  mobileBrand.className = 'shell-mobile-brand';
-  const pageContext = document.createElement('span');
-  pageContext.className = 'shell-page-context';
-  const pageHeading = document.querySelector('main h1');
-  pageContext.textContent = pageHeading ? pageHeading.textContent : 'Campus';
-  topbar.append(mobileBrand, pageContext, searchWrap, topActions);
-
   main.classList.add('app-main');
   document.body.dataset.page = (window.location.pathname.split('/').pop() || 'index').replace(/\.html$/, '');
-  workspace.append(topbar, main);
+  workspace.appendChild(main);
   shell.append(sidebar, workspace);
   if (legacyHeader) legacyHeader.remove();
   document.body.prepend(shell);
@@ -216,16 +143,6 @@
   mobileBar.appendChild(addLink);
   document.body.appendChild(mobileBar);
 
-  search.addEventListener('input', function () {
-    const term = search.value.trim().toLowerCase();
-    document.querySelectorAll('.shell-nav-link, .mobile-nav-link').forEach(function (link) {
-      link.hidden = Boolean(term) && !link.textContent.toLowerCase().includes(term);
-    });
-    document.querySelectorAll('.table tbody tr').forEach(function (row) {
-      row.hidden = Boolean(term) && !row.textContent.toLowerCase().includes(term);
-    });
-  });
-
   import('./auth.js').then(function (auth) {
     return auth.getSession();
   }).then(function (session) {
@@ -238,23 +155,10 @@
       const name = String(profile.name || 'Student').trim() || 'Student';
       const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase();
       userAvatar.textContent = initials || 'S';
-      avatar.replaceChildren();
-      avatar.classList.add('avatar-circle');
-      avatar.textContent = initials || 'S';
       userName.textContent = name;
       const universityName = String(profile.university || '').trim();
       userUniversity.textContent = universityName || 'University not set';
       userCard.href = 'profile.html?id=1';
-      if (universityName) {
-        const universityWord = universityName.split(/\s+/).filter(Boolean)[0] || '';
-        universityBadge.textContent = universityWord.slice(0, 3).toUpperCase();
-        universityButton.title = universityName;
-        universityButton.setAttribute('aria-label', universityName);
-        universityButton.hidden = false;
-        import('./university-logo.js').then(function (logos) {
-          logos.renderUniversityLogo(universityBadge, universityName, profile.logo_url);
-        }).catch(function () {});
-      }
     }).catch(function () {});
     return fetch('/api/conversations', { headers: { Authorization: 'Bearer ' + session.access_token } });
   }).then(function (response) {
