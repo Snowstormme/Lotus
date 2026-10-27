@@ -1,5 +1,6 @@
 import { getSession } from './js/auth.js';
 import { formatBakuDateTime } from './js/dates.js';
+import { renderUniversityLogo } from './js/university-logo.js';
 
 const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -224,8 +225,10 @@ function renderNextEvents(container, events) {
   container.appendChild(list);
 }
 
-function setWelcome(container, university) {
+function setWelcome(container, university, logoUrl) {
   container.replaceChildren();
+  const logo = document.getElementById('hero-university-logo');
+  if (logo) renderUniversityLogo(logo, university, logoUrl, 52);
   if (university) {
     const detail = document.createElement('p');
     detail.className = 'muted';
@@ -251,17 +254,17 @@ async function init() {
       const profileResponse = await fetch('/api/profile?id=1', { headers: context.headers });
       if (!profileResponse.ok) throw new Error('Profile unavailable');
       const profile = await profileResponse.json();
-      setWelcome(welcome, profile.university || '');
+      setWelcome(welcome, profile.university || '', profile.logo_url);
       const composerAvatar = document.getElementById('composer-avatar');
       if (composerAvatar) {
         const profileName = String(profile.name || '').trim();
         composerAvatar.textContent = profileName.split(/\s+/).filter(Boolean).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase() || 'S';
       }
     } catch (error) {
-      setWelcome(welcome, '');
+      setWelcome(welcome, '', null);
     }
   } else {
-    setWelcome(welcome, '');
+    setWelcome(welcome, '', null);
   }
 
   try {
