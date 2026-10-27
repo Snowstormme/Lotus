@@ -22,11 +22,6 @@ async function getAuthContext() {
 
 function appendCourseTable(container, courses) {
   container.replaceChildren();
-  const materialsLink = document.getElementById('course-materials-link');
-  if (materialsLink) {
-    materialsLink.hidden = courses.length === 0;
-    if (courses.length > 0) materialsLink.href = 'course.html?id=' + encodeURIComponent(courses[0].id);
-  }
   const list = document.createElement('ul'); list.className = 'home-course-list';
   courses.forEach(function (course) {
     const row = document.createElement('li');

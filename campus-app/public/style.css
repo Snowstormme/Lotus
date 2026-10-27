@@ -294,10 +294,6 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
 @media (min-width: 1280px) {
   .dashboard-column > .card:last-child:has(> div > .empty-state) { flex-grow: 0; }
 }
-.quick-links { display: grid; gap: var(--space-2); }
-.quick-links a { align-items: center; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; min-height: 44px; padding: var(--space-3); text-decoration: none; }
-.quick-links a:hover { background: var(--color-accent-surface); }
-.quick-links a .nav-icon { color: var(--color-accent-text); margin-right: var(--space-2); }
 .university-name { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin: 0; }
 .composer-card { display: grid; gap: var(--space-3); }
 .composer-head { align-items: center; display: flex; gap: var(--space-3); }
@@ -854,7 +850,6 @@ h2, h3, strong { font-weight: 650; }
 .dashboard-list li:last-child { border-bottom: 0; padding-bottom: 0; }
 .class-row { background: var(--color-surface); border: 0; border-radius: 0; font-size: 12px; }
 .class-row .course-status-bar { border-radius: 4px; flex-basis: 3px; margin: 12px 0; }
-.quick-links a { background: var(--color-surface); font-size: 12px; }
 .composer-card { gap: 16px; }
 .composer-card .composer-head .card-title { font-size: 14px; }
 .composer-link { border-radius: 10px; font-size: 13px; }
@@ -1093,8 +1088,6 @@ h2, h3, strong { font-weight: 650; }
 .home-course-list .course-code { justify-self: start; }
 .dashboard-column #courses .card-title { margin-bottom: 0; }
 .composer-card { border-top: 3px solid var(--color-accent-border); }
-.quick-links a { border: 0; border-bottom: 1px solid var(--color-border); border-radius: 0; padding: 12px 0; }
-.quick-links a:last-child { border-bottom: 0; }
 .feed-page-heading { border-bottom: 1px solid var(--color-border); padding-bottom: 28px; }
 .feed-page-icon { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; height: 48px; width: 48px; flex-basis: 48px; }
 .feed-composer { padding: 24px; }
