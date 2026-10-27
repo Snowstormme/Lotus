@@ -226,15 +226,8 @@ function renderNextEvents(container, events) {
 }
 
 function setWelcome(container, university, logoUrl) {
-  container.replaceChildren();
   const logo = document.getElementById('hero-university-logo');
   if (logo) renderUniversityLogo(logo, university, logoUrl, 52);
-  if (university) {
-    const detail = document.createElement('p');
-    detail.className = 'muted';
-    detail.textContent = university;
-    container.appendChild(detail);
-  }
 }
 
 async function init() {
