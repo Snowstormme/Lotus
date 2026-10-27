@@ -514,7 +514,8 @@ button:disabled, .btn:disabled { cursor: not-allowed; opacity: 0.6; }
   .hero-banner .quick-actions { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: hidden; }
   .app-main.page { padding-left: clamp(var(--space-6), 4vw, var(--space-12)); padding-right: clamp(var(--space-6), 4vw, var(--space-12)); }
   .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .dashboard-layout { align-items: stretch; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1fr); }
+  .dashboard-layout { align-items: start; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1fr); }
+  .dashboard-column { align-self: start; height: max-content; }
   .quick-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .schedule-view-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .course-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
