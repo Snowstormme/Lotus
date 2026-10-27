@@ -98,27 +98,6 @@
   sidebarNav.setAttribute('aria-label', 'Primary navigation');
   navItems.forEach(function (item) { sidebarNav.appendChild(makeNavLink(item)); });
   sidebar.appendChild(sidebarNav);
-  const sidebarNote = document.createElement('p');
-  sidebarNote.className = 'shell-sidebar-note';
-  sidebarNote.textContent = 'A little closer to your campus.';
-  sidebar.appendChild(sidebarNote);
-
-  const userCard = document.createElement('a');
-  userCard.className = 'shell-user-card';
-  userCard.href = 'login.html';
-  const userAvatar = document.createElement('span');
-  userAvatar.className = 'avatar-circle';
-  userAvatar.textContent = '·';
-  const userInfo = document.createElement('span');
-  userInfo.className = 'shell-user-info';
-  const userName = document.createElement('strong');
-  userName.textContent = 'Log in';
-  const userUniversity = document.createElement('span');
-  userUniversity.className = 'muted';
-  userUniversity.textContent = 'Sign in to view your profile';
-  userInfo.append(userName, userUniversity);
-  userCard.append(userAvatar, userInfo);
-  sidebar.appendChild(userCard);
 
   const workspace = document.createElement('div');
   workspace.className = 'shell-workspace';
@@ -147,19 +126,6 @@
     return auth.getSession();
   }).then(function (session) {
     if (!session) return null;
-    fetch('/api/profile?id=1', { headers: { Authorization: 'Bearer ' + session.access_token } }).then(function (response) {
-      if (!response.ok) return null;
-      return response.json();
-    }).then(function (profile) {
-      if (!profile) return;
-      const name = String(profile.name || 'Student').trim() || 'Student';
-      const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase();
-      userAvatar.textContent = initials || 'S';
-      userName.textContent = name;
-      const universityName = String(profile.university || '').trim();
-      userUniversity.textContent = universityName || 'University not set';
-      userCard.href = 'profile.html?id=1';
-    }).catch(function () {});
     return fetch('/api/conversations', { headers: { Authorization: 'Bearer ' + session.access_token } });
   }).then(function (response) {
     if (!response || !response.ok) return null;
