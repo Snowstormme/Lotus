@@ -98,6 +98,11 @@
   sidebarNav.setAttribute('aria-label', 'Primary navigation');
   navItems.forEach(function (item) { sidebarNav.appendChild(makeNavLink(item)); });
   sidebar.appendChild(sidebarNav);
+  const sidebarUniversity = document.createElement('span');
+  sidebarUniversity.className = 'university-topbar-badge shell-university-mark';
+  sidebarUniversity.hidden = true;
+  sidebarUniversity.setAttribute('aria-label', 'University logo');
+  sidebar.appendChild(sidebarUniversity);
 
   const workspace = document.createElement('div');
   workspace.className = 'shell-workspace';
@@ -126,6 +131,17 @@
     return auth.getSession();
   }).then(function (session) {
     if (!session) return null;
+    fetch('/api/profile?id=1', { headers: { Authorization: 'Bearer ' + session.access_token } }).then(function (response) {
+      if (!response.ok) return null;
+      return response.json();
+    }).then(function (profile) {
+      if (!profile) return;
+      const universityName = String(profile.university || '').trim();
+      if (!universityName) return;
+      import('./university-logo.js').then(function (logos) {
+        logos.renderUniversityLogo(sidebarUniversity, universityName, profile.logo_url, 72);
+      }).catch(function () {});
+    }).catch(function () {});
     return fetch('/api/conversations', { headers: { Authorization: 'Bearer ' + session.access_token } });
   }).then(function (response) {
     if (!response || !response.ok) return null;
