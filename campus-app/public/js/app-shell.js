@@ -127,19 +127,40 @@
   mobileBar.appendChild(addLink);
   document.body.appendChild(mobileBar);
 
+  const logosReady = import('./university-logo.js');
+  logosReady.then(function (logos) {
+    const cached = logos.readUniversityBrand();
+    if (cached) logos.renderUniversityLogo(sidebarUniversity, cached.name, cached.logoUrl, 72);
+  }).catch(function () {});
+  window.addEventListener('lotus-brand-updated', function (event) {
+    logosReady.then(function (logos) {
+      logos.renderUniversityLogo(sidebarUniversity, event.detail.name, event.detail.logoUrl, 72);
+    }).catch(function () {});
+  });
+  window.addEventListener('lotus-brand-cleared', function () {
+    sidebarUniversity.replaceChildren();
+    delete sidebarUniversity.dataset.logoSignature;
+    sidebarUniversity.hidden = true;
+  });
+
+  let authModule;
   import('./auth.js').then(function (auth) {
+    authModule = auth;
     return auth.getSession();
   }).then(function (session) {
-    if (!session) return null;
-    fetch('/api/profile?id=1', { headers: { Authorization: 'Bearer ' + session.access_token } }).then(function (response) {
-      if (!response.ok) return null;
-      return response.json();
-    }).then(function (profile) {
+    if (!session) {
+      try { sessionStorage.removeItem('lotus-university-brand'); } catch (error) {}
+      window.dispatchEvent(new Event('lotus-brand-cleared'));
+      return null;
+    }
+    logosReady.then(function (logos) {
+      const cached = logos.readUniversityBrand();
+      if (cached && cached.owner !== session.user.id) window.dispatchEvent(new Event('lotus-brand-cleared'));
+    });
+    authModule.getOwnProfile(session).then(function (profile) {
       if (!profile) return;
-      const universityName = String(profile.university || '').trim();
-      if (!universityName) return;
-      import('./university-logo.js').then(function (logos) {
-        logos.renderUniversityLogo(sidebarUniversity, universityName, profile.logo_url, 72);
+      logosReady.then(function (logos) {
+        logos.saveUniversityBrand(session, profile);
       }).catch(function () {});
     }).catch(function () {});
     return fetch('/api/conversations', { headers: { Authorization: 'Bearer ' + session.access_token } });

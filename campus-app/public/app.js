@@ -1,4 +1,4 @@
-import { getSession } from './js/auth.js';
+import { getSession, getOwnProfile } from './js/auth.js';
 import { formatBakuDateTime } from './js/dates.js';
 
 const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -202,108 +202,122 @@ async function init() {
   const context = await getAuthContext();
   let loadedCourses = [];
 
-  if (context.session) {
+  const profileTask = (async function () {
+    if (context.session) {
+      try {
+        const profile = await getOwnProfile(context.session);
+        const composerAvatar = document.getElementById('composer-avatar');
+        if (composerAvatar) {
+          const profileName = String(profile.name || '').trim();
+          composerAvatar.textContent = profileName.split(/\s+/).filter(Boolean).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase() || 'S';
+        }
+      } catch (error) {
+      }
+    }
+  })();
+
+  const coursesTask = (async function () {
     try {
-      const profileResponse = await fetch('/api/profile?id=1', { headers: context.headers });
-      if (!profileResponse.ok) throw new Error('Profile unavailable');
-      const profile = await profileResponse.json();
-      const composerAvatar = document.getElementById('composer-avatar');
-      if (composerAvatar) {
-        const profileName = String(profile.name || '').trim();
-        composerAvatar.textContent = profileName.split(/\s+/).filter(Boolean).slice(0, 2).map(function (part) { return part.charAt(0); }).join('').toUpperCase() || 'S';
+      const coursesResponse = await fetch('/api/courses', { headers: context.headers });
+      if (!coursesResponse.ok) throw new Error('Courses unavailable');
+      const courses = await coursesResponse.json();
+      loadedCourses = Array.isArray(courses) ? courses : [];
+      if (!Array.isArray(courses) || courses.length === 0) {
+        showMessage(coursesSection, 'No courses yet. Your schedule will appear here once courses are added.');
+      } else {
+        appendCourseTable(coursesSection, courses);
       }
     } catch (error) {
+      showMessage(coursesSection, 'Could not load courses.', true);
     }
-  }
+  })();
 
-  try {
-    const coursesResponse = await fetch('/api/courses', { headers: context.headers });
-    if (!coursesResponse.ok) throw new Error('Courses unavailable');
-    const courses = await coursesResponse.json();
-    loadedCourses = Array.isArray(courses) ? courses : [];
-    if (!Array.isArray(courses) || courses.length === 0) {
-      showMessage(coursesSection, 'No courses yet. Your schedule will appear here once courses are added.');
-    } else {
-      appendCourseTable(coursesSection, courses);
+  const deadlinesTask = (async function () {
+    try {
+      const deadlinesResponse = await fetch('/api/deadlines', { headers: context.headers });
+      if (!deadlinesResponse.ok) throw new Error('Deadlines unavailable');
+      const deadlines = await deadlinesResponse.json();
+      if (!Array.isArray(deadlines) || deadlines.length === 0) {
+        showMessage(deadlinesSection, 'No deadlines yet. Your upcoming work will appear here once courses are added.');
+      } else {
+        renderDeadlines(deadlinesSection, deadlines);
+      }
+    } catch (error) {
+      showMessage(deadlinesSection, 'Could not load deadlines.', true);
     }
-  } catch (error) {
-    showMessage(coursesSection, 'Could not load courses.', true);
-  }
+  })();
 
-  try {
-    const deadlinesResponse = await fetch('/api/deadlines', { headers: context.headers });
-    if (!deadlinesResponse.ok) throw new Error('Deadlines unavailable');
-    const deadlines = await deadlinesResponse.json();
-    if (!Array.isArray(deadlines) || deadlines.length === 0) {
-      showMessage(deadlinesSection, 'No deadlines yet. Your upcoming work will appear here once courses are added.');
-    } else {
-      renderDeadlines(deadlinesSection, deadlines);
-    }
-  } catch (error) {
-    showMessage(deadlinesSection, 'Could not load deadlines.', true);
-  }
-
-  try {
-    const scheduleResponse = await fetch('/api/calendar', { headers: context.headers });
-    if (!scheduleResponse.ok) throw new Error('Schedule unavailable');
-    const schedule = await scheduleResponse.json();
-    if (!Array.isArray(schedule) || schedule.length === 0) {
-      showMessage(scheduleSection, 'No classes yet. Your weekly schedule will appear here once courses are added.');
-    } else {
-      renderClasses(scheduleSection, schedule, [], loadedCourses);
-      if (context.session) {
-        try {
-          const personalResponse = await fetch('/api/personal-classes', { headers: context.headers });
-          if (!personalResponse.ok) throw new Error('Personal classes unavailable');
-          const personalClasses = await personalResponse.json();
-          renderClasses(scheduleSection, schedule, Array.isArray(personalClasses) ? personalClasses : [], loadedCourses);
-        } catch (error) {
-          showPersonalHomeMessage(scheduleSection, 'Could not load personal classes.');
+  const scheduleTask = (async function () {
+    try {
+      const scheduleResponse = await fetch('/api/calendar', { headers: context.headers });
+      if (!scheduleResponse.ok) throw new Error('Schedule unavailable');
+      const schedule = await scheduleResponse.json();
+      await coursesTask;
+      if (!Array.isArray(schedule) || schedule.length === 0) {
+        showMessage(scheduleSection, 'No classes yet. Your weekly schedule will appear here once courses are added.');
+      } else {
+        renderClasses(scheduleSection, schedule, [], loadedCourses);
+        if (context.session) {
+          try {
+            const personalResponse = await fetch('/api/personal-classes', { headers: context.headers });
+            if (!personalResponse.ok) throw new Error('Personal classes unavailable');
+            const personalClasses = await personalResponse.json();
+            renderClasses(scheduleSection, schedule, Array.isArray(personalClasses) ? personalClasses : [], loadedCourses);
+          } catch (error) {
+            showPersonalHomeMessage(scheduleSection, 'Could not load personal classes.');
+          }
         }
       }
+    } catch (error) {
+      showMessage(scheduleSection, 'Could not load the weekly schedule.', true);
     }
-  } catch (error) {
-    showMessage(scheduleSection, 'Could not load the weekly schedule.', true);
-  }
+  })();
 
-  try {
-    const feedResponse = await fetch('/api/posts', { headers: context.headers });
-    if (!feedResponse.ok) throw new Error('Feed unavailable');
-    const posts = await feedResponse.json();
-    if (!Array.isArray(posts) || posts.length === 0) {
-      showMessage(feedSection, 'No posts yet.');
-    } else {
-      renderFeedPreview(feedSection, posts);
+  const feedTask = (async function () {
+    try {
+      const feedResponse = await fetch('/api/posts', { headers: context.headers });
+      if (!feedResponse.ok) throw new Error('Feed unavailable');
+      const posts = await feedResponse.json();
+      if (!Array.isArray(posts) || posts.length === 0) {
+        showMessage(feedSection, 'No posts yet.');
+      } else {
+        renderFeedPreview(feedSection, posts);
+      }
+    } catch (error) {
+      showMessage(feedSection, 'Could not load the feed preview.', true);
     }
-  } catch (error) {
-    showMessage(feedSection, 'Could not load the feed preview.', true);
-  }
+  })();
 
-  try {
-    const groupsResponse = await fetch('/api/groups', { headers: context.headers });
-    if (!groupsResponse.ok) throw new Error('Groups unavailable');
-    const groups = await groupsResponse.json();
-    if (!Array.isArray(groups) || groups.length === 0) {
-      showMessage(groupsSection, 'No groups yet.');
-    } else {
-      renderPopularGroups(groupsSection, groups, context.headers);
+  const groupsTask = (async function () {
+    try {
+      const groupsResponse = await fetch('/api/groups', { headers: context.headers });
+      if (!groupsResponse.ok) throw new Error('Groups unavailable');
+      const groups = await groupsResponse.json();
+      if (!Array.isArray(groups) || groups.length === 0) {
+        showMessage(groupsSection, 'No groups yet.');
+      } else {
+        renderPopularGroups(groupsSection, groups, context.headers);
+      }
+    } catch (error) {
+      showMessage(groupsSection, 'Could not load groups.', true);
     }
-  } catch (error) {
-    showMessage(groupsSection, 'Could not load groups.', true);
-  }
+  })();
 
-  try {
-    const eventsResponse = await fetch('/api/events', { headers: context.headers });
-    if (!eventsResponse.ok) throw new Error('Events unavailable');
-    const events = await eventsResponse.json();
-    if (!Array.isArray(events) || events.length === 0) {
-      showMessage(eventsSection, 'No upcoming events yet.');
-    } else {
-      renderNextEvents(eventsSection, events);
+  const eventsTask = (async function () {
+    try {
+      const eventsResponse = await fetch('/api/events', { headers: context.headers });
+      if (!eventsResponse.ok) throw new Error('Events unavailable');
+      const events = await eventsResponse.json();
+      if (!Array.isArray(events) || events.length === 0) {
+        showMessage(eventsSection, 'No upcoming events yet.');
+      } else {
+        renderNextEvents(eventsSection, events);
+      }
+    } catch (error) {
+      showMessage(eventsSection, 'Could not load campus events.', true);
     }
-  } catch (error) {
-    showMessage(eventsSection, 'Could not load campus events.', true);
-  }
+  })();
+  await Promise.all([profileTask, coursesTask, deadlinesTask, scheduleTask, feedTask, groupsTask, eventsTask]);
 }
 
 init();

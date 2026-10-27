@@ -4,25 +4,9 @@
   const signupLink = document.getElementById('signup-link');
   if (!actions || !loginLink || !signupLink) return;
 
-  function loadBrowserClient() {
-    if (window.supabase) return Promise.resolve(window.supabase);
-    return new Promise(function (resolve, reject) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4';
-      script.onload = function () { resolve(window.supabase); };
-      script.onerror = function () { reject(new Error('Could not load the browser client.')); };
-      document.head.appendChild(script);
-    });
-  }
-
   try {
-    const configResponse = await fetch('/api/config');
-    if (!configResponse.ok) return;
-    const config = await configResponse.json();
-    const browserClient = await loadBrowserClient();
-    const client = browserClient.createClient(config.supabaseUrl, config.supabasePublishableKey);
-    const sessionResult = await client.auth.getSession();
-    const session = sessionResult.data.session;
+    const auth = await import('./auth.js');
+    const session = await auth.getSession();
     if (!session) return;
 
     loginLink.remove();

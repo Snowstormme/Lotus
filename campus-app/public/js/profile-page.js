@@ -1,6 +1,6 @@
 
-    import { getSession } from './auth.js';
-    import { renderUniversityLogo } from './university-logo.js';
+    import { getSession, getOwnProfile } from './auth.js';
+    import { renderUniversityLogo, saveUniversityBrand } from './university-logo.js';
 
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
@@ -271,11 +271,14 @@
         const session = await getSession().catch(function () { return null; });
         activeSession = session;
         const authHeaders = session ? { Authorization: 'Bearer ' + session.access_token } : {};
+        const profileRequest = session
+          ? getOwnProfile(session).then(profile => ({ ok: true, status: 200, profile }))
+          : fetch('/api/profile?id=' + encodeURIComponent(id), { headers: authHeaders }).then(async response => ({ ok: response.ok, status: response.status, profile: await response.json().catch(() => ({})) }));
         const [profileResponse, availabilityResponse] = await Promise.all([
-          fetch('/api/profile?id=' + encodeURIComponent(id), { headers: authHeaders }),
+          profileRequest,
           fetch('/api/availability?user_id=' + encodeURIComponent(id), { headers: authHeaders })
         ]);
-        const profile = await profileResponse.json().catch(() => ({}));
+        const profile = profileResponse.profile;
         const availability = await availabilityResponse.json().catch(() => []);
         if (profileResponse.status === 404 || availabilityResponse.status === 404) {
           showMessage(loadStatus, 'Demo user not found.', true);
@@ -356,6 +359,7 @@
         if (responses.some(function (response) { return !response.ok; })) throw new Error('Save failed');
         const profileResult = await responses[0].json().catch(function () { return {}; });
         logoProfile = profileResult;
+        if (activeSession) saveUniversityBrand(activeSession, profileResult);
         updateUniversityLogo();
         if (profileResult.faculty_changed === true) {
           originalFacultyId = Number(profileResult.faculty_id);
