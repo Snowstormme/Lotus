@@ -96,34 +96,6 @@ function renderDeadlines(container, deadlines) {
   container.appendChild(list);
 }
 
-function reminderLabel(reminder) {
-  if (reminder.is_overdue) return 'Overdue';
-  if (reminder.days_left === 0) return 'Due today';
-  return 'Due soon';
-}
-
-function renderReminders(container, reminders) {
-  container.replaceChildren();
-  const list = document.createElement('ul');
-  list.className = 'dashboard-list';
-  reminders.slice(0, 5).forEach(function (reminder) {
-    const item = document.createElement('li');
-    const title = document.createElement('strong');
-    title.textContent = String(reminder.title || 'Reminder');
-    item.appendChild(title);
-    const meta = document.createElement('span');
-    meta.className = 'muted';
-    meta.textContent = (reminder.course_code ? String(reminder.course_code) + ' · ' : '') + (formatBakuDateTime(reminder.due_at) || 'Due time unavailable');
-    item.appendChild(meta);
-    const label = document.createElement('span');
-    label.className = 'badge';
-    label.textContent = reminderLabel(reminder);
-    item.appendChild(label);
-    list.appendChild(item);
-  });
-  container.appendChild(list);
-}
-
 function renderFeedPreview(container, posts) {
   container.replaceChildren();
   const list = document.createElement('ul');
@@ -227,7 +199,6 @@ function renderNextEvents(container, events) {
 async function init() {
   const coursesSection = document.getElementById('courses-list');
   const deadlinesSection = document.getElementById('deadlines-list');
-  const remindersSection = document.getElementById('reminders-list');
   const scheduleSection = document.getElementById('schedule-list');
   const feedSection = document.getElementById('feed-preview-list');
   const groupsSection = document.getElementById('popular-groups-list');
@@ -247,19 +218,6 @@ async function init() {
       }
     } catch (error) {
     }
-  }
-
-  try {
-    const remindersResponse = await fetch('/api/reminders', { headers: context.headers });
-    if (!remindersResponse.ok) throw new Error('Reminders unavailable');
-    const reminders = await remindersResponse.json();
-    if (!Array.isArray(reminders) || reminders.length === 0) {
-      showMessage(remindersSection, 'Nothing due in the next 48 hours.');
-    } else {
-      renderReminders(remindersSection, reminders);
-    }
-  } catch (error) {
-    showMessage(remindersSection, 'Could not load reminders.', true);
   }
 
   try {
