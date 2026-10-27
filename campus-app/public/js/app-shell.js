@@ -15,14 +15,15 @@
   sidebarBrand.href = 'index.html';
   sidebarBrand.setAttribute('aria-label', 'Lotus Campus, home');
   const logo = document.createElement('img');
-  logo.src = '/img/lotus-badge.svg';
+  logo.src = '/img/lotus-mark.svg';
   logo.alt = 'Lotus Campus';
-  logo.width = 32;
-  logo.height = 32;
+  logo.width = 36;
+  logo.height = 36;
   logo.className = 'shell-logo';
   sidebarBrand.appendChild(logo);
   const brandText = document.createElement('span');
   brandText.textContent = 'Lotus Campus';
+  brandText.className = 'shell-wordmark';
   sidebarBrand.appendChild(brandText);
   sidebar.appendChild(sidebarBrand);
 
@@ -98,6 +99,10 @@
   sidebarNav.setAttribute('aria-label', 'Primary navigation');
   navItems.forEach(function (item) { sidebarNav.appendChild(makeNavLink(item)); });
   sidebar.appendChild(sidebarNav);
+  const sidebarNote = document.createElement('p');
+  sidebarNote.className = 'shell-sidebar-note';
+  sidebarNote.textContent = 'A little closer to your campus.';
+  sidebar.appendChild(sidebarNote);
 
   const userCard = document.createElement('a');
   userCard.className = 'shell-user-card';
@@ -184,9 +189,14 @@
   }
   const mobileBrand = sidebarBrand.cloneNode(true);
   mobileBrand.className = 'shell-mobile-brand';
-  topbar.append(mobileBrand, searchWrap, topActions);
+  const pageContext = document.createElement('span');
+  pageContext.className = 'shell-page-context';
+  const pageHeading = document.querySelector('main h1');
+  pageContext.textContent = pageHeading ? pageHeading.textContent : 'Campus';
+  topbar.append(mobileBrand, pageContext, searchWrap, topActions);
 
   main.classList.add('app-main');
+  document.body.dataset.page = (window.location.pathname.split('/').pop() || 'index').replace(/\.html$/, '');
   workspace.append(topbar, main);
   shell.append(sidebar, workspace);
   if (legacyHeader) legacyHeader.remove();

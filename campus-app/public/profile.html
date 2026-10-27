@@ -6,7 +6,7 @@
   <title>Lotus Campus — Profile</title>
   <script src="js/theme.js"></script>
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/svg+xml" href="/img/lotus-badge.svg">
+  <link rel="icon" type="image/svg+xml" href="/img/lotus-mark.svg">
 </head>
 <body>
   <header class="site-header">
@@ -26,16 +26,17 @@
     </div>
   </header>
   <main class="page">
-    <header class="page-intro">
+    <header class="page-intro"><span class="heading-mark"><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#profile"></use></svg></span><div class="page-intro-copy">
       <p class="eyebrow">YOUR CORNER OF CAMPUS</p>
       <h1 class="page-title">Profile</h1>
       <p class="muted">Manage your details, courses and weekly availability.</p>
-    </header>
+    </div></header>
     <p id="demo-note" class="alert info" hidden>Demo mode: only the demo student can be edited. Real accounts come in the next phase.</p>
     <p id="load-status" class="alert info">Loading profile...</p>
+    <nav class="profile-section-nav" aria-label="Profile sections"><a href="#profile-details">Your details</a><a href="#course-picker">Your courses</a><a href="#profile-availability">Availability</a></nav>
     <form id="profile-form" class="card" hidden>
-      <section>
-        <h2 class="card-title">Profile details</h2>
+      <section id="profile-details" class="profile-details-section">
+        <div class="form-section-heading"><span class="section-step" aria-hidden="true">01</span><div><h2 class="card-title">Profile details</h2><p class="muted">The essentials that make your campus yours.</p></div></div>
         <div class="field"><label for="name">Full name</label><input id="name" type="text" maxlength="80" required></div>
         <div class="field"><label for="university">University <span class="self-reported-label">Self-reported, not verified</span></label><div class="university-field-control"><span id="profile-university-logo" class="university-topbar-badge profile-university-logo" hidden></span><select id="university" required></select></div></div>
         <div class="field"><label for="faculty">Faculty <span class="self-reported-label">Self-reported, not verified</span></label><select id="faculty" required></select></div>
@@ -50,14 +51,14 @@
 
       <section id="course-picker" hidden>
         <h3 id="course-university-title" class="card-title"></h3>
-        <h2 class="card-title">Your courses</h2>
+        <div class="form-section-heading"><span class="section-step" aria-hidden="true">02</span><div><h2 class="card-title">Your courses</h2><p class="muted">Keep your current semester within reach.</p></div></div>
         <p class="muted">Pick the courses you are taking this semester. You can change them later in your profile.</p>
         <p id="course-status" class="alert info" role="status" aria-live="polite">Loading courses...</p>
         <ul id="course-list" class="course-checklist"></ul>
       </section>
 
-      <section>
-        <h2 class="card-title">Weekly availability</h2>
+      <section id="profile-availability">
+        <div class="form-section-heading"><span class="section-step" aria-hidden="true">03</span><div><h2 class="card-title">Weekly availability</h2><p class="muted">Leave room for studying, and everything else.</p></div></div>
         <div id="availability-editor"></div>
       </section>
 

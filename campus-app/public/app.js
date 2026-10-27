@@ -27,36 +27,16 @@ function appendCourseTable(container, courses) {
     materialsLink.hidden = courses.length === 0;
     if (courses.length > 0) materialsLink.href = 'course.html?id=' + encodeURIComponent(courses[0].id);
   }
-  const table = document.createElement('table');
-  table.className = 'table';
-  const thead = document.createElement('thead');
-  const headerRow = document.createElement('tr');
-  ['Code', 'Name', 'Teacher', 'Room'].forEach(function (heading) {
-    const cell = document.createElement('th');
-    cell.textContent = heading;
-    headerRow.appendChild(cell);
-  });
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
-
-  const tbody = document.createElement('tbody');
+  const list = document.createElement('ul'); list.className = 'home-course-list';
   courses.forEach(function (course) {
-    const row = document.createElement('tr');
-    const codeCell = document.createElement('td');
-    const link = document.createElement('a');
-    link.href = 'course.html?id=' + encodeURIComponent(course.id);
-    link.textContent = course.code == null ? '' : String(course.code);
-    codeCell.appendChild(link);
-    row.appendChild(codeCell);
-    [course.name, course.teacher, course.room].forEach(function (value) {
-      const cell = document.createElement('td');
-      cell.textContent = value == null ? '' : String(value);
-      row.appendChild(cell);
-    });
-    tbody.appendChild(row);
+    const row = document.createElement('li');
+    const link = document.createElement('a'); link.href = 'course.html?id=' + encodeURIComponent(course.id);
+    const code = document.createElement('span'); code.className = 'course-code'; code.textContent = String(course.code || 'Course');
+    const name = document.createElement('strong'); name.textContent = String(course.name || '');
+    const details = document.createElement('span'); details.className = 'muted'; details.textContent = 'Teacher: ' + String(course.teacher || '—') + ' · Room: ' + String(course.room || '—');
+    link.append(code, name, details); row.appendChild(link); list.appendChild(row);
   });
-  table.appendChild(tbody);
-  container.appendChild(table);
+  container.appendChild(list);
 }
 
 function renderClasses(container, classes, personalClasses, courses) {

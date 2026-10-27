@@ -1,3 +1,4 @@
+import { icon, dateBadge } from './ui.js';
 
     import { getSession } from './auth.js';
     import { formatBakuDateTime } from './dates.js';
@@ -11,7 +12,27 @@
     function dateText(value) { return formatBakuDateTime(value) || 'Date and time unavailable'; }
     function setRsvpText(button, event) { button.textContent = event.is_rsvped ? 'Cancel RSVP' : 'RSVP'; button.setAttribute('aria-label', (event.is_rsvped ? 'Cancel RSVP for ' : 'RSVP for ') + String(event.title || 'event')); }
     async function updateRsvp(event, button, detail) { button.disabled = true; const response = await fetch('/api/events', { method: 'POST', headers: headers(), body: JSON.stringify({ action: event.is_rsvped ? 'cancel' : 'rsvp', event_id: event.id }) }); if (!response.ok) { status.className = 'alert error'; status.textContent = await errorText(response, 'Could not update your RSVP.'); button.disabled = false; return; } const body = await response.json(); event.is_rsvped = body.is_rsvped === true; event.rsvp_count = Number(body.rsvp_count) || 0; button.disabled = false; if (detail) renderDetail(event); else renderList(); }
-    function eventCard(event) { const card = document.createElement('article'); card.className = 'card event-card'; card.tabIndex = 0; card.setAttribute('role', 'link'); const heading = document.createElement('div'); heading.className = 'section-heading'; heading.appendChild(text('h2', event.title || 'Event', 'card-title')); if (event.is_sample === true) heading.appendChild(text('span', 'Sample', 'badge')); card.appendChild(heading); card.appendChild(text('p', dateText(event.starts_at), 'event-meta')); card.appendChild(text('p', event.location || 'Location unavailable', 'muted')); card.appendChild(text('p', 'Organized by ' + (event.organizer_name || 'Campus'), 'muted')); card.appendChild(text('p', String(event.rsvp_count || 0) + ' going', 'muted')); if (event.is_rsvped) card.appendChild(text('p', "You're going", 'badge')); const button = document.createElement('button'); button.type = 'button'; button.className = 'btn secondary'; setRsvpText(button, event); button.addEventListener('click', (e) => { e.stopPropagation(); updateRsvp(event, button, false); }); card.appendChild(button); const open = () => { window.location.href = 'events.html?id=' + encodeURIComponent(event.id); }; card.addEventListener('click', open); card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } }); return card; }
+    function eventCard(event) {
+      const card = document.createElement('article'); card.className = 'card event-card'; card.tabIndex = 0; card.setAttribute('role', 'link');
+      const banner = document.createElement('div'); banner.className = 'event-card-banner';
+      banner.append(dateBadge(event.starts_at), icon('events', 'event-banner-icon'));
+      if (event.is_sample === true) banner.appendChild(text('span', 'Sample', 'badge'));
+      const content = document.createElement('div'); content.className = 'event-card-content';
+      content.appendChild(text('h2', event.title || 'Event', 'card-title'));
+      const when = text('p', dateText(event.starts_at), 'event-meta');
+      const where = text('p', event.location || 'Location unavailable', 'event-location muted'); where.prepend(icon('location'));
+      content.append(when, where, text('p', 'Organized by ' + (event.organizer_name || 'Campus'), 'muted'));
+      const footer = document.createElement('div'); footer.className = 'event-card-footer';
+      footer.appendChild(text('span', String(event.rsvp_count || 0) + ' going', 'muted'));
+      if (event.is_rsvped) footer.appendChild(text('span', "You're going", 'badge'));
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'btn ' + (event.is_rsvped ? 'secondary' : 'primary'); setRsvpText(button, event);
+      button.addEventListener('click', e => { e.stopPropagation(); updateRsvp(event, button, false); }); footer.appendChild(button);
+      card.append(banner, content, footer);
+      const open = () => { window.location.href = 'events.html?id=' + encodeURIComponent(event.id); };
+      card.addEventListener('click', open);
+      card.addEventListener('keydown', e => { if (e.target !== card) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+      return card;
+    }
     function renderList() { const target = document.getElementById('events-list'); if (!events.length) { showMessage(target, 'No upcoming events yet. Check back soon.'); return; } const grid = document.createElement('div'); grid.className = 'events-grid'; events.forEach((event) => grid.appendChild(eventCard(event))); target.replaceChildren(grid); }
     function renderDetail(event) { const target = document.getElementById('event-detail-content'); target.replaceChildren(); const heading = document.createElement('div'); heading.className = 'section-heading'; heading.appendChild(text('h2', event.title || 'Event', 'card-title')); if (event.is_sample === true) heading.appendChild(text('span', 'Sample', 'badge')); target.appendChild(heading); target.appendChild(text('p', dateText(event.starts_at), 'event-meta')); target.appendChild(text('p', event.location || 'Location unavailable', 'muted')); target.appendChild(text('p', 'Organized by ' + (event.organizer_name || 'Campus'), 'muted')); target.appendChild(text('p', String(event.rsvp_count || 0) + ' going', 'muted')); if (event.is_rsvped) target.appendChild(text('p', "You're going", 'badge')); target.appendChild(text('p', event.description || 'No description provided.', 'event-description')); if (event.group_name) { const groupLink = document.createElement('a'); groupLink.href = 'groups.html'; groupLink.textContent = 'Group: ' + String(event.group_name); target.appendChild(groupLink); } const button = document.createElement('button'); button.type = 'button'; button.className = 'btn secondary'; setRsvpText(button, event); button.addEventListener('click', () => updateRsvp(event, button, true)); target.appendChild(button); }
     async function loadDetail(id) { document.getElementById('events-list-view').hidden = true; document.getElementById('event-detail-view').hidden = false; const target = document.getElementById('event-detail-content'); try { const response = await fetch('/api/events?id=' + encodeURIComponent(id), { headers: headers() }); if (response.status === 404) { showMessage(target, 'Event not found.', true); return; } if (!response.ok) throw new Error('Event request failed'); renderDetail(await response.json()); } catch (error) { console.error('Could not load event:', error); showMessage(target, 'Could not load this event.', true); } }

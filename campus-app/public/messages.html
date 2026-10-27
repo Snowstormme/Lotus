@@ -6,7 +6,7 @@
   <title>Lotus Campus — Messages</title>
   <script src="js/theme.js"></script>
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/svg+xml" href="/img/lotus-badge.svg">
+  <link rel="icon" type="image/svg+xml" href="/img/lotus-mark.svg">
 </head>
 <body>
   <header class="site-header">
@@ -28,11 +28,11 @@
     </div>
   </header>
   <main class="page">
-    <header class="page-intro">
+    <header class="page-intro"><span class="heading-mark"><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#messages"></use></svg></span><div class="page-intro-copy">
       <p class="eyebrow">STAY CONNECTED</p>
       <h1 class="page-title">Messages</h1>
       <p class="muted">Your campus conversations, all together.</p>
-    </header>
+    </div></header>
     <p class="alert info">Messages are between students and are not checked by Lotus Campus staff. <a href="#report-button">Report anything that feels unsafe.</a></p>
     <div class="messages-layout" id="messages-layout">
       <section class="card messages-list-panel" aria-labelledby="conversation-title">
@@ -43,6 +43,7 @@
       <section class="card messages-thread" id="messages-thread" aria-labelledby="thread-title">
         <header class="messages-thread-header">
           <button id="back-to-conversations" class="btn secondary" type="button">Back</button>
+          <span id="thread-avatar" class="avatar-circle thread-avatar" aria-hidden="true"><svg class="nav-icon"><use href="img/icons.svg#messages"></use></svg></span>
           <div class="messages-thread-title">
             <h2 id="thread-title" class="card-title">Choose a conversation</h2>
             <p id="thread-person" class="muted"></p>

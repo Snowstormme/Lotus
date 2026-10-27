@@ -1,3 +1,4 @@
+import { initials } from './ui.js';
 
     import { getSession } from './auth.js';
     import { formatBakuDateTime } from './dates.js';
@@ -62,7 +63,9 @@
         const time = document.createElement('time');
         time.className = 'muted';
         time.textContent = conversation.last_message_at ? formatBakuDateTime(conversation.last_message_at) : '';
-        button.append(header, preview, time);
+        const avatar = document.createElement('span'); avatar.className = 'avatar-circle conversation-avatar'; avatar.textContent = initials(conversation.other_person_name); avatar.setAttribute('aria-hidden', 'true');
+        const content = document.createElement('span'); content.className = 'conversation-content'; content.append(header, preview, time);
+        button.append(avatar, content);
         button.addEventListener('click', function () { openConversation(conversation); });
         item.appendChild(button);
         conversationList.appendChild(item);
@@ -95,6 +98,8 @@
       currentConversation = conversation;
       layout.classList.add('thread-visible');
       threadTitle.textContent = String(conversation.other_person_name || 'Student');
+      const threadAvatar = document.getElementById('thread-avatar');
+      if (threadAvatar) threadAvatar.textContent = initials(conversation.other_person_name);
       threadPerson.textContent = conversation.other_person_year ? 'Year ' + String(conversation.other_person_year) : '';
       threadMessages.replaceChildren();
       showStatus(threadStatus, 'Loading messages...', 'info');

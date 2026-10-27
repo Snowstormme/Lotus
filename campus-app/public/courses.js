@@ -1,3 +1,4 @@
+import { icon } from './js/ui.js';
 import { getSession } from './js/auth.js';
 
 let allCourses = [];
@@ -26,12 +27,14 @@ function render() {
   status.textContent = courses.length + (courses.length === 1 ? ' course' : ' courses') + ' found.'; status.className = 'alert info'; list.replaceChildren(...courses.map((course, index) => {
     const card = document.createElement('a'); card.className = 'card course-card'; card.href = 'course.html?id=' + encodeURIComponent(course.id);
     const bar = document.createElement('span'); bar.className = 'course-card-bar course-color-' + (index % 4); bar.setAttribute('aria-hidden', 'true');
+    const cover = document.createElement('span'); cover.className = 'course-card-cover course-tint-' + (index % 4); cover.appendChild(icon('courses', 'course-cover-icon'));
+    const open = document.createElement('span'); open.className = 'course-open'; open.textContent = '↗'; open.setAttribute('aria-hidden', 'true'); cover.appendChild(open);
     const content = document.createElement('span'); content.className = 'course-card-content';
-    const code = document.createElement('strong'); code.textContent = String(course.code || 'Course');
+    const code = document.createElement('strong'); code.className = 'course-code'; code.textContent = String(course.code || 'Course');
     const name = document.createElement('span'); name.className = 'course-card-name'; name.textContent = String(course.name || '');
     if (course.is_catalog === true) { const catalog = document.createElement('span'); catalog.className = 'badge'; catalog.textContent = 'Catalog'; content.appendChild(catalog); }
     const details = document.createElement('span'); details.className = 'muted'; details.textContent = 'Teacher: ' + String(course.teacher || '—') + ' · Room: ' + String(course.room || '—');
-    content.append(code, name, details); card.append(bar, content); return card;
+    content.prepend(code, name); content.appendChild(details); const footer = document.createElement('span'); footer.className = 'course-card-footer'; footer.textContent = 'Open course'; footer.appendChild(icon('arrow-right')); card.append(cover, bar, content, footer); return card;
   }));
 }
 function setupSemesterFilter() { const semesters = [...new Set(allCourses.map((course) => course.semester).filter(Boolean))].sort(); if (semesters.length <= 1) { semesterField.hidden = true; return; } semesterField.hidden = false; semesterFilter.replaceChildren(); semesters.forEach((semester) => { const option = document.createElement('option'); option.value = String(semester); option.textContent = String(semester); semesterFilter.appendChild(option); }); }
