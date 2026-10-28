@@ -118,17 +118,16 @@
       return invalid ? null : slots;
     }
 
-    function getProfileUpdate(includeVisibility) {
+    function getProfileUpdate(includeDetails) {
       const update = {
         year: Number(document.getElementById('year').value),
         languages: document.getElementById('languages').value,
         weekly_free_hours: Number(document.getElementById('weekly-free-hours').value)
       };
-      if (includeVisibility) {
+      if (includeDetails) {
         update.name = document.getElementById('name').value;
         update.university_id = Number(document.getElementById('university').value);
         update.faculty_id = Number(document.getElementById('faculty').value);
-        update.allow_messages = document.getElementById('allow-messages').checked;
       }
       return update;
     }
@@ -245,24 +244,6 @@
       }
     }
 
-    async function saveSettingsSetting(successMessage) {
-      const status = document.getElementById('save-status');
-      const update = getProfileUpdate(true);
-      status.textContent = 'Saving visibility setting...';
-      status.className = 'alert info';
-      try {
-        const response = await fetch('/api/profile', {
-          method: 'PUT',
-          headers: { Authorization: 'Bearer ' + activeSession.access_token, 'Content-Type': 'application/json' },
-          body: JSON.stringify(update)
-        });
-        if (!response.ok) throw new Error('Visibility update failed');
-        showMessage(status, successMessage);
-      } catch (err) {
-        showMessage(status, 'Could not save partner visibility setting.', true);
-      }
-    }
-
     async function loadProfile() {
       const loadStatus = document.getElementById('load-status');
       const form = document.getElementById('profile-form');
@@ -298,8 +279,6 @@
         document.getElementById('weekly-free-hours').value = profile.weekly_free_hours;
         if (session) {
           document.getElementById('course-university-title').textContent = profile.university ? 'Courses at ' + String(profile.university) : '';
-          document.getElementById('allow-messages').checked = profile.allow_messages !== false;
-          document.getElementById('messaging-setting').hidden = false;
           await loadCoursesForProfile(session);
         }
         buildAvailabilityEditor(availability);
@@ -372,10 +351,6 @@
       } catch (err) {
         showMessage(saveStatus, 'Could not save profile.', true);
       }
-    });
-
-    document.getElementById('allow-messages').addEventListener('change', function () {
-      if (activeSession) saveSettingsSetting('Messaging setting saved.');
     });
 
     loadProfile();

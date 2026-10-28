@@ -11,14 +11,18 @@
 <body>
   <main class="page settings-page">
     <header class="page-intro"><span class="heading-mark"><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#settings"></use></svg></span><div class="page-intro-copy">
-      <p class="eyebrow">MAKE YOURSELF AT HOME</p>
       <h1 class="page-title">Settings</h1>
-      <p class="muted">A little more you. Choose how your campus looks.</p>
+      <p class="muted">Make Lotus Campus work for you.</p>
     </div></header>
+    <section class="card settings-profile" aria-labelledby="settings-profile-title">
+      <span class="settings-profile-mark" aria-hidden="true"><svg class="nav-icon"><use href="img/icons.svg#profile"></use></svg></span>
+      <div class="settings-profile-copy"><h2 id="settings-profile-title" class="card-title">Your profile</h2><p class="muted">University, faculty, courses and availability.</p></div>
+      <a class="btn secondary" href="profile.html?id=1">Edit profile</a>
+    </section>
+    <div class="settings-grid">
     <section class="card appearance-card" aria-labelledby="appearance-title">
       <div class="section-heading">
-        <div><h2 id="appearance-title" class="card-title">Appearance</h2><p class="muted">One theme, across your whole campus.</p></div>
-        <span class="badge">On this browser</span>
+        <div><h2 id="appearance-title" class="card-title">Appearance</h2><p class="muted">Choose how your campus looks.</p></div>
       </div>
       <fieldset class="theme-options">
         <legend class="sr-only">Choose a theme</legend>
@@ -35,12 +39,37 @@
       </fieldset>
       <p id="appearance-status" class="muted settings-note" role="status" aria-live="polite">Your choice is saved on this browser. You can change it anytime.</p>
     </section>
-    <section class="card settings-account">
-      <div><h2 class="card-title">Your campus, your details</h2><p class="muted">Manage your profile, university and course selections.</p></div>
-      <a class="btn secondary" href="profile.html?id=1">Edit profile</a>
+    <section class="card settings-privacy" aria-labelledby="settings-privacy-title">
+      <h2 id="settings-privacy-title" class="card-title">Messaging privacy</h2>
+      <label class="settings-switch" for="allow-messages">
+        <span><strong>Allow messages from other students</strong><small>Other students can start new conversations with you.</small></span>
+        <input id="allow-messages" type="checkbox" role="switch" aria-describedby="messaging-note messaging-status" disabled>
+        <span class="settings-switch-track" aria-hidden="true"></span>
+      </label>
+      <p id="messaging-note" class="muted settings-note">When this is off, other students cannot start new conversations with you. You can still view existing conversations.</p>
+      <p id="messaging-status" class="settings-status muted" role="status" aria-live="polite">Loading messaging preference...</p>
+      <button id="settings-retry" class="btn secondary" type="button" hidden>Try again</button>
+      <a id="settings-login" class="btn secondary" href="login.html" hidden>Log in</a>
     </section>
+    <section class="card settings-session" aria-labelledby="settings-account-title">
+      <h2 id="settings-account-title" class="card-title">Account</h2>
+      <p class="muted">Sign out of Lotus Campus on this browser.</p>
+      <button id="settings-logout" class="btn secondary" type="button" disabled>Log out</button>
+      <p id="logout-status" class="settings-status muted" role="status" aria-live="polite"></p>
+    </section>
+    <section class="card settings-help" aria-labelledby="settings-help-title">
+      <h2 id="settings-help-title" class="card-title">Help &amp; legal</h2>
+      <nav class="settings-resource-links" aria-label="Help and legal information">
+        <a href="privacy.html"><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#courses"></use></svg>Privacy notice</a>
+        <a href="terms.html"><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#courses"></use></svg>Terms of use</a>
+        <a href="mailto:notsnowstorm@proton.me"><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#messages"></use></svg>Contact support</a>
+      </nav>
+      <p class="muted settings-legal-note">Legal pages are drafts for review.</p>
+    </section>
+    </div>
     <footer class="legal-footer"><nav aria-label="Legal information"><a href="privacy.html">Privacy notice</a><a href="terms.html">Terms of use</a></nav></footer>
   </main>
   <script src="js/app-shell.js"></script>
+  <script type="module" src="js/settings-page.js"></script>
 </body>
 </html>

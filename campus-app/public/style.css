@@ -938,9 +938,6 @@ h2, h3, strong { font-weight: 650; }
 .theme-choice input:checked ~ .theme-choice-label .theme-check { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-on-accent); }
 .theme-choice input:focus-visible ~ .theme-preview { outline: 3px solid var(--color-accent-blue); outline-offset: 3px; }
 .settings-note { border-top: 1px solid var(--color-border); font-size: 12px; margin: 24px 0 0; padding-top: 18px; }
-.settings-account { align-items: center; display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; }
-.settings-account .card-title { margin-bottom: 4px; }
-.settings-account p { font-size: 13px; margin: 0; }
 .mobile-bottom-bar { background: var(--color-surface); gap: 2px; }
 .mobile-nav-link { flex-direction: column; font-size: 9px; gap: 2px; line-height: 1.2; }
 .mobile-nav-link .nav-icon { flex-basis: 20px; }
@@ -1213,7 +1210,57 @@ h2, h3, strong { font-weight: 650; }
 .theme-preview { height: 220px; border-width: 1px; padding: 22px; }
 .theme-choice input:checked ~ .theme-preview { box-shadow: 0 0 0 2px var(--color-accent); }
 .theme-choice-label { padding-top: 20px; }
-.settings-account { background: var(--color-shell); border-style: dashed; }
+
+/* Settings shares the app's surfaces and keeps each preference close to its label. */
+.settings-page.app-main { max-width: 1200px !important; width: 100%; }
+.settings-page .page-intro { padding-bottom: 24px; }
+.settings-profile { align-items: center; border-radius: 14px; display: flex; flex-wrap: wrap; gap: 18px; padding: 24px; }
+.settings-profile-mark { align-items: center; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: 50%; color: var(--color-text-secondary); display: flex; flex: 0 0 56px; height: 56px; justify-content: center; }
+.settings-profile-mark .nav-icon { height: 26px; width: 26px; }
+.settings-profile-copy { flex: 1 1 180px; min-width: 0; }
+.settings-profile .card-title { margin-bottom: 4px; }
+.settings-profile p { font-size: 13px; margin: 0; }
+.settings-profile .btn { margin: 0; }
+.settings-grid { align-items: start; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); }
+.settings-grid > .card { border: 1px solid var(--color-border); border-radius: 14px; margin: 0; min-width: 0; padding: 24px; }
+.settings-grid .card-title { font-family: inherit; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.settings-grid .muted { font-size: 13px; line-height: 1.65; }
+.settings-grid .theme-options { gap: 16px; }
+.settings-grid .theme-preview { height: 155px; padding: 12px; }
+.settings-grid .theme-choice-label { padding: 14px 2px 0; }
+.settings-grid .theme-choice-label small { font-size: 11px; }
+.settings-grid .theme-choice input { bottom: 16px; }
+.settings-grid .settings-note { font-size: 12px; margin-top: 20px; padding-top: 16px; }
+.settings-switch { align-items: center; border: 1px solid var(--color-border); border-radius: 12px; cursor: pointer; display: flex; gap: 16px; margin-top: 20px; min-height: 80px; padding: 16px; position: relative; }
+.settings-switch > span:first-child { flex: 1; min-width: 0; }
+.settings-switch strong { display: block; font-size: 13px; font-weight: 600; }
+.settings-switch small { color: var(--color-text-secondary); display: block; font-size: 12px; line-height: 1.6; margin-top: 4px; }
+.settings-switch input { height: 44px; margin: 0; opacity: 0; position: absolute; right: 12px; width: 48px; }
+.settings-switch-track { background: var(--color-input-border); border: 1px solid var(--color-border); border-radius: 20px; flex: 0 0 44px; height: 26px; pointer-events: none; position: relative; transition: background 150ms ease; }
+.settings-switch-track::before { background: var(--color-surface); border-radius: 50%; content: ''; height: 18px; left: 3px; position: absolute; top: 3px; transition: transform 150ms ease; width: 18px; }
+.settings-switch input:checked + .settings-switch-track { background: var(--color-accent); border-color: var(--color-accent); }
+.settings-switch input:checked + .settings-switch-track::before { background: var(--color-text-on-accent); transform: translateX(18px); }
+.settings-switch input:focus-visible + .settings-switch-track { outline: 3px solid var(--color-accent); outline-offset: 4px; }
+.settings-switch:has(input:disabled) { cursor: wait; opacity: 0.65; }
+.settings-status { font-size: 12px; line-height: 1.6; margin: 12px 0 0; }
+.settings-status:empty { display: none; }
+.settings-session > .btn { margin-top: 8px; }
+.settings-resource-links { display: grid; }
+.settings-resource-links a { align-items: center; border-bottom: 1px solid var(--color-border); color: var(--color-text-primary); display: flex; font-size: 13px; gap: 12px; min-height: 48px; padding: 10px 0; text-decoration: none; }
+.settings-resource-links a:last-child { border-bottom: 0; }
+.settings-resource-links a:hover { color: var(--color-accent-text); }
+.settings-resource-links .nav-icon { color: var(--color-text-secondary); height: 18px; width: 18px; }
+.settings-legal-note { margin: 12px 0 0; }
+@media (min-width: 1100px) {
+  .settings-grid { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+}
+@media (max-width: 479px) {
+  .settings-profile, .settings-grid > .card { padding: 20px; }
+  .settings-grid .theme-options { gap: 20px; grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .settings-switch-track, .settings-switch-track::before { transition: none; }
+}
 .document-layout { align-items: start; display: grid; gap: 36px; grid-template-columns: 190px minmax(0, 1fr); }
 .document-index { position: sticky; top: 110px; }
 .document-index nav { display: grid; gap: 0; }
