@@ -20,6 +20,7 @@
       <a class="btn secondary" href="profile.html?id=1">Edit profile</a>
     </section>
     <div class="settings-grid">
+    <div class="settings-column">
     <section class="card appearance-card" aria-labelledby="appearance-title">
       <div class="section-heading">
         <div><h2 id="appearance-title" class="card-title">Appearance</h2><p class="muted">Choose how your campus looks.</p></div>
@@ -39,6 +40,14 @@
       </fieldset>
       <p id="appearance-status" class="muted settings-note" role="status" aria-live="polite">Your choice is saved on this browser. You can change it anytime.</p>
     </section>
+    <section class="card settings-session" aria-labelledby="settings-account-title">
+      <h2 id="settings-account-title" class="card-title">Account</h2>
+      <p class="muted">Sign out of Lotus Campus on this browser.</p>
+      <button id="settings-logout" class="btn secondary" type="button" disabled>Log out</button>
+      <p id="logout-status" class="settings-status muted" role="status" aria-live="polite"></p>
+    </section>
+    </div>
+    <div class="settings-column">
     <section class="card settings-privacy" aria-labelledby="settings-privacy-title">
       <h2 id="settings-privacy-title" class="card-title">Messaging privacy</h2>
       <label class="settings-switch" for="allow-messages">
@@ -51,12 +60,6 @@
       <button id="settings-retry" class="btn secondary" type="button" hidden>Try again</button>
       <a id="settings-login" class="btn secondary" href="login.html" hidden>Log in</a>
     </section>
-    <section class="card settings-session" aria-labelledby="settings-account-title">
-      <h2 id="settings-account-title" class="card-title">Account</h2>
-      <p class="muted">Sign out of Lotus Campus on this browser.</p>
-      <button id="settings-logout" class="btn secondary" type="button" disabled>Log out</button>
-      <p id="logout-status" class="settings-status muted" role="status" aria-live="polite"></p>
-    </section>
     <section class="card settings-help" aria-labelledby="settings-help-title">
       <h2 id="settings-help-title" class="card-title">Help &amp; legal</h2>
       <nav class="settings-resource-links" aria-label="Help and legal information">
@@ -66,6 +69,7 @@
       </nav>
       <p class="muted settings-legal-note">Legal pages are drafts for review.</p>
     </section>
+    </div>
     </div>
     <footer class="legal-footer"><nav aria-label="Legal information"><a href="privacy.html">Privacy notice</a><a href="terms.html">Terms of use</a></nav></footer>
   </main>
