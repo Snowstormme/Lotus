@@ -1352,35 +1352,36 @@ body[data-page="login"] .shell-search-wrap, body[data-page="signup"] .shell-sear
 /* AI Assistant: full-width study desk with inline context controls inside the chat header. */
 .assistant-intro { align-items: center; flex-wrap: wrap; }
 .assistant-intro .heading-mark { background: var(--color-accent-surface); border-color: var(--color-accent-border); margin-top: 0; }
-.assistant-intro-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 12px; margin-left: auto; }
+.assistant-intro-actions { align-items: center; display: flex; gap: 12px; margin-left: auto; }
 .assistant-new-chat { flex: 0 0 auto; }
-#assistant-status { align-items: center; border-radius: var(--radius-pill); display: inline-flex; font-size: 12px; gap: 8px; margin: 0; padding: 6px 14px; width: fit-content; }
-#assistant-status::before { background: currentColor; border-radius: 50%; content: ''; flex: 0 0 7px; height: 7px; opacity: 0.85; }
-#assistant-status.success { background: var(--color-success-surface); border-color: var(--color-success-border); color: var(--color-success-text); padding: 6px 14px; }
 
 .assistant-layout { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; }
 
 /* Full-width conversation window */
 .assistant-conversation { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 22px; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; min-height: clamp(560px, calc(100vh - 230px), 900px); min-width: 0; overflow: hidden; }
-.assistant-chat-head { align-items: center; background: var(--color-surface); border-bottom: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: 14px 20px; justify-content: space-between; padding: 16px 24px; }
-.assistant-identity { align-items: center; display: flex; gap: 12px; min-width: 0; }
+.assistant-chat-head { align-items: center; background: var(--color-surface); border-bottom: 1px solid var(--color-border); display: flex; flex-wrap: nowrap; gap: 16px; justify-content: space-between; min-height: 70px; padding: 14px 24px; }
+.assistant-identity { align-items: center; display: flex; flex: 1 1 auto; gap: 12px; min-width: 0; }
 .assistant-avatar { border-radius: 11px; flex: 0 0 38px; height: 38px; width: 38px; }
 .assistant-chat-title { display: grid; gap: 2px; min-width: 0; }
-.assistant-title-row { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; min-width: 0; }
 .assistant-chat-title h2 { font-family: var(--font-display); font-size: 19px; font-weight: 400; letter-spacing: -0.3px; line-height: 1.25; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.assistant-online { align-items: center; color: var(--color-text-secondary); display: inline-flex; font-size: 11px; gap: 6px; }
-.assistant-online::before { background: var(--color-success); border-radius: 50%; box-shadow: 0 0 0 3px var(--color-success-surface); content: ''; height: 6px; width: 6px; }
-.assistant-count { background: var(--color-raised); border: 1px solid var(--color-border); border-radius: var(--radius-pill); color: var(--color-text-secondary); flex: 0 0 auto; font-size: 11px; font-weight: 600; padding: 2px 9px; }
+.assistant-chat-title #assistant-status,
+.assistant-chat-title #assistant-status.info,
+.assistant-chat-title #assistant-status.success,
+.assistant-chat-title #assistant-status.error { align-items: center; background: transparent; border: 0; border-radius: 0; color: var(--color-text-secondary); display: inline-flex; font-size: 11px; gap: 6px; height: 18px; line-height: 18px; margin: 0; overflow: hidden; padding: 0; text-overflow: ellipsis; white-space: nowrap; }
+.assistant-chat-title #assistant-status::before { background: var(--color-accent); border-radius: 50%; content: ''; flex: 0 0 6px; height: 6px; width: 6px; }
+.assistant-chat-title #assistant-status.success::before { background: var(--color-success); box-shadow: 0 0 0 3px var(--color-success-surface); }
+.assistant-chat-title #assistant-status.error { color: var(--color-danger-text); }
+.assistant-chat-title #assistant-status.error::before { background: var(--color-danger); }
 
 /* Inline Course & Mode controls inside chat header */
-.assistant-controls { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; }
-.assistant-control { align-items: center; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: 12px; display: inline-flex; gap: 8px; padding: 4px 6px 4px 12px; transition: border-color 140ms ease, box-shadow 140ms ease; }
+.assistant-controls { align-items: center; display: flex; flex: 0 0 auto; flex-wrap: nowrap; gap: 10px; }
+.assistant-control { align-items: center; background: var(--color-raised); border: 1px solid var(--color-border); border-radius: 12px; display: inline-flex; flex: 0 0 auto; gap: 8px; padding: 4px 6px 4px 12px; transition: border-color 140ms ease, box-shadow 140ms ease; }
 .assistant-control:hover { border-color: var(--color-input-border); }
 .assistant-control:focus-within { background: var(--color-surface); border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-accent-surface); }
 .assistant-control > label { color: var(--color-text-secondary); font-size: 10px; font-weight: 650; letter-spacing: 0.7px; text-transform: uppercase; user-select: none; white-space: nowrap; }
-.assistant-select { position: relative; }
+.assistant-select { position: relative; width: 180px; }
 .assistant-select::after { border-bottom: 1.6px solid var(--color-text-secondary); border-right: 1.6px solid var(--color-text-secondary); content: ''; height: 6px; pointer-events: none; position: absolute; right: 12px; top: 50%; transform: translateY(-65%) rotate(45deg); width: 6px; }
-.assistant-control select { appearance: none; -webkit-appearance: none; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; color: var(--color-text-primary); cursor: pointer; font-size: 13px; font-weight: 500; max-width: 240px; min-height: 34px; padding: 5px 30px 5px 10px; text-overflow: ellipsis; transition: border-color 140ms ease; }
+.assistant-control select { appearance: none; -webkit-appearance: none; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; color: var(--color-text-primary); cursor: pointer; display: block; font-size: 13px; font-weight: 500; min-height: 34px; overflow: hidden; padding: 5px 28px 5px 10px; text-overflow: ellipsis; transition: border-color 140ms ease; white-space: nowrap; width: 100%; }
 .assistant-control select:focus, .assistant-control select:focus-visible { border-color: var(--color-accent); outline: none; }
 
 .assistant-conversation .message-list { background: radial-gradient(110% 55% at 50% 0%, var(--color-accent-surface) 0%, transparent 62%), var(--color-shell); display: flex; flex: 1 1 auto; flex-direction: column; gap: 20px; list-style: none; margin: 0; max-height: 68vh; min-height: 380px; overflow-y: auto; padding: 32px clamp(20px, 5vw, 56px); scroll-behavior: smooth; }
@@ -1440,7 +1441,7 @@ body[data-page="login"] .shell-search-wrap, body[data-page="signup"] .shell-sear
   .assistant-chat-head { align-items: stretch; flex-direction: column; gap: 12px; padding: 14px 16px; }
   .assistant-controls { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
   .assistant-control { justify-content: space-between; width: 100%; }
-  .assistant-select { flex: 1 1 auto; min-width: 0; }
+  .assistant-select { flex: 1 1 auto; min-width: 0; width: auto; }
   .assistant-control select { max-width: none; width: 100%; }
 }
 @media (max-width: 520px) {
