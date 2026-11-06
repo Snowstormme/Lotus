@@ -11,9 +11,6 @@
 <body>
   <header class="site-header"><div class="page header-inner"><a class="brand" href="index.html">Lotus Campus</a><nav class="site-nav" aria-label="Main navigation"><a href="index.html">Campus</a><a href="schedule.html">Schedule</a><a href="courses.html">Courses</a><a href="profile.html?id=1">Profile</a><span class="auth-actions" id="auth-actions"><a id="login-link" href="login.html">Log in</a><a id="signup-link" href="signup.html">Sign up</a></span></nav></div></header>
   <main class="page assistant-page">
-    <header class="page-intro assistant-intro"><span class="heading-mark"><svg class="nav-icon" aria-hidden="true"><use href="img/icons.svg#ai"></use></svg></span><div class="page-intro-copy">
-      <h1 class="page-title">AI Assistant</h1>
-    </div><div class="assistant-intro-actions"><button id="new-chat" class="btn secondary assistant-new-chat" type="button">New chat</button></div></header>
     <div class="assistant-layout">
       <section class="assistant-conversation" aria-labelledby="messages-title">
         <div class="assistant-chat-head">
@@ -34,6 +31,7 @@
               <label for="mode-select">Mode</label>
               <div class="assistant-select"><select id="mode-select"><option value="explain">Explain</option><option value="summarize">Summarize pasted text</option><option value="quiz">Create practice questions</option><option value="plan">Plan my study</option><option value="study-plan">Study plan</option></select></div>
             </div>
+            <button id="new-chat" class="btn secondary assistant-new-chat" type="button">New chat</button>
           </div>
         </div>
         <section id="study-plan-panel" class="assistant-plan" aria-labelledby="study-plan-title" aria-live="polite" hidden>
