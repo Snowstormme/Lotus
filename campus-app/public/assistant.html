@@ -15,16 +15,28 @@
       <p class="eyebrow">STUDY COMPANION</p>
       <h1 class="page-title">AI Assistant</h1>
       <p class="muted">Ask clear study questions about your courses.</p>
-    </div><button id="new-chat" class="btn secondary assistant-new-chat" type="button">New chat</button></header>
-    <p id="assistant-status" class="alert info" role="status">Loading your courses...</p>
+    </div><div class="assistant-intro-actions"><p id="assistant-status" class="alert info" role="status">Loading your courses...</p><button id="new-chat" class="btn secondary assistant-new-chat" type="button">New chat</button></div></header>
     <div class="assistant-layout">
-      <section class="assistant-toolbar" aria-label="Assistant options">
-        <div class="assistant-panel-head"><p class="eyebrow">SESSION</p><h2 class="card-title">Set the context</h2></div>
-        <div class="field"><label for="course-select">Course</label><div class="assistant-select"><select id="course-select"><option value="">General study</option></select></div></div>
-        <div class="field"><label for="mode-select">Mode</label><div class="assistant-select"><select id="mode-select"><option value="explain">Explain</option><option value="summarize">Summarize pasted text</option><option value="quiz">Create practice questions</option><option value="plan">Plan my study</option><option value="study-plan">Study plan</option></select></div></div>
-        <div class="assistant-suggestions"><h2 class="assistant-subtitle">Try asking</h2><div class="suggestions"><button class="btn secondary suggestion" type="button" data-mode="explain">Explain this topic</button><button class="btn secondary suggestion" type="button" data-mode="summarize">Summarize my notes</button><button class="btn secondary suggestion" type="button" data-mode="explain">Help with an assignment</button><button class="btn secondary suggestion" type="button" data-mode="plan">Create a study plan</button><button class="btn secondary suggestion" type="button" data-mode="quiz">Make practice questions</button></div></div>
-      </section>
-      <div class="assistant-main">
+      <section class="assistant-conversation" aria-labelledby="messages-title">
+        <div class="assistant-chat-head">
+          <div class="assistant-identity">
+            <img class="assistant-avatar" src="/img/lotus-mark.svg" alt="" width="38" height="38">
+            <div class="assistant-chat-title">
+              <div class="assistant-title-row"><h2 id="messages-title">Lotus study assistant</h2><span id="message-count" class="assistant-count">0 messages</span></div>
+              <span class="assistant-online">Ready when you are</span>
+            </div>
+          </div>
+          <div class="assistant-controls" aria-label="Assistant options">
+            <div class="assistant-control">
+              <label for="course-select">Course</label>
+              <div class="assistant-select"><select id="course-select"><option value="">General study</option></select></div>
+            </div>
+            <div class="assistant-control">
+              <label for="mode-select">Mode</label>
+              <div class="assistant-select"><select id="mode-select"><option value="explain">Explain</option><option value="summarize">Summarize pasted text</option><option value="quiz">Create practice questions</option><option value="plan">Plan my study</option><option value="study-plan">Study plan</option></select></div>
+            </div>
+          </div>
+        </div>
         <section id="study-plan-panel" class="assistant-plan" aria-labelledby="study-plan-title" aria-live="polite" hidden>
           <div class="assistant-plan-head"><div><p class="eyebrow">YOUR WEEK</p><h2 id="study-plan-title" class="card-title">Study plan</h2></div><button id="generate-plan" class="btn primary" type="button">Generate plan</button></div>
           <p id="study-plan-status" class="alert info" role="status">Loading saved plan...</p>
@@ -32,22 +44,19 @@
           <p id="study-plan-summary" class="empty-state">Loading summary...</p>
           <div id="study-plan-weeks"><p class="empty-state">Loading weeks...</p></div>
         </section>
-        <section class="assistant-conversation" aria-labelledby="messages-title">
-          <div class="assistant-chat-head"><img class="assistant-avatar" src="/img/lotus-mark.svg" alt="" width="36" height="36"><div class="assistant-chat-title"><h2 id="messages-title">Lotus study assistant</h2><span class="assistant-online">Ready when you are</span></div><span id="message-count" class="assistant-count">0 messages</span></div>
-          <ol id="message-list" class="message-list" aria-live="polite"><li class="empty-state" id="message-empty">Start with a suggested prompt or ask a question below.</li></ol>
-          <div class="assistant-compose">
-            <form id="chat-form" class="chat-form">
-              <label class="sr-only" for="message-input">Your message</label>
-              <div class="assistant-composer-box">
-                <textarea id="message-input" maxlength="2000" rows="2" placeholder="Ask a study question..."></textarea>
-                <div class="assistant-composer-bar"><span class="assistant-hint"><kbd>Enter</kbd> to send · <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line</span><button id="send-button" class="btn primary assistant-send" type="submit">Send<svg class="assistant-send-icon" aria-hidden="true"><use href="img/icons.svg#arrow-right"></use></svg></button></div>
-              </div>
-              <span id="chat-status" class="muted chat-status" role="status"></span>
-            </form>
-            <p class="muted assistant-note">The assistant can make mistakes. Check important information with your course materials.</p>
-          </div>
-        </section>
-      </div>
+        <ol id="message-list" class="message-list" aria-live="polite"><li class="empty-state" id="message-empty">Start with a suggested prompt or ask a question below.</li></ol>
+        <div class="assistant-compose">
+          <form id="chat-form" class="chat-form">
+            <label class="sr-only" for="message-input">Your message</label>
+            <div class="assistant-composer-box">
+              <textarea id="message-input" maxlength="2000" rows="2" placeholder="Ask a study question..."></textarea>
+              <div class="assistant-composer-bar"><span class="assistant-hint"><kbd>Enter</kbd> to send · <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line</span><button id="send-button" class="btn primary assistant-send" type="submit">Send<svg class="assistant-send-icon" aria-hidden="true"><use href="img/icons.svg#arrow-right"></use></svg></button></div>
+            </div>
+            <span id="chat-status" class="muted chat-status" role="status"></span>
+          </form>
+          <p class="muted assistant-note">The assistant can make mistakes. Check important information with your course materials.</p>
+        </div>
+      </section>
     </div>
     <footer class="legal-footer">
       <nav aria-label="Legal information">
