@@ -1019,14 +1019,14 @@ h2, h3, strong { font-weight: 650; }
 .shell-search-wrap { margin-left: auto; max-width: 460px; }
 .shell-search { background: var(--color-surface); }
 .shell-sidebar .shell-nav-link { min-height: 44px; font-size: 12px; }
-.page-intro { align-items: flex-start; border-bottom: 1px solid var(--color-border); display: flex; gap: 18px; margin-bottom: 28px; padding-bottom: 28px; }
+.page-intro { align-items: center; border-bottom: 1px solid var(--color-border); display: flex; gap: 18px; margin-bottom: 24px; padding-bottom: 22px; }
 .page-intro-copy { min-width: 0; }
 .page-intro .eyebrow { font-size: 9px; letter-spacing: 1.8px; margin-bottom: 10px; }
-.heading-mark { align-items: center; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 13px; color: var(--color-accent-text); display: flex; flex: 0 0 48px; height: 48px; justify-content: center; margin-top: 18px; }
+.heading-mark { align-items: center; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 13px; color: var(--color-accent-text); display: flex; flex: 0 0 48px; height: 48px; justify-content: center; margin-top: 0; }
 .page-title, .app-main.page > .page-title, .app-main.page > .section-heading .page-title, .schedule-page-header .page-title, .page-intro .page-title {
   font-family: var(--font-display); font-size: clamp(34px, 4vw, 46px); font-weight: 400; letter-spacing: -1.5px; line-height: 1.08;
 }
-.page-intro .page-title { margin-bottom: 12px; }
+.page-intro .page-title, .feed-page-heading .page-title { margin-bottom: 0; }
 .page-intro .muted { font-size: 13px; }
 .card { box-shadow: none; }
 .card-title, .card h2 { font-size: 16px; font-weight: 600; }
@@ -1294,8 +1294,8 @@ body[data-page="login"] .shell-search-wrap, body[data-page="signup"] .shell-sear
   .home-shortcuts .action-card .action-icon { flex-basis: auto; }
   .home-shortcuts .action-card strong { font-size: 12px; }
   .home-shortcuts .action-card small { font-size: 10px; }
-  .heading-mark { flex-basis: 40px; height: 40px; margin-top: 18px; }
-  .page-intro { gap: 14px; padding-bottom: 24px; }
+  .heading-mark { flex-basis: 40px; height: 40px; margin-top: 0; }
+  .page-intro { gap: 14px; padding-bottom: 18px; }
   .page-title, .page-intro .page-title { font-size: 36px; }
   .page-intro .muted { font-size: 12px; }
   .feed-post, .feed-composer, .feed-events-panel { padding: 20px; }
